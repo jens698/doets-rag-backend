@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doets Kennisdatabank — Admin Panel</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: linear-gradient(135deg, #0D1F3C 0%, #1a3a5c 100%);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #C9A84C 0%, #d4b55e 100%);
+      padding: 2rem;
+      color: white;
+    }
+    .header h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    .header p {
+      opacity: 0.9;
+    }
+    .content {
+      padding: 2rem;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 8px;
+      border-left: 4px solid #C9A84C;
+    }
+    .stat-label {
+      font-size: 0.875rem;
+      color: #6c757d;
+      margin-bottom: 0.5rem;
+    }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #0D1F3C;
+    }
+    .section {
+      margin-bottom: 2rem;
+    }
+    .section-title {
+      font-size: 1.25rem;
+      color: #0D1F3C;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #C9A84C;
+    }
+    .upload-area {
+      border: 2px dashed #C9A84C;
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      background: #fffbf0;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .upload-area:hover {
+      background: #fff4d6;
+      border-color: #b89638;
+    }
+    .upload-area.dragging {
+      background: #fff4d6;
+      border-color: #b89638;
+      transform: scale(1.02);
+    }
+    .upload-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    input[type="file"] {
+      display: none;
+    }
+    .btn {
+      background: #C9A84C;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn:hover {
+      background: #b89638;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(201, 168, 76, 0.3);
+    }
+    .btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .log {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 1rem;
+      max-height: 400px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 0.875rem;
+    }
+    .log-entry {
+      padding: 0.5rem;
+      border-bottom: 1px solid #e9ecef;
+    }
+    .log-entry:last-child {
+      border-bottom: none;
+    }
+    .log-entry.success {
+      color: #28a745;
+    }
+    .log-entry.error {
+      color: #dc3545;
+    }
+    .log-entry.info {
+      color: #17a2b8;
+    }
+    .test-search {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .test-search input {
+      flex: 1;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+    .search-results {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 1rem;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .search-result {
+      background: white;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
+      border-left: 3px solid #C9A84C;
+    }
+    .result-score {
+      font-size: 0.75rem;
+      color: #6c757d;
+      margin-bottom: 0.5rem;
+    }
+    .result-source {
+      font-weight: bold;
+      color: #0D1F3C;
+      margin-bottom: 0.5rem;
+    }
+    .result-text {
+      font-size: 0.875rem;
+      color: #495057;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📚 Kennisdatabank Admin</h1>
+      <p>Upload documenten en beheer je Doets kennisdatabank</p>
+    </div>
+    
+    <div class="content">
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-label">Totaal Vectors</div>
+          <div class="stat-value" id="stat-vectors">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Database Status</div>
+          <div class="stat-value" id="stat-status">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Dimensies</div>
+          <div class="stat-value" id="stat-dimension">-</div>
+        </div>
+      </div>
+      
+      <div class="section">
+        <h2 class="section-title">📤 Document Uploaden</h2>
+        <div class="upload-area" id="upload-area" onclick="document.getElementById('file-input').click()">
+          <div class="upload-icon">📄</div>
+          <p><strong>Klik om een bestand te selecteren</strong></p>
+          <p style="font-size: 0.875rem; color: #6c757d; margin-top: 0.5rem;">
+            Of sleep een bestand hierheen<br>
+            Ondersteund: PDF, DOCX, TXT (max 10MB)
+          </p>
+          <input type="file" id="file-input" accept=".pdf,.docx,.txt" onchange="handleFileSelect(event)">
+        </div>
+      </div>
+      
+      <div class="section">
+        <h2 class="section-title">🔍 Test Zoekfunctie</h2>
+        <div class="test-search">
+          <input type="text" id="search-query" placeholder="Zoek in de kennisdatabank..." onkeypress="if(event.key==='Enter') testSearch()">
+          <button class="btn" onclick="testSearch()">Zoeken</button>
+        </div>
+        <div class="search-results" id="search-results" style="display: none;"></div>
+      </div>
+      
+      <div class="section">
+        <h2 class="section-title">📋 Activiteit Log</h2>
+        <div class="log" id="activity-log">
+          <div class="log-entry info">Wachten op activiteit...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    const API_URL = window.location.origin;
+    
+    loadStats();
+    
+    async function loadStats() {
+      try {
+        const response = await fetch(`${API_URL}/api/stats`);
+        const data = await response.json();
+        
+        document.getElementById('stat-vectors').textContent = data.totalVectors || 0;
+        document.getElementById('stat-status').textContent = data.status || 'unknown';
+        document.getElementById('stat-dimension').textContent = data.dimension || '-';
+        
+        addLog('info', `Stats geladen: ${data.totalVectors} vectors`);
+      } catch (error) {
+        addLog('error', `Fout bij laden stats: ${error.message}`);
+      }
+    }
+    
+    const uploadArea = document.getElementById('upload-area');
+    
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('dragging');
+    });
+    
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('dragging');
+    });
+    
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragging');
+      
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        uploadFile(files[0]);
+      }
+    });
+    
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (file) {
+        uploadFile(file);
+      }
+    }
+    
+    async function uploadFile(file) {
+      addLog('info', `Uploaden: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`);
+      
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      try {
+        const response = await fetch(`${API_URL}/api/upload`, {
+          method: 'POST',
+          body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          addLog('success', `✓ ${file.name} succesvol geüpload: ${data.chunks} chunks, ${data.vectors} vectors`);
+          loadStats();
+        } else {
+          addLog('error', `✗ Upload mislukt: ${data.error}`);
+        }
+      } catch (error) {
+        addLog('error', `✗ Upload fout: ${error.message}`);
+      }
+      
+      document.getElementById('file-input').value = '';
+    }
+    
+    async function testSearch() {
+      const query = document.getElementById('search-query').value.trim();
+      if (!query) return;
+      
+      addLog('info', `Zoeken naar: "${query}"`);
+      
+      try {
+        const response = await fetch(`${API_URL}/api/search`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query, topK: 5 })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          displaySearchResults(data.results);
+          addLog('success', `✓ ${data.count} resultaten gevonden`);
+        } else {
+          addLog('error', `✗ Zoeken mislukt: ${data.error}`);
+        }
+      } catch (error) {
+        addLog('error', `✗ Zoek fout: ${error.message}`);
+      }
+    }
+    
+    function displaySearchResults(results) {
+      const container = document.getElementById('search-results');
+      
+      if (results.length === 0) {
+        container.innerHTML = '<p style="padding: 1rem; text-align: center; color: #6c757d;">Geen resultaten gevonden</p>';
+        container.style.display = 'block';
+        return;
+      }
+      
+      container.innerHTML = results.map(r => `
+        <div class="search-result">
+          <div class="result-score">Score: ${r.score.toFixed(4)}</div>
+          <div class="result-source">📄 ${r.documentName}</div>
+          <div class="result-text">${r.text}</div>
+        </div>
+      `).join('');
+      
+      container.style.display = 'block';
+    }
+    
+    function addLog(type, message) {
+      const log = document.getElementById('activity-log');
+      const timestamp = new Date().toLocaleTimeString('nl-NL');
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      entry.textContent = `[${timestamp}] ${message}`;
+      log.insertBefore(entry, log.firstChild);
+      
+      while (log.children.length > 50) {
+        log.removeChild(log.lastChild);
+      }
+    }
+  </script>
+</body>
+</html>

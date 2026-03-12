@@ -1,0 +1,12 @@
+{
+  "name": "doets-rag-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.20.0",
+    "@pinecone-database/pinecone": "^2.0.0",
+    "mammoth": "^1.6.0",
+    "pdf-parse": "^1.1.1",
+    "formidable": "^3.5.1"
+  }
+}

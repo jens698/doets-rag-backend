@@ -34,18 +34,21 @@ export default async function handler(req, res) {
           const context = searchResults
             .map((r, i) => `[Bron ${i + 1}: ${r.documentName}]\n${r.text}`)
             .join('\n\n---\n\n');
-          
-          enhancedSystem = `${system}\n\n## ACTUELE INFORMATIE UIT KENNISDATABANK:\n\n${context}\n\n## INSTRUCTIE:\nGebruik bovenstaande actuele informatie uit de Doets kennisdatabank bij het beantwoorden van de vraag. Verwijs naar bronnen waar relevant.`;
+
+          enhancedSystem = `${system}\n\n## INFORMATIE UIT KENNISDATABANK:\n\n${context}\n\n## STRIKTE INSTRUCTIE:\nBeantwoord de vraag UITSLUITEND op basis van bovenstaande informatie uit de Doets kennisdatabank. Gebruik NOOIT je eigen trainingskennis of externe bronnen. Als de kennisdatabank onvoldoende informatie bevat om de vraag te beantwoorden, zeg dan letterlijk: "Ik heb hierover geen informatie in de kennisdatabank. Neem contact op met Doets Reizen voor meer informatie." Verwijs altijd naar de bronnaam.`;
+        } else {
+          enhancedSystem = `${system}\n\n## STRIKTE INSTRUCTIE:\nEr zijn geen relevante documenten gevonden in de kennisdatabank voor deze vraag. Geef GEEN antwoord op basis van eigen kennis. Zeg letterlijk: "Ik heb hierover geen informatie in de kennisdatabank. Neem contact op met Doets Reizen voor meer informatie."`;
         }
       } catch (ragError) {
         console.error('RAG search failed:', ragError);
+        enhancedSystem = `${system}\n\n## STRIKTE INSTRUCTIE:\nDe kennisdatabank is momenteel niet beschikbaar. Geef GEEN antwoord op basis van eigen kennis. Laat weten dat de kennisdatabank tijdelijk niet bereikbaar is.`;
       }
     }
     
     const anthropic = new Anthropic({ apiKey });
     
     const response = await anthropic.messages.create({
-      model: 'claude-opus-4-5-20251101',
+      model: 'claude-sonnet-4-6',
       max_tokens: 2000,
       system: enhancedSystem,
       messages: messages

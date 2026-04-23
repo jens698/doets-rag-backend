@@ -3,368 +3,306 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Doets Kennisdatabank — Admin Panel</title>
+  <title>Doets Kennisdatabank — Beheer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --navy: #0D1F3C;
+      --navy-light: #162d56;
+      --gold: #C9A84C;
+      --gold-pale: #f9f3e3;
+      --white: #ffffff;
+      --gray-50: #f8f9fa;
+      --gray-200: #e9ecef;
+      --gray-400: #adb5bd;
+      --gray-600: #6c757d;
+      --gray-800: #343a40;
+    }
+
     body {
-      font-family: 'Inter', -apple-system, sans-serif;
-      background: linear-gradient(135deg, #0D1F3C 0%, #1a3a5c 100%);
+      font-family: 'Inter', sans-serif;
+      background: var(--navy);
       min-height: 100vh;
-      padding: 2rem;
+      color: var(--gray-800);
+      overflow-x: hidden;
     }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      overflow: hidden;
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(201, 168, 76, 0.06) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(201, 168, 76, 0.04) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
     }
-    .header {
-      background: linear-gradient(135deg, #C9A84C 0%, #d4b55e 100%);
-      padding: 2rem;
-      color: white;
-    }
-    .header h1 {
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
-    }
-    .header p {
-      opacity: 0.9;
-    }
-    .content {
-      padding: 2rem;
-    }
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-    .stat-card {
-      background: #f8f9fa;
-      padding: 1.5rem;
-      border-radius: 8px;
-      border-left: 4px solid #C9A84C;
-    }
-    .stat-label {
-      font-size: 0.875rem;
-      color: #6c757d;
-      margin-bottom: 0.5rem;
-    }
-    .stat-value {
-      font-size: 2rem;
-      font-weight: bold;
-      color: #0D1F3C;
-    }
-    .section {
-      margin-bottom: 2rem;
-    }
-    .section-title {
-      font-size: 1.25rem;
-      color: #0D1F3C;
-      margin-bottom: 1rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 2px solid #C9A84C;
-    }
-    .upload-area {
-      border: 2px dashed #C9A84C;
-      border-radius: 8px;
-      padding: 2rem;
-      text-align: center;
-      background: #fffbf0;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .upload-area:hover {
-      background: #fff4d6;
-      border-color: #b89638;
-    }
-    .upload-area.dragging {
-      background: #fff4d6;
-      border-color: #b89638;
-      transform: scale(1.02);
-    }
-    .upload-icon {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-    }
-    input[type="file"] {
-      display: none;
-    }
-    .btn {
-      background: #C9A84C;
-      color: white;
-      border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 6px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .btn:hover {
-      background: #b89638;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(201, 168, 76, 0.3);
-    }
-    .btn:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-      transform: none;
-    }
-    .log {
-      background: #f8f9fa;
-      border-radius: 8px;
-      padding: 1rem;
-      max-height: 400px;
-      overflow-y: auto;
-      font-family: 'Courier New', monospace;
-      font-size: 0.875rem;
-    }
-    .log-entry {
-      padding: 0.5rem;
-      border-bottom: 1px solid #e9ecef;
-    }
-    .log-entry:last-child {
-      border-bottom: none;
-    }
-    .log-entry.success {
-      color: #28a745;
-    }
-    .log-entry.error {
-      color: #dc3545;
-    }
-    .log-entry.info {
-      color: #17a2b8;
-    }
-    .test-search {
+
+    .layout { display: flex; min-height: 100vh; position: relative; z-index: 1; }
+
+    .sidebar {
+      width: 260px;
+      background: rgba(255,255,255,0.03);
+      border-right: 1px solid rgba(201, 168, 76, 0.15);
+      padding: 2.5rem 1.5rem;
       display: flex;
-      gap: 1rem;
-      margin-bottom: 1rem;
+      flex-direction: column;
+      gap: 2rem;
+      flex-shrink: 0;
     }
-    .test-search input {
-      flex: 1;
-      padding: 0.75rem;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 1rem;
-    }
-    .search-results {
-      background: #f8f9fa;
-      border-radius: 8px;
-      padding: 1rem;
-      max-height: 300px;
-      overflow-y: auto;
-    }
-    .search-result {
-      background: white;
-      padding: 1rem;
-      border-radius: 6px;
-      margin-bottom: 0.5rem;
-      border-left: 3px solid #C9A84C;
-    }
-    .result-score {
-      font-size: 0.75rem;
-      color: #6c757d;
-      margin-bottom: 0.5rem;
-    }
-    .result-source {
-      font-weight: bold;
-      color: #0D1F3C;
-      margin-bottom: 0.5rem;
-    }
-    .result-text {
-      font-size: 0.875rem;
-      color: #495057;
-    }
+
+    .logo { padding-bottom: 1.5rem; border-bottom: 1px solid rgba(201, 168, 76, 0.2); }
+    .logo-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.5rem; }
+    .logo-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--white); line-height: 1.2; }
+
+    .nav { display: flex; flex-direction: column; gap: 0.25rem; }
+    .nav-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 8px; color: rgba(255,255,255,0.5); font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: all 0.2s; border: none; background: none; width: 100%; text-align: left; }
+    .nav-item:hover, .nav-item.active { background: rgba(201, 168, 76, 0.1); color: var(--gold); }
+    .nav-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0.6; }
+
+    .sidebar-footer { margin-top: auto; padding-top: 1.5rem; border-top: 1px solid rgba(201, 168, 76, 0.15); }
+    .status-pill { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.75rem; border-radius: 20px; background: rgba(45, 106, 79, 0.2); border: 1px solid rgba(45, 106, 79, 0.4); font-size: 0.75rem; font-weight: 500; color: #6fcf97; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #6fcf97; animation: pulse 2s infinite; }
+
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    .main { flex: 1; padding: 2.5rem 3rem; overflow-y: auto; }
+    .page-header { margin-bottom: 2.5rem; animation: fadeUp 0.5s ease both; }
+    .page-title { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--white); margin-bottom: 0.5rem; }
+    .page-subtitle { color: rgba(255,255,255,0.4); font-size: 0.9rem; font-weight: 300; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(201, 168, 76, 0.15); border-radius: 12px; padding: 1.5rem; animation: fadeUp 0.5s ease both; transition: border-color 0.3s; }
+    .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .stat-card:nth-child(3) { animation-delay: 0.3s; }
+    .stat-card:hover { border-color: rgba(201, 168, 76, 0.35); }
+    .stat-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 0.75rem; }
+    .stat-value { font-size: 2.25rem; font-weight: 300; color: var(--white); line-height: 1; }
+    .stat-value.gold { color: var(--gold); }
+
+    .card { background: var(--white); border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem; animation: fadeUp 0.5s ease both; animation-delay: 0.4s; }
+    .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--gray-200); }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--navy); }
+
+    .upload-zone { border: 1.5px dashed var(--gray-200); border-radius: 12px; padding: 3rem 2rem; text-align: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); background: var(--gray-50); position: relative; overflow: hidden; }
+    .upload-zone::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(201, 168, 76, 0.05) 0%, transparent 100%); opacity: 0; transition: opacity 0.3s; }
+    .upload-zone:hover::before, .upload-zone.dragging::before { opacity: 1; }
+    .upload-zone:hover, .upload-zone.dragging { border-color: var(--gold); background: var(--gold-pale); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(201, 168, 76, 0.15); }
+    .upload-zone.uploading { pointer-events: none; }
+
+    .upload-icon-wrap { width: 56px; height: 56px; border-radius: 14px; background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; transition: transform 0.3s; }
+    .upload-zone:hover .upload-icon-wrap { transform: scale(1.08); }
+    .upload-icon { width: 24px; height: 24px; fill: none; stroke: var(--gold); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .upload-title { font-size: 0.95rem; font-weight: 600; color: var(--navy); margin-bottom: 0.35rem; }
+    .upload-sub { font-size: 0.8rem; color: var(--gray-600); }
+    input[type="file"] { display: none; }
+
+    .progress-wrap { display: none; margin-top: 1.25rem; }
+    .progress-wrap.visible { display: block; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--gray-600); margin-bottom: 0.4rem; }
+    .progress-bar { height: 4px; background: var(--gray-200); border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--navy) 0%, var(--gold) 100%); border-radius: 2px; width: 0%; transition: width 0.4s ease; animation: shimmer 1.5s infinite; }
+    @keyframes shimmer { 0% { filter: brightness(1); } 50% { filter: brightness(1.2); } 100% { filter: brightness(1); } }
+
+    .search-row { display: flex; gap: 0.75rem; }
+    .input { flex: 1; padding: 0.75rem 1rem; border: 1.5px solid var(--gray-200); border-radius: 8px; font-size: 0.9rem; font-family: 'Inter', sans-serif; color: var(--gray-800); background: var(--gray-50); transition: all 0.2s; outline: none; }
+    .input:focus { border-color: var(--gold); background: var(--white); box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.1); }
+
+    .btn { padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 0.875rem; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; border: none; transition: all 0.2s; letter-spacing: 0.02em; }
+    .btn-primary { background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%); color: var(--white); }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(13, 31, 60, 0.3); }
+    .btn-primary:active { transform: none; }
+
+    .results-wrap { display: none; margin-top: 1rem; }
+    .results-wrap.visible { display: block; }
+    .result-item { padding: 1rem; border-radius: 8px; border: 1px solid var(--gray-200); margin-bottom: 0.75rem; transition: border-color 0.2s; }
+    .result-item:hover { border-color: var(--gold); }
+    .result-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
+    .result-source { font-size: 0.8rem; font-weight: 600; color: var(--navy); }
+    .result-score { font-size: 0.7rem; padding: 0.2rem 0.5rem; background: var(--gold-pale); color: var(--navy); border-radius: 4px; font-weight: 600; }
+    .result-text { font-size: 0.85rem; color: var(--gray-600); line-height: 1.6; }
+
+    .log { background: var(--navy); border-radius: 10px; padding: 1.25rem; max-height: 280px; overflow-y: auto; font-family: 'Inter', monospace; font-size: 0.78rem; }
+    .log::-webkit-scrollbar { width: 4px; }
+    .log::-webkit-scrollbar-thumb { background: rgba(201, 168, 76, 0.3); border-radius: 2px; }
+    .log-entry { padding: 0.4rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; gap: 0.75rem; align-items: baseline; }
+    .log-entry:last-child { border-bottom: none; }
+    .log-time { color: rgba(255,255,255,0.25); font-size: 0.7rem; white-space: nowrap; flex-shrink: 0; }
+    .log-msg { color: rgba(255,255,255,0.6); }
+    .log-msg.success { color: #6fcf97; }
+    .log-msg.error { color: #eb5757; }
+    .log-msg.info { color: var(--gold); }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>📚 Kennisdatabank Admin</h1>
-      <p>Upload documenten en beheer je Doets kennisdatabank</p>
-    </div>
-    
-    <div class="content">
-      <div class="stats">
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="logo">
+        <div class="logo-label">Doets Reizen</div>
+        <div class="logo-title">Kennisdatabank<br>Beheer</div>
+      </div>
+      <nav class="nav">
+        <button class="nav-item active"><span class="nav-dot"></span>Dashboard</button>
+        <button class="nav-item"><span class="nav-dot"></span>Documenten</button>
+        <button class="nav-item"><span class="nav-dot"></span>Zoektest</button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="status-pill">
+          <span class="status-dot"></span>
+          <span id="sidebar-status">Verbinding OK</span>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="page-header">
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Beheer de inhoud van de Doets kennisdatabank</p>
+      </div>
+
+      <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-label">Totaal Vectors</div>
-          <div class="stat-value" id="stat-vectors">-</div>
+          <div class="stat-label">Totaal vectors</div>
+          <div class="stat-value gold" id="stat-vectors">—</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Database Status</div>
-          <div class="stat-value" id="stat-status">-</div>
+          <div class="stat-label">Database status</div>
+          <div class="stat-value" id="stat-status" style="font-size:1.25rem;padding-top:0.5rem;">—</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Dimensies</div>
-          <div class="stat-value" id="stat-dimension">-</div>
+          <div class="stat-value" id="stat-dimension">—</div>
         </div>
       </div>
-      
-      <div class="section">
-        <h2 class="section-title">📤 Document Uploaden</h2>
-        <div class="upload-area" id="upload-area" onclick="document.getElementById('file-input').click()">
-          <div class="upload-icon">📄</div>
-          <p><strong>Klik om een bestand te selecteren</strong></p>
-          <p style="font-size: 0.875rem; color: #6c757d; margin-top: 0.5rem;">
-            Of sleep een bestand hierheen<br>
-            Ondersteund: PDF, DOCX, TXT (max 10MB)
-          </p>
+
+      <div class="card">
+        <div class="card-header"><h2 class="card-title">Document uploaden</h2></div>
+        <div class="upload-zone" id="upload-area" onclick="document.getElementById('file-input').click()">
+          <div class="upload-icon-wrap">
+            <svg class="upload-icon" viewBox="0 0 24 24">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <div class="upload-title">Sleep een bestand hierheen of klik om te selecteren</div>
+          <div class="upload-sub">PDF, DOCX of TXT — maximaal 10 MB</div>
           <input type="file" id="file-input" accept=".pdf,.docx,.txt" onchange="handleFileSelect(event)">
         </div>
-      </div>
-      
-      <div class="section">
-        <h2 class="section-title">🔍 Test Zoekfunctie</h2>
-        <div class="test-search">
-          <input type="text" id="search-query" placeholder="Zoek in de kennisdatabank..." onkeypress="if(event.key==='Enter') testSearch()">
-          <button class="btn" onclick="testSearch()">Zoeken</button>
+        <div class="progress-wrap" id="progress-wrap">
+          <div class="progress-label">
+            <span id="progress-text">Verwerken...</span>
+            <span id="progress-pct"></span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
         </div>
-        <div class="search-results" id="search-results" style="display: none;"></div>
       </div>
-      
-      <div class="section">
-        <h2 class="section-title">📋 Activiteit Log</h2>
+
+      <div class="card" style="animation-delay:0.5s;">
+        <div class="card-header"><h2 class="card-title">Zoekfunctie testen</h2></div>
+        <div class="search-row">
+          <input class="input" type="text" id="search-query" placeholder="Voer een zoekopdracht in..." onkeypress="if(event.key==='Enter') testSearch()">
+          <button class="btn btn-primary" onclick="testSearch()">Zoeken</button>
+        </div>
+        <div class="results-wrap" id="results-wrap"></div>
+      </div>
+
+      <div class="card" style="animation-delay:0.6s;">
+        <div class="card-header"><h2 class="card-title">Activiteitenlog</h2></div>
         <div class="log" id="activity-log">
-          <div class="log-entry info">Wachten op activiteit...</div>
+          <div class="log-entry"><span class="log-time">—</span><span class="log-msg info">Systeem gereed</span></div>
         </div>
       </div>
-    </div>
+    </main>
   </div>
-  
+
   <script>
-    const API_URL = window.location.origin;
-    
+    const API = window.location.origin;
     loadStats();
-    
+
     async function loadStats() {
       try {
-        const response = await fetch(`${API_URL}/api/stats`);
-        const data = await response.json();
-        
-        document.getElementById('stat-vectors').textContent = data.totalVectors || 0;
-        document.getElementById('stat-status').textContent = data.status || 'unknown';
-        document.getElementById('stat-dimension').textContent = data.dimension || '-';
-        
-        addLog('info', `Stats geladen: ${data.totalVectors} vectors`);
-      } catch (error) {
-        addLog('error', `Fout bij laden stats: ${error.message}`);
+        const res = await fetch(`${API}/api/stats`);
+        const data = await res.json();
+        document.getElementById('stat-vectors').textContent = data.totalVectors ?? 0;
+        document.getElementById('stat-status').textContent = data.status === 'healthy' ? 'Gezond' : data.status ?? '—';
+        document.getElementById('stat-dimension').textContent = data.dimension ?? '—';
+        document.getElementById('sidebar-status').textContent = 'Verbinding OK';
+        log('info', `Database geladen — ${data.totalVectors ?? 0} vectors`);
+      } catch (e) {
+        document.getElementById('sidebar-status').textContent = 'Offline';
+        log('error', `Verbindingsfout: ${e.message}`);
       }
     }
-    
-    const uploadArea = document.getElementById('upload-area');
-    
-    uploadArea.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      uploadArea.classList.add('dragging');
-    });
-    
-    uploadArea.addEventListener('dragleave', () => {
-      uploadArea.classList.remove('dragging');
-    });
-    
-    uploadArea.addEventListener('drop', (e) => {
-      e.preventDefault();
-      uploadArea.classList.remove('dragging');
-      
-      const files = e.dataTransfer.files;
-      if (files.length > 0) {
-        uploadFile(files[0]);
-      }
-    });
-    
-    function handleFileSelect(event) {
-      const file = event.target.files[0];
-      if (file) {
-        uploadFile(file);
-      }
-    }
-    
+
+    const zone = document.getElementById('upload-area');
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragging'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragging'));
+    zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('dragging'); if (e.dataTransfer.files[0]) uploadFile(e.dataTransfer.files[0]); });
+
+    function handleFileSelect(e) { if (e.target.files[0]) uploadFile(e.target.files[0]); }
+
     async function uploadFile(file) {
-      addLog('info', `Uploaden: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`);
-      
-      const formData = new FormData();
-      formData.append('file', file);
-      
+      log('info', `Uploaden: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
+      zone.classList.add('uploading');
+      showProgress('Bestand verwerken...');
+      const fd = new FormData();
+      fd.append('file', file);
       try {
-        const response = await fetch(`${API_URL}/api/upload`, {
-          method: 'POST',
-          body: formData
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-          addLog('success', `✓ ${file.name} succesvol geüpload: ${data.chunks} chunks, ${data.vectors} vectors`);
-          loadStats();
+        animateProgress();
+        const res = await fetch(`${API}/api/upload`, { method: 'POST', body: fd });
+        const data = await res.json();
+        if (res.ok) {
+          setProgress(100, 'Klaar');
+          log('success', `${file.name} — ${data.chunks} fragmenten, ${data.vectors} vectors opgeslagen`);
+          setTimeout(() => { hideProgress(); loadStats(); }, 1200);
         } else {
-          addLog('error', `✗ Upload mislukt: ${data.error}`);
+          hideProgress();
+          log('error', `Upload mislukt: ${data.error}`);
         }
-      } catch (error) {
-        addLog('error', `✗ Upload fout: ${error.message}`);
+      } catch (e) {
+        hideProgress();
+        log('error', `Fout: ${e.message}`);
       }
-      
+      zone.classList.remove('uploading');
       document.getElementById('file-input').value = '';
     }
-    
+
+    let progressInterval;
+    function showProgress(text) { document.getElementById('progress-wrap').classList.add('visible'); document.getElementById('progress-text').textContent = text; setProgress(0); }
+    function animateProgress() { let pct = 0; progressInterval = setInterval(() => { pct = Math.min(pct + Math.random() * 8, 85); setProgress(pct); }, 300); }
+    function setProgress(pct, label) { clearInterval(progressInterval); document.getElementById('progress-fill').style.width = pct + '%'; if (label) document.getElementById('progress-text').textContent = label; }
+    function hideProgress() { clearInterval(progressInterval); document.getElementById('progress-wrap').classList.remove('visible'); setProgress(0); }
+
     async function testSearch() {
-      const query = document.getElementById('search-query').value.trim();
-      if (!query) return;
-      
-      addLog('info', `Zoeken naar: "${query}"`);
-      
+      const q = document.getElementById('search-query').value.trim();
+      if (!q) return;
+      log('info', `Zoeken: "${q}"`);
       try {
-        const response = await fetch(`${API_URL}/api/search`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query, topK: 5 })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-          displaySearchResults(data.results);
-          addLog('success', `✓ ${data.count} resultaten gevonden`);
-        } else {
-          addLog('error', `✗ Zoeken mislukt: ${data.error}`);
-        }
-      } catch (error) {
-        addLog('error', `✗ Zoek fout: ${error.message}`);
-      }
+        const res = await fetch(`${API}/api/search`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: q, topK: 5 }) });
+        const data = await res.json();
+        const wrap = document.getElementById('results-wrap');
+        wrap.classList.add('visible');
+        if (!data.results || data.results.length === 0) { wrap.innerHTML = '<p style="text-align:center;color:var(--gray-400);padding:1rem;font-size:0.875rem;">Geen resultaten gevonden</p>'; return; }
+        wrap.innerHTML = data.results.map(r => `<div class="result-item"><div class="result-meta"><span class="result-source">${r.documentName}</span><span class="result-score">${(r.score * 100).toFixed(1)}% match</span></div><div class="result-text">${r.text}</div></div>`).join('');
+        log('success', `${data.count} resultaten gevonden voor "${q}"`);
+      } catch (e) { log('error', `Zoekfout: ${e.message}`); }
     }
-    
-    function displaySearchResults(results) {
-      const container = document.getElementById('search-results');
-      
-      if (results.length === 0) {
-        container.innerHTML = '<p style="padding: 1rem; text-align: center; color: #6c757d;">Geen resultaten gevonden</p>';
-        container.style.display = 'block';
-        return;
-      }
-      
-      container.innerHTML = results.map(r => `
-        <div class="search-result">
-          <div class="result-score">Score: ${r.score.toFixed(4)}</div>
-          <div class="result-source">📄 ${r.documentName}</div>
-          <div class="result-text">${r.text}</div>
-        </div>
-      `).join('');
-      
-      container.style.display = 'block';
-    }
-    
-    function addLog(type, message) {
-      const log = document.getElementById('activity-log');
-      const timestamp = new Date().toLocaleTimeString('nl-NL');
+
+    function log(type, msg) {
+      const container = document.getElementById('activity-log');
+      const time = new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
       const entry = document.createElement('div');
-      entry.className = `log-entry ${type}`;
-      entry.textContent = `[${timestamp}] ${message}`;
-      log.insertBefore(entry, log.firstChild);
-      
-      while (log.children.length > 50) {
-        log.removeChild(log.lastChild);
-      }
+      entry.className = 'log-entry';
+      entry.innerHTML = `<span class="log-time">${time}</span><span class="log-msg ${type}">${msg}</span>`;
+      container.insertBefore(entry, container.firstChild);
+      while (container.children.length > 60) container.removeChild(container.lastChild);
     }
   </script>
 </body>

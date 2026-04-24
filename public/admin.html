@@ -227,22 +227,111 @@
     zone.addEventListener('dragleave', () => zone.classList.remove('dragging'));
     zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('dragging'); if (e.dataTransfer.files[0]) uploadFile(e.dataTransfer.files[0]); });
     function handleFileSelect(e) { if (e.target.files[0]) uploadFile(e.target.files[0]); }
-    async function uploadFile(file) {
-      log('info', `Uploaden: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
+      async function uploadFile(file, force = false) {
+      const docType = document.getElementById('doc-type').value;
+      const docDest = document.getElementById('doc-dest').value.trim();
+      if (!docType) {
+        alert('Kies eerst een document type.');
+        document.getElementById('doc-type').focus();
+        document.getElementById('file-input').value = '';
+        return;
+      }
+
+      hideFeedback();
+      log('info', `Uploaden: ${file.name} (${(file.size / 1024).toFixed(1)} KB) — type: ${docType}`);
       showProgress('Bestand verwerken...');
+
       const fd = new FormData();
       fd.append('file', file);
+      fd.append('document_type', docType);
+      if (docDest) fd.append('bestemming', docDest);
+      if (force)   fd.append('force', 'true');
+
       try {
         animateProgress();
         const res = await fetch(`${API}/api/upload`, { method: 'POST', body: fd });
         const data = await res.json();
-        if (res.ok) {
-          setProgress(100, 'Voltooid');
-          log('success', `${file.name} — ${data.chunks} fragmenten, ${data.vectors} vectors opgeslagen`);
-          setTimeout(() => { hideProgress(); loadStats(); }, 1500);
-        } else { hideProgress(); log('error', `Upload mislukt: ${data.error}`); }
-      } catch (e) { hideProgress(); log('error', `Fout: ${e.message}`); }
+
+        if (res.status === 409 && data.similarTo) {
+          hideProgress();
+          log('error', `Mogelijke duplicaat van "${data.similarTo}" (${(data.score * 100).toFixed(1)}%)`);
+          if (confirm(`Dit document lijkt sterk op "${data.similarTo}" (${(data.score * 100).toFixed(1)}% overeenkomst).\n\nToch uploaden?`)) {
+            return uploadFile(file, true);
+          }
+          document.getElementById('file-input').value = '';
+          return;
+        }
+
+        if (!res.ok) {
+          hideProgress();
+          showFeedback({ error: data.error || 'Upload mislukt' });
+          log('error', `Upload mislukt: ${data.error}`);
+          document.getElementById('file-input').value = '';
+          return;
+        }
+
+        setProgress(100, 'Voltooid');
+        log('success', `${file.name} v${data.version} — ${data.chunks} chunks, ${data.vectors} vectors`);
+        showFeedback(data);
+        setTimeout(() => { hideProgress(); loadStats(); }, 1200);
+      } catch (e) {
+        hideProgress();
+        log('error', `Fout: ${e.message}`);
+        showFeedback({ error: e.message });
+      }
       document.getElementById('file-input').value = '';
+    }
+
+    function showFeedback(data) {
+      const box = document.getElementById('upload-feedback');
+      if (data.error) {
+        box.style.borderColor = '#B23A48';
+        box.style.background  = '#fff5f5';
+        box.innerHTML = `<strong style="color:#B23A48;">Fout:</strong> ${escapeHtml(data.error)}`;
+        box.style.display = 'block';
+        return;
+      }
+
+      const sf  = data.structuredFields || {};
+      const sfList = Object.keys(sf).length
+        ? Object.entries(sf).map(([k, v]) => `<div><strong>${k}:</strong> ${escapeHtml(String(v).slice(0, 120))}${String(v).length > 120 ? '…' : ''}</div>`).join('')
+        : '<em style="color:var(--ink-muted);">Geen structuurvelden geëxtraheerd</em>';
+
+      const missingHtml = (data.missingFields || []).length
+        ? `<div style="margin-top:0.4rem;color:#B2863A;"><strong>Ontbrekend:</strong> ${data.missingFields.join(', ')}</div>`
+        : '';
+
+      const warningsHtml = (data.warnings || []).length
+        ? `<div style="margin-top:0.6rem;"><strong style="color:#B2863A;">Waarschuwingen:</strong><ul style="margin:0.3rem 0 0 1.2rem;">${data.warnings.map(w => `<li>${escapeHtml(w)}</li>`).join('')}</ul></div>`
+        : '';
+
+      const priorityLabel = { 1: 'LAAG', 2: 'MEDIUM', 3: 'HOOG' }[data.priority] || '—';
+
+      box.style.borderColor = 'var(--gold)';
+      box.style.background  = 'var(--gold-faint)';
+      box.innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem 1.4rem;">
+          <div><strong>Bestand:</strong> ${escapeHtml(data.filename)}</div>
+          <div><strong>Type:</strong> ${escapeHtml(data.documentType)}</div>
+          <div><strong>Versie:</strong> v${data.version}${data.previousVersionsDeactivated ? ` (${data.previousVersionsDeactivated} oude vectors gedeactiveerd)` : ''}</div>
+          <div><strong>Prioriteit:</strong> ${priorityLabel}</div>
+          <div><strong>Bestemming:</strong> ${escapeHtml(data.bestemming || '—')}</div>
+          <div><strong>Chunks / vectors:</strong> ${data.chunks} / ${data.vectors}</div>
+        </div>
+        <div style="margin-top:0.9rem;"><strong>Structuurvelden:</strong><div style="margin-top:0.3rem;padding-left:0.4rem;border-left:2px solid var(--gold);">${sfList}</div></div>
+        ${missingHtml}
+        ${warningsHtml}
+      `;
+      box.style.display = 'block';
+    }
+
+    function hideFeedback() {
+      const box = document.getElementById('upload-feedback');
+      if (box) box.style.display = 'none';
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
     let progressInterval;
     function showProgress(text) { document.getElementById('progress-wrap').classList.add('visible'); document.getElementById('progress-text').textContent = text; document.getElementById('progress-pct').textContent = '0%'; setProgress(0); }

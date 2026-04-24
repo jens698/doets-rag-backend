@@ -46,12 +46,14 @@ export default async function handler(req, res) {
     }
     
     const anthropic = new Anthropic({ apiKey });
-    
+
+    const cleanMessages = messages.map(({ role, content }) => ({ role, content }));
+
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 2000,
       system: enhancedSystem,
-      messages: messages
+      messages: cleanMessages
     });
     
     return res.status(200).json(response);

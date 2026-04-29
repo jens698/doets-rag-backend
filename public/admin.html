@@ -183,17 +183,17 @@
           <div id="upload-feedback" style="display:none;margin-top:1.1rem;padding:1rem;border:1px solid var(--line);border-radius:3px;background:var(--cream-dark);font-size:0.82rem;line-height:1.6;"></div>
         </div>
       </section>
-           <section class="section">
+                <section class="section">
         <div class="section-head">
-          <h2 class="section-title">Document verwijderen</h2>
+          <h2 class="section-title">Kennisdatabank inhoud</h2>
           <div class="section-line"></div>
         </div>
         <div class="search-card">
-          <div class="search-row">
-            <input class="input" type="text" id="delete-name" placeholder="Exacte bestandsnaam, bijv. nieuwsbrief.pdf">
-            <button class="btn btn-primary" style="background:#B23A48;border-color:#B23A48" onclick="deleteDoc()">Verwijderen</button>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+            <span id="doc-count" style="font-size:0.82rem;color:var(--ink-muted);">Laden...</span>
+            <button class="btn btn-primary" onclick="loadDocs()" style="font-size:0.72rem;padding:0.4rem 0.9rem;">↻ Vernieuwen</button>
           </div>
-          <div id="delete-result" style="margin-top:0.8rem;font-size:0.82rem;"></div>
+          <div id="doc-list"></div>
         </div>
       </section>
 
@@ -401,6 +401,77 @@
       } catch (e) {
         box.innerHTML = `<span style="color:#B23A48">Fout: ${e.message}</span>`;
       }
+    }
+        loadDocs();
+
+    async function loadDocs() {
+      const list = document.getElementById('doc-list');
+      const count = document.getElementById('doc-count');
+      list.innerHTML = '<div style="padding:1rem;text-align:center;color:var(--ink-muted);font-size:0.82rem;">Laden...</div>';
+      try {
+        const res  = await fetch(`${API}/api/documents`);
+        const data = await res.json();
+        if (!res.ok) { list.innerHTML = `<div style="color:#B23A48;font-size:0.82rem;">Fout: ${data.error}</div>`; return; }
+        count.textContent = `${data.total} document${data.total !== 1 ? 'en' : ''} in de kennisdatabank`;
+        if (!data.documents.length) {
+          list.innerHTML = '<div style="padding:1rem;text-align:center;color:var(--ink-muted);font-size:0.82rem;">Geen documenten gevonden.</div>';
+          return;
+        }
+        list.innerHTML = `
+          <table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
+            <thead>
+              <tr style="border-bottom:2px solid var(--line);text-align:left;">
+                <th style="padding:0.5rem 0.4rem;color:var(--ink-muted);font-weight:600;">Bestandsnaam</th>
+                <th style="padding:0.5rem 0.4rem;color:var(--ink-muted);font-weight:600;">Type</th>
+                <th style="padding:0.5rem 0.4rem;color:var(--ink-muted);font-weight:600;">Bestemming</th>
+                <th style="padding:0.5rem 0.4rem;color:var(--ink-muted);font-weight:600;">Versie</th>
+                <th style="padding:0.5rem 0.4rem;color:var(--ink-muted);font-weight:600;">Datum</th>
+                <th style="padding:0.5rem 0.4rem;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${data.documents.map(d => `
+                <tr style="border-bottom:1px solid var(--line);" id="row-${CSS.escape(d.documentId)}">
+                  <td style="padding:0.6rem 0.4rem;font-weight:500;">${escapeHtml(d.documentName)}</td>
+                  <td style="padding:0.6rem 0.4rem;color:var(--ink-muted);">${escapeHtml(d.documentType)}</td>
+                  <td style="padding:0.6rem 0.4rem;color:var(--ink-muted);">${escapeHtml(d.bestemming || '—')}</td>
+                  <td style="padding:0.6rem 0.4rem;color:var(--ink-muted);">v${d.version}</td>
+                  <td style="padding:0.6rem 0.4rem;color:var(--ink-muted);">${d.uploadDate ? d.uploadDate.slice(0,10) : '—'}</td>
+                  <td style="padding:0.6rem 0.4rem;text-align:right;">
+                    <button onclick="deleteDoc('${escapeHtml(d.documentName)}')" style="background:none;border:1px solid #B23A48;color:#B23A48;padding:0.2rem 0.6rem;border-radius:2px;cursor:pointer;font-size:0.72rem;font-family:'Manrope',sans-serif;">Verwijder</button>
+                  </td>
+                </tr>`).join('')}
+            </tbody>
+          </table>`;
+      } catch (e) {
+        list.innerHTML = `<div style="color:#B23A48;font-size:0.82rem;">Fout: ${e.message}</div>`;
+      }
+    }
+
+    async function deleteDoc(documentName) {
+      if (!confirm(`Weet je zeker dat je "${documentName}" wilt verwijderen?`)) return;
+      try {
+        const res  = await fetch(`${API}/api/delete`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ documentName })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          log('success', `Verwijderd: ${documentName} (${data.deletedVectors} vectors)`);
+          loadDocs();
+          loadStats();
+        } else {
+          log('error', `Verwijderen mislukt: ${data.error}`);
+          alert(`Fout: ${data.error}`);
+        }
+      } catch (e) {
+        log('error', `Fout: ${e.message}`);
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
   </script>
 </body>

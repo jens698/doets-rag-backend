@@ -374,6 +374,34 @@
       container.insertBefore(entry, container.firstChild);
       while (container.children.length > 60) container.removeChild(container.lastChild);
     }
+        async function deleteDoc() {
+      const name = document.getElementById('delete-name').value.trim();
+      if (!name) { alert('Vul een bestandsnaam in.'); return; }
+      if (!confirm(`Weet je zeker dat je "${name}" wilt verwijderen uit de kennisdatabank?`)) return;
+
+      const box = document.getElementById('delete-result');
+      box.innerHTML = '<em style="color:#888">Verwijderen...</em>';
+
+      try {
+        const res = await fetch(`${API}/api/delete`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ documentName: name })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          box.innerHTML = `<span style="color:#2d7a2d">✓ "${data.documentName}" verwijderd — ${data.deletedVectors} vectors gewist.</span>`;
+          document.getElementById('delete-name').value = '';
+          log('success', `Document verwijderd: ${data.documentName} (${data.deletedVectors} vectors)`);
+          loadStats();
+        } else {
+          box.innerHTML = `<span style="color:#B23A48">Fout: ${data.error}</span>`;
+          log('error', `Verwijderen mislukt: ${data.error}`);
+        }
+      } catch (e) {
+        box.innerHTML = `<span style="color:#B23A48">Fout: ${e.message}</span>`;
+      }
+    }
   </script>
 </body>
 </html>

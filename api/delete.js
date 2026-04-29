@@ -1,4 +1,3 @@
-import { findActiveVectorsByName, markVectorsInactive } from '../lib/pinecone.js';
 import { getIndex } from '../lib/pinecone.js';
 
 export default async function handler(req, res) {
@@ -15,7 +14,6 @@ export default async function handler(req, res) {
 
     const index = await getIndex();
 
-    // Find all vectors for this document (active and inactive)
     const result = await index.query({
       vector: new Array(1536).fill(0),
       topK: 10000,
@@ -28,7 +26,6 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: `Geen document gevonden met naam: ${documentName}` });
     }
 
-    // Delete in batches of 100
     for (let i = 0; i < ids.length; i += 100) {
       await index.deleteMany(ids.slice(i, i + 100));
     }

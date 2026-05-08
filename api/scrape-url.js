@@ -6,15 +6,6 @@ import {
   markVectorsInactive
 } from '../lib/pinecone.js';
 
-const NOISE_SELECTORS = [
-  'nav', 'header', 'footer', 'aside',
-  'script', 'style', 'noscript',
-  '.menu', '.navigation', '.nav', '.header', '.footer',
-  '.cookie', '.cookiebar', '.consent',
-  '.sidebar', '.widget', '.advertisement', '.ad',
-  '[aria-hidden="true"]'
-];
-
 const CONTENT_SELECTORS = [
   'main', 'article', '.entry-content', '.post-content',
   '.page-content', '.content', '#content', '#main'
@@ -30,22 +21,21 @@ function detectDocumentType(url) {
 function extractContent(html, url) {
   const $ = cheerio.load(html);
 
-  NOISE_SELECTORS.forEach(sel => $(sel).remove());
+  $('script, style, noscript').remove();
+  $('nav, header, footer').remove();
+  $('[aria-hidden="true"]').remove();
+
+  const title = $('h1').first().text().trim() || $('title').text().trim();
 
   for (const sel of CONTENT_SELECTORS) {
     const el = $(sel).first();
-    if (el.length && el.text().trim().length > 200) {
-      return {
-        title: $('h1').first().text().trim() || $('title').text().trim(),
-        text: el.text()
-      };
+    const t  = el.text().trim();
+    if (el.length && t.length > 100) {
+      return { title, text: t };
     }
   }
 
-  return {
-    title: $('h1').first().text().trim() || $('title').text().trim(),
-    text: $('body').text()
-  };
+  return { title, text: $('body').text() };
 }
 
 export default async function handler(req, res) {
@@ -64,10 +54,15 @@ export default async function handler(req, res) {
   try {
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; DoetsKennisbot/1.0)',
-        'Accept': 'text/html'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'nl-NL,nl;q=0.9,en;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Cache-Control': 'no-cache',
+        'Referer': 'https://www.doetsreizen.nl/'
       },
-      signal: AbortSignal.timeout(8000)
+      redirect: 'follow',
+      signal: AbortSignal.timeout(9000)
     });
 
     if (!response.ok) {
@@ -78,9 +73,9 @@ export default async function handler(req, res) {
     const { title, text } = extractContent(html, url);
     const cleanedText = cleanText(text);
 
-    if (!cleanedText || cleanedText.length < 200) {
+    if (!cleanedText || cleanedText.length < 80) {
       return res.status(400).json({
-        error: 'Te weinig bruikbare tekst gevonden op deze pagina. Mogelijk een JavaScript-pagina of filterpagina zonder eigen inhoud.'
+        error: `Te weinig tekst gevonden (${cleanedText?.length || 0} tekens). De pagina laadt mogelijk via JavaScript of vereist een inlog. Probeer de pagina als TXT of DOCX te exporteren en handmatig te uploaden.`
       });
     }
 

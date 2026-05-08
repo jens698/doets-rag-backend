@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kennisdatabank — Doets Reizen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --gold:        #C9A84C;
+      --gold-dim:    rgba(201,168,76,0.6);
+      --gold-faint:  rgba(201,168,76,0.10);
+      --gold-border: rgba(201,168,76,0.28);
+      --white:       rgba(255,255,255,0.90);
+      --white-dim:   rgba(255,255,255,0.50);
+      --white-muted: rgba(255,255,255,0.25);
+      --glass-dark:  rgba(4,10,28,0.72);
+      --glass-mid:   rgba(8,18,48,0.60);
+    }
+
+    html, body { height: 100%; overflow: hidden; }
+
+    body {
+      font-family: 'Manrope', sans-serif;
+      background: #04091A;
+      color: var(--white);
+    }
+
+    /* ── AURORA BACKGROUND ─────────────────────────────────── */
+    .aurora {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .aurora-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+    }
+
+    .aurora-blob:nth-child(1) {
+      width: 65vw; height: 65vw;
+      background: radial-gradient(circle, rgba(0,190,160,0.32) 0%, transparent 70%);
+      top: -20%; left: -12%;
+      animation: drift1 20s ease-in-out infinite;
+    }
+
+    .aurora-blob:nth-child(2) {
+      width: 55vw; height: 55vw;
+      background: radial-gradient(circle, rgba(50,70,220,0.38) 0%, transparent 70%);
+      top: 25%; right: -18%;
+      animation: drift2 24s ease-in-out infinite;
+    }
+
+    .aurora-blob:nth-child(3) {
+      width: 45vw; height: 45vw;
+      background: radial-gradient(circle, rgba(130,50,190,0.28) 0%, transparent 70%);
+      bottom: -12%; left: 28%;
+      animation: drift3 18s ease-in-out infinite;
+    }
+
+    .aurora-blob:nth-child(4) {
+      width: 28vw; height: 28vw;
+      background: radial-gradient(circle, rgba(201,168,76,0.18) 0%, transparent 70%);
+      top: 8%; right: 28%;
+      animation: drift4 28s ease-in-out infinite;
+    }
+
+    @keyframes drift1 {
+      0%,100% { transform: translate(0,0) scale(1); }
+      33%     { transform: translate(7%,5%) scale(1.08); }
+      66%     { transform: translate(-4%,7%) scale(0.93); }
+    }
+    @keyframes drift2 {
+      0%,100% { transform: translate(0,0) scale(1); }
+      50%     { transform: translate(-9%,-7%) scale(1.12); }
+    }
+    @keyframes drift3 {
+      0%,100% { transform: translate(0,0); }
+      40%     { transform: translate(-7%,-5%) scale(1.18); }
+      80%     { transform: translate(5%,4%) scale(0.88); }
+    }
+    @keyframes drift4 {
+      0%,100% { transform: translate(0,0) scale(1); opacity:0.9; }
+      50%     { transform: translate(-4%,9%) scale(1.25); opacity:0.45; }
+    }
+
+    /* ── LAYOUT ─────────────────────────────────────────────── */
+    .app {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-rows: 52px 1fr;
+      grid-template-columns: 200px 1fr;
+      height: 100vh;
+    }
+
+    /* ── TOPBAR ──────────────────────────────────────────────── */
+    .topbar {
+      grid-column: 1 / -1;
+      background: rgba(4,9,26,0.82);
+      backdrop-filter: blur(24px);
+      border-bottom: 1px solid rgba(201,168,76,0.13);
+      display: flex;
+      align-items: center;
+      padding: 0 1.5rem;
+      gap: 1rem;
+    }
+
+    .topbar-brand { display:flex; align-items:baseline; gap:0.7rem; flex:1; }
+    .brand-name { font-family:'Fraunces',serif; font-size:1rem; font-weight:400; letter-spacing:0.16em; color:#fff; text-transform:uppercase; }
+    .brand-sep { width:1px; height:13px; background:rgba(255,255,255,0.15); }
+    .brand-sub { font-size:0.62rem; font-weight:500; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold); opacity:0.8; }
+
+    .topbar-actions { display:flex; align-items:center; gap:0.45rem; }
+
+    .intern-badge {
+      font-size:0.57rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase;
+      color:var(--gold); border:1px solid rgba(201,168,76,0.38); padding:0.22rem 0.55rem; border-radius:2px;
+      margin-right:0.2rem;
+    }
+
+    .topbar-btn {
+      background:transparent; border:1px solid transparent;
+      color:var(--white-dim); font-family:'Manrope',sans-serif; font-size:0.59rem;
+      font-weight:600; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer;
+      padding:0.35rem 0.65rem; border-radius:3px; transition:all .18s; text-decoration:none;
+      display:inline-flex; align-items:center;
+    }
+    .topbar-btn:hover { color:#fff; border-color:rgba(255,255,255,0.18); background:rgba(255,255,255,0.06); }
+    .classic-btn { color:var(--gold-dim); border-color:rgba(201,168,76,0.18); }
+    .classic-btn:hover { color:var(--gold); border-color:var(--gold); background:var(--gold-faint); }
+
+    /* ── SIDEBAR ─────────────────────────────────────────────── */
+    .sidebar {
+      background: rgba(4,9,26,0.62);
+      backdrop-filter: blur(20px);
+      border-right: 1px solid rgba(255,255,255,0.04);
+      overflow-y: auto;
+      padding: 1.2rem 0;
+    }
+    .sidebar::-webkit-scrollbar { width:2px; }
+    .sidebar::-webkit-scrollbar-thumb { background:rgba(201,168,76,0.25); }
+
+    .sidebar-section { margin-bottom:1.5rem; }
+    .sidebar-lbl { font-size:0.56rem; font-weight:700; letter-spacing:0.22em; text-transform:uppercase; color:rgba(201,168,76,0.55); padding:0 1.1rem 0.5rem; }
+
+    .sidebar-item {
+      display:flex; align-items:center; gap:0.55rem; padding:0.44rem 1.1rem;
+      cursor:pointer; font-size:0.75rem; color:rgba(255,255,255,0.55);
+      border-left:2px solid transparent; transition:all .18s;
+    }
+    .sidebar-item:hover { color:rgba(255,255,255,0.88); background:rgba(255,255,255,0.04); border-left-color:rgba(201,168,76,0.28); }
+    .sidebar-item.active { color:#fff; background:rgba(201,168,76,0.07); border-left-color:var(--gold); }
+
+    .item-code { font-size:0.57rem; font-weight:700; letter-spacing:0.04em; color:rgba(255,255,255,0.22); min-width:18px; }
+    .item-dot { width:5px; height:5px; border-radius:50%; background:rgba(255,255,255,0.18); flex-shrink:0; }
+    .sidebar-item.active .item-dot { background:#4ade80; box-shadow:0 0 6px rgba(74,222,128,.55); }
+    .sidebar-divider { height:1px; background:rgba(255,255,255,0.04); margin:0.5rem 0; }
+
+    /* ── MAIN ────────────────────────────────────────────────── */
+    .main { display:flex; flex-direction:column; overflow:hidden; position:relative; }
+
+    /* ── WELCOME ─────────────────────────────────────────────── */
+    .welcome { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2rem; text-align:center; }
+
+    .welcome-ring {
+      width:62px; height:62px; border:1px solid rgba(201,168,76,0.45); border-radius:50%;
+      display:flex; align-items:center; justify-content:center; margin-bottom:1.5rem;
+      color:var(--gold); animation:rotateSlow 22s linear infinite; position:relative;
+    }
+    .welcome-ring::before {
+      content:''; position:absolute; inset:-7px; border-radius:50%;
+      border:1px dashed rgba(201,168,76,0.18);
+      animation:rotateSlow 44s linear infinite reverse;
+    }
+    @keyframes rotateSlow { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+
+    .welcome-title { font-family:'Fraunces',serif; font-size:1.55rem; font-weight:300; color:#fff; margin-bottom:0.5rem; letter-spacing:-0.01em; }
+    .welcome-sub { font-size:0.78rem; color:var(--white-dim); max-width:360px; line-height:1.72; }
+
+    /* ── MESSAGES ────────────────────────────────────────────── */
+    .messages-area {
+      flex:1; overflow-y:auto; padding:1.5rem 2rem;
+      display:flex; flex-direction:column; gap:1.5rem;
+    }
+    .messages-area::-webkit-scrollbar { width:3px; }
+    .messages-area::-webkit-scrollbar-thumb { background:rgba(201,168,76,0.28); border-radius:2px; }
+    .messages-area.hidden { display:none; }
+
+    @keyframes msgIn {
+      from { opacity:0; transform:translateY(10px) scale(0.98); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+    .message { animation:msgIn .28s cubic-bezier(0.34,1.56,0.64,1) forwards; opacity:0; }
+    .message.no-anim { animation:none; opacity:1; }
+
+    /* user bubble */
+    .msg-user { display:flex; justify-content:flex-end; }
+    .msg-user .bubble {
+      background:rgba(13,30,72,0.82);
+      border:1px solid rgba(255,255,255,0.09);
+      color:rgba(255,255,255,0.92);
+      padding:0.75rem 1.15rem;
+      border-radius:18px 18px 3px 18px;
+      max-width:58%; font-size:0.84rem; line-height:1.55;
+      white-space:pre-wrap;
+      backdrop-filter:blur(10px);
+      box-shadow:0 4px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.07);
+    }
+
+    /* AI message */
+    .msg-ai .ai-lbl {
+      font-size:0.54rem; font-weight:700; letter-spacing:0.22em; color:var(--gold);
+      text-transform:uppercase; margin-bottom:0.55rem; opacity:0.75;
+    }
+    .msg-ai .ai-body {
+      max-width:83%;
+      background:rgba(8,18,52,0.65);
+      border:1px solid rgba(255,255,255,0.07);
+      border-left:2px solid var(--gold);
+      border-radius:3px 18px 18px 18px;
+      padding:1rem 1.25rem;
+      backdrop-filter:blur(14px);
+      box-shadow:0 4px 24px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .msg-ai .ai-text { font-size:0.84rem; line-height:1.68; color:rgba(255,255,255,0.88); }
+    .msg-ai .ai-text p { margin-bottom:0.5em; }
+    .msg-ai .ai-text p:last-child { margin-bottom:0; }
+    .msg-ai .ai-text strong { font-weight:700; color:rgba(255,255,255,0.98); }
+    .msg-ai .ai-text em { font-style:italic; color:rgba(255,255,255,0.58); }
+
+    /* error */
+    .msg-err .ai-lbl { color:#ff7a7a; opacity:0.85; }
+    .msg-err .ai-body { border-left-color:#ff7a7a; }
+    .msg-err .ai-text { color:#ff9a9a; }
+
+    /* source chips */
+    .source-chips { display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:0.75rem; }
+    .source-chip {
+      font-size:0.62rem; font-weight:500; color:var(--gold);
+      border:1px solid var(--gold-border); background:var(--gold-faint);
+      padding:0.18rem 0.6rem; border-radius:20px; letter-spacing:0.02em;
+    }
+
+    /* message actions */
+    .msg-actions { display:flex; align-items:center; gap:0.7rem; margin-top:0.65rem; opacity:0; transition:opacity .2s; }
+    .msg-ai:hover .msg-actions { opacity:1; }
+    .act-btn {
+      background:none; border:none; cursor:pointer; display:flex; align-items:center;
+      gap:0.3rem; font-size:0.67rem; font-family:'Manrope',sans-serif;
+      color:rgba(255,255,255,0.3); padding:0.15rem 0; transition:color .15s;
+    }
+    .act-btn:hover { color:rgba(255,255,255,0.72); }
+    .act-btn.voted { color:var(--gold); }
+    .act-btn svg { width:12px; height:12px; flex-shrink:0; }
+
+    /* typing dots */
+    .typing-dots { display:flex; gap:6px; align-items:center; padding:4px 0; }
+    .typing-dot { width:6px; height:6px; border-radius:50%; background:var(--gold); animation:pulse 1.2s ease-in-out infinite; }
+    .typing-dot:nth-child(2) { animation-delay:.2s; }
+    .typing-dot:nth-child(3) { animation-delay:.4s; }
+    @keyframes pulse {
+      0%,60%,100% { opacity:.2; transform:scale(0.7); }
+      30%          { opacity:1; transform:scale(1); box-shadow:0 0 8px rgba(201,168,76,0.75); }
+    }
+
+    /* follow-up chips */
+    .followup-chips { display:flex; flex-wrap:wrap; gap:0.45rem; margin-top:0.9rem; }
+    .followup-chip {
+      font-size:0.69rem; color:rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.11);
+      background:rgba(255,255,255,0.04); padding:0.3rem 0.75rem; border-radius:20px;
+      cursor:pointer; transition:all .18s; font-family:'Manrope',sans-serif;
+    }
+    .followup-chip:hover { color:var(--gold); border-color:rgba(201,168,76,0.38); background:var(--gold-faint); }
+
+    /* search result cards */
+    .result-card { background:rgba(8,18,52,0.65); border:1px solid rgba(255,255,255,0.07); border-radius:8px; padding:1rem 1.25rem; backdrop-filter:blur(12px); }
+    .result-card-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; }
+    .result-doc { font-size:0.64rem; font-weight:700; letter-spacing:0.09em; color:var(--gold); text-transform:uppercase; }
+    .result-score { font-size:0.62rem; color:rgba(255,255,255,0.32); }
+    .result-score span { background:var(--gold-faint); color:var(--gold); padding:0.07rem 0.4rem; border-radius:3px; font-weight:600; }
+    .result-text { font-size:0.79rem; line-height:1.6; color:rgba(255,255,255,0.58); }
+
+    /* ── API KEY MODAL ───────────────────────────────────────── */
+    .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.65); display:flex; align-items:center; justify-content:center; z-index:200; backdrop-filter:blur(10px); }
+    .modal {
+      background:rgba(6,14,38,0.96); border:1px solid rgba(201,168,76,0.2);
+      border-radius:12px; padding:2rem; width:385px; max-width:92vw;
+      backdrop-filter:blur(24px); box-shadow:0 24px 64px rgba(0,0,0,0.55);
+    }
+    .modal-title { font-family:'Fraunces',serif; font-size:1.15rem; font-weight:400; color:#fff; margin-bottom:0.35rem; }
+    .modal-sub { font-size:0.73rem; color:rgba(255,255,255,0.42); margin-bottom:1.2rem; line-height:1.55; }
+    .modal-lbl { font-size:0.64rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--gold); display:block; margin-bottom:0.35rem; }
+    .modal-input {
+      width:100%; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12);
+      border-radius:6px; padding:0.6rem 0.85rem; font-family:'Manrope',sans-serif; font-size:0.8rem;
+      color:rgba(255,255,255,0.9); outline:none; margin-bottom:1rem; transition:all .2s;
+    }
+    .modal-input:focus { border-color:rgba(201,168,76,0.5); box-shadow:0 0 0 3px rgba(201,168,76,0.1); }
+    .modal-actions { display:flex; gap:0.5rem; justify-content:flex-end; }
+    .modal-cancel {
+      background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
+      color:rgba(255,255,255,0.48); font-family:'Manrope',sans-serif; font-size:0.68rem;
+      font-weight:600; letter-spacing:0.09em; text-transform:uppercase; padding:0.5rem 1rem;
+      border-radius:6px; cursor:pointer; transition:all .2s;
+    }
+    .modal-cancel:hover { color:#fff; border-color:rgba(255,255,255,0.25); }
+    .modal-save {
+      background:linear-gradient(135deg,#C9A84C,#E2C875); color:#04091A; border:none;
+      font-family:'Manrope',sans-serif; font-size:0.68rem; font-weight:800; letter-spacing:0.1em;
+      text-transform:uppercase; padding:0.5rem 1.1rem; border-radius:6px; cursor:pointer; transition:all .2s;
+    }
+    .modal-save:hover { box-shadow:0 4px 16px rgba(201,168,76,0.45); }
+
+    /* ── SEARCH BAR ──────────────────────────────────────────── */
+    .search-bar { padding:0.75rem 1.5rem; border-bottom:1px solid rgba(255,255,255,0.05); }
+    .search-bar.hidden { display:none; }
+    .search-input {
+      width:100%; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.09);
+      border-radius:6px; padding:0.55rem 1rem; font-family:'Manrope',sans-serif; font-size:0.8rem;
+      color:rgba(255,255,255,0.85); outline:none; transition:all .2s;
+    }
+    .search-input:focus { border-color:rgba(201,168,76,0.45); box-shadow:0 0 0 3px rgba(201,168,76,0.09); }
+    .search-input::placeholder { color:rgba(255,255,255,0.28); }
+
+    /* chat area wrapper */
+    #chatArea { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+    #chatArea.hidden { display:none; }
+
+    /* search results */
+    .search-results { flex:1; overflow-y:auto; padding:1.5rem 2rem; display:flex; flex-direction:column; gap:0.9rem; }
+    .search-results.hidden { display:none; }
+
+    /* bottom area */
+    .bottom-area {
+      flex-shrink:0;
+      background:rgba(4,9,26,0.55);
+      backdrop-filter:blur(22px);
+      border-top:1px solid rgba(255,255,255,0.05);
+    }
+
+    /* context tag */
+    .ctx-wrap { padding:0.6rem 1.5rem 0; display:none; }
+    .ctx-wrap.visible { display:flex; }
+    .ctx-tag {
+      display:inline-flex; align-items:center; gap:0.4rem; font-size:0.65rem; font-weight:600;
+      color:var(--gold); background:var(--gold-faint); border:1px solid var(--gold-border);
+      padding:0.18rem 0.45rem 0.18rem 0.55rem; border-radius:20px; letter-spacing:0.03em;
+    }
+    .ctx-close { background:none; border:none; cursor:pointer; color:rgba(201,168,76,0.45); font-size:1rem; line-height:1; padding:0; transition:color .15s; }
+    .ctx-close:hover { color:var(--gold); }
+
+    /* suggestions row */
+    .suggestions-row { padding:0.65rem 1.5rem 0; display:flex; flex-wrap:wrap; gap:0.45rem; }
+    .suggestions-row.hidden { display:none; }
+    .suggestion-chip {
+      font-size:0.68rem; font-weight:500; color:rgba(255,255,255,0.48);
+      border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.04);
+      padding:0.3rem 0.7rem; border-radius:20px; cursor:pointer; transition:all .18s;
+      font-family:'Manrope',sans-serif;
+    }
+    .suggestion-chip:hover { color:var(--gold); border-color:rgba(201,168,76,0.38); background:var(--gold-faint); }
+
+    /* input row */
+    .input-row { display:flex; align-items:center; padding:0.75rem 1.5rem; gap:0.75rem; }
+    .input-row.hidden { display:none; }
+    .query-input {
+      flex:1; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
+      border-radius:24px; padding:0.65rem 1.25rem; font-family:'Manrope',sans-serif; font-size:0.84rem;
+      color:rgba(255,255,255,0.9); outline:none; transition:all .25s;
+    }
+    .query-input:focus { background:rgba(255,255,255,0.09); border-color:rgba(201,168,76,0.48); box-shadow:0 0 0 3px rgba(201,168,76,0.1), 0 0 22px rgba(201,168,76,0.07); }
+    .query-input::placeholder { color:rgba(255,255,255,0.28); }
+    .send-btn {
+      background:linear-gradient(135deg,#C9A84C,#E2C875); color:#04091A; border:none;
+      font-family:'Manrope',sans-serif; font-size:0.6rem; font-weight:800; letter-spacing:0.14em;
+      text-transform:uppercase; padding:0.65rem 1.25rem; border-radius:24px; cursor:pointer;
+      flex-shrink:0; transition:all .2s; box-shadow:0 4px 15px rgba(201,168,76,0.28);
+    }
+    .send-btn:hover { transform:translateY(-1px); box-shadow:0 6px 22px rgba(201,168,76,0.44); }
+    .send-btn:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+
+    /* tab bar */
+    .tab-bar { display:flex; padding:0 1.5rem; border-top:1px solid rgba(255,255,255,0.04); }
+    .tab {
+      font-size:0.62rem; font-weight:700; letter-spacing:0.14em; text-transform:uppercase;
+      color:rgba(255,255,255,0.28); padding:0.5rem 0; margin-right:1.5rem;
+      cursor:pointer; border-bottom:2px solid transparent; transition:all .18s;
+    }
+    .tab.active { color:var(--gold); border-bottom-color:var(--gold); }
+  </style>
+</head>
+<body>
+
+<!-- Aurora background -->
+<div class="aurora">
+  <div class="aurora-blob"></div>
+  <div class="aurora-blob"></div>
+  <div class="aurora-blob"></div>
+  <div class="aurora-blob"></div>
+</div>
+
+<div class="app">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <span class="brand-name">Doets Reizen</span>
+      <div class="brand-sep"></div>
+      <span class="brand-sub">Kennisdatabank</span>
+    </div>
+    <div class="topbar-actions">
+      <span class="intern-badge">Intern — Verkoopteam</span>
+      <button class="topbar-btn" onclick="clearHistory()">Wis geschiedenis</button>
+      <button class="topbar-btn" onclick="showKeyModal()">Sleutel wijzigen</button>
+      <a href="/index-classic.html" class="topbar-btn classic-btn">Klassiek design</a>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-lbl">Bestemmingen</div>
+      <div class="sidebar-item active" data-dest="" onclick="setDest(this,'')">
+        <span class="item-dot"></span>Alle bestemmingen
+      </div>
+      <div class="sidebar-item" data-dest="Verenigde Staten" onclick="setDest(this,'Verenigde Staten')">
+        <span class="item-code">US</span>Verenigde Staten
+      </div>
+      <div class="sidebar-item" data-dest="Canada" onclick="setDest(this,'Canada')">
+        <span class="item-code">CA</span>Canada
+      </div>
+      <div class="sidebar-item" data-dest="IJsland" onclick="setDest(this,'IJsland')">
+        <span class="item-code">IS</span>IJsland
+      </div>
+      <div class="sidebar-item" data-dest="Noorwegen" onclick="setDest(this,'Noorwegen')">
+        <span class="item-code">NO</span>Noorwegen
+      </div>
+      <div class="sidebar-item" data-dest="Zweden" onclick="setDest(this,'Zweden')">
+        <span class="item-code">SE</span>Zweden
+      </div>
+      <div class="sidebar-item" data-dest="Finland" onclick="setDest(this,'Finland')">
+        <span class="item-code">FI</span>Finland
+      </div>
+      <div class="sidebar-item" data-dest="Japan" onclick="setDest(this,'Japan')">
+        <span class="item-code">JP</span>Japan
+      </div>
+      <div class="sidebar-item" data-dest="China" onclick="setDest(this,'China')">
+        <span class="item-code">CN</span>China
+      </div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-lbl">Reissoorten</div>
+      <div class="sidebar-item" data-dest="Camperreis" onclick="setDest(this,'Camperreis')">
+        <span class="item-dot"></span>Camperreis
+      </div>
+      <div class="sidebar-item" data-dest="Autorondreis" onclick="setDest(this,'Autorondreis')">
+        <span class="item-dot"></span>Autorondreis
+      </div>
+      <div class="sidebar-item" data-dest="Stedentrip" onclick="setDest(this,'Stedentrip')">
+        <span class="item-dot"></span>Stedentrip
+      </div>
+      <div class="sidebar-item" data-dest="Wintersport" onclick="setDest(this,'Wintersport')">
+        <span class="item-dot"></span>Wintersport
+      </div>
+      <div class="sidebar-item" data-dest="Safari &amp; Wildlife" onclick="setDest(this,'Safari &amp; Wildlife')">
+        <span class="item-dot"></span>Safari &amp; Wildlife
+      </div>
+      <div class="sidebar-item" data-dest="Deep Desires" onclick="setDest(this,'Deep Desires')">
+        <span class="item-dot"></span>Deep Desires
+      </div>
+      <div class="sidebar-item" data-dest="Familiereis" onclick="setDest(this,'Familiereis')">
+        <span class="item-dot"></span>Familiereis
+      </div>
+      <div class="sidebar-item" data-dest="Golfreis" onclick="setDest(this,'Golfreis')">
+        <span class="item-dot"></span>Golfreis
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="search-bar hidden" id="searchBar">
+      <input class="search-input" id="searchInput"
+        placeholder="Zoek op trefwoord, bestemming, onderwerp..."
+        onkeydown="if(event.key==='Enter') doSearch()">
+    </div>
+
+    <div id="chatArea">
+      <div class="welcome" id="welcome">
+        <div class="welcome-ring" id="welcomeRing">
+          <svg id="welcomeIcon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+          </svg>
+          <span id="welcomeCode" style="display:none;font-size:0.72rem;font-weight:700;letter-spacing:0.08em;color:var(--gold)"></span>
+        </div>
+        <div class="welcome-title" id="welcomeTitle">Kennisdatabank</div>
+        <div class="welcome-sub" id="welcomeSub">Stel een vraag over reisbestemmingen, producten of procedures. Antwoorden zijn uitsluitend gebaseerd op Doets-documenten.</div>
+      </div>
+      <div class="messages-area hidden" id="msgs"></div>
+    </div>
+
+    <div class="search-results hidden" id="searchResults"></div>
+
+    <div class="bottom-area">
+      <div class="ctx-wrap" id="ctxWrap">
+        <span class="ctx-tag">
+          <span id="ctxLabel"></span>
+          <button class="ctx-close" onclick="setDest(document.querySelector('[data-dest=\\'\\']'),'')">×</button>
+        </span>
+      </div>
+      <div class="suggestions-row" id="suggestionsRow"></div>
+      <div class="input-row" id="inputRow">
+        <input class="query-input" id="queryInput"
+          placeholder="Stel uw vraag..."
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}">
+        <button class="send-btn" id="sendBtn" onclick="sendMsg()">Versturen</button>
+      </div>
+      <div class="tab-bar">
+        <div class="tab active" id="tabChat" onclick="switchTab('chat')">Chat</div>
+        <div class="tab" id="tabZoek" onclick="switchTab('zoek')">Zoeken</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- API-sleutel modal -->
+<div class="overlay" id="keyOverlay" style="display:none">
+  <div class="modal">
+    <div class="modal-title">API-sleutel invoeren</div>
+    <div class="modal-sub">Voer uw Anthropic API-sleutel in. Deze wordt alleen lokaal opgeslagen en nooit gedeeld.</div>
+    <label class="modal-lbl">Anthropic API-sleutel</label>
+    <input class="modal-input" id="keyInput" type="password" placeholder="sk-ant-..."
+      onkeydown="if(event.key==='Enter') saveKey()">
+    <div class="modal-actions">
+      <button class="modal-cancel" id="modalCancel" onclick="closeModal()">Annuleren</button>
+      <button class="modal-save" onclick="saveKey()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ────────────────────────────────────────────────────────
+let apiKey   = localStorage.getItem('doets_key') || '';
+let messages = JSON.parse(localStorage.getItem('doets_msgs') || '[]');
+let activeDest  = '';
+let loading     = false;
+let currentTab  = 'chat';
+
+const SYSTEM = `Je bent de interne kennisassistent van Doets Reizen, uitsluitend bedoeld voor medewerkers van het verkoopteam. Beantwoord vragen UITSLUITEND op basis van informatie uit de Doets Reizen kennisdatabank. Gebruik NOOIT je eigen trainingskennis of externe bronnen. Als de kennisdatabank onvoldoende informatie bevat zeg dan: "Dit staat niet in onze kennisdatabank. Neem contact op met een collega." Verwijs altijd naar de bronnaam. Antwoord in het Nederlands. Wees beknopt en praktisch. Gebruik GEEN emojis, smiley-tekens of em-dashes (—). Schrijf gewone zinnen met punten en komma's.`;
+
+const FOLLOWUPS = [
+  'Wat zijn de annuleringsvoorwaarden?',
+  'Welke vliegmaatschappijen worden gebruikt?',
+  'Wat zijn de vertrekdata?',
+  'Zijn er speciale aanbiedingen?',
+  'Wat is inbegrepen in de prijs?',
+  'Welke visumeisen zijn er?',
+  'Wat is de beste reistijd?',
+  'Zijn er kinderkortingen?',
+  'Hoe lang duurt de reis gemiddeld?',
+  'Welke reisverzekering wordt aanbevolen?',
+];
+
+const DEFAULT_SUGGESTIONS = [
+  'Beste boekingsperiode?',
+  'Wat zijn de USPs van Doets Reizen?',
+  'Deep Desires — voor wie?',
+  'Visum overzicht alle bestemmingen',
+];
+
+const DEST_DATA = {
+  'Verenigde Staten': { code:'US', sub:'Camperverhuur, nationale parken en route 66 — alles over reizen door Amerika.', suggestions:['Camperverhuur Amerika tips','Nationale parken route VS','ESTA visum aanvragen','Route 66 reisschema'] },
+  'Canada':           { code:'CA', sub:'Rocky Mountains, Oost-Canada en de mooiste camperpaden.', suggestions:['Rocky Mountains rondreis','Beste reistijd Canada','Camperverhuur Canada','Niagara en Toronto tips'] },
+  'IJsland':          { code:'IS', sub:'Noorderlicht, de Golden Circle en de ringweg door IJsland.', suggestions:['Noorderlicht kansen IJsland','Ringweg rijden zelf of tour?','Beste reistijd IJsland','Camper of hotel IJsland?'] },
+  'Noorwegen':        { code:'NO', sub:'Fjorden, midnight sun en de Lofoten eilanden.', suggestions:['Fjorden rondreis opties','Lofoten eilanden tips','Midnight sun beleving','Camper in Noorwegen'] },
+  'Zweden':           { code:'SE', sub:'Zweeds Lapland, aurora borealis en de natuur van Noord-Zweden.', suggestions:['Zweeds Lapland winterreis','Huskysafari Lapland','Aurora borealis tips','Stockholm stedentrip'] },
+  'Finland':          { code:'FI', sub:'Rovaniemi, glasiglos en safaripakketten in Finland.', suggestions:['Glasiglo accommodaties','Rovaniemi Kerstman tips','Aurora borealis Finland','Husky & rendier safari'] },
+  'Japan':            { code:'JP', sub:'Cultuur, natuur en moderne steden — unieke ervaringen in Japan.', suggestions:['Beste reistijd Japan','Visumeisen Japan 2024','Rondreis route Japan','Must-see bezienswaardigheden'] },
+  'China':            { code:'CN', sub:'Groepsreizen en individuele reizen door het grote China.', suggestions:['Visum aanvragen China','Groepsreis China opties','Grote Muur bezoeken','Shanghai en Beijing tips'] },
+  'Camperreis':       { code:'RV', sub:'Campervakanties wereldwijd — alles wat een verkoper moet weten.', suggestions:['Beste camperbestemmingen','Camper huren tips klanten','Rijbewijs eisen camper','Kampeerplaatsen Europa'] },
+  'Autorondreis':     { code:'AR', sub:'Autorondreizen op maat — routes, auto\'s en logistiek.', suggestions:['Populaire autorondreizen','Auto huren buitenland','Verzekering autorondreis','Kinderen mee op rondreis'] },
+  'Stedentrip':       { code:'CT', sub:'City breaks en weekends weg — stedentrips van Doets.', suggestions:['Populaire stedentrips','Stedentrip met kinderen','Beste citytrip bestemmingen','Stedentrip tips verkoop'] },
+  'Wintersport':      { code:'WS', sub:'Wintersport en sneeuwvakanties — skigebieden en arrangementen.', suggestions:['Beste skigebieden Europa','Beginners skivakantie','Gezinswintersport tips','Apres-ski arrangementen'] },
+  'Safari & Wildlife':{ code:'SF', sub:'Safari- en wildlife-reizen — Big Five en meer.', suggestions:['Safari bestemmingen vergelijken','Big Five spotten tips','Beste safari maanden','Familie safari opties'] },
+  'Deep Desires':     { code:'DD', sub:'Exclusieve droomreizen op maat — het premium segment van Doets.', suggestions:['Wat zijn Deep Desires?','Doelgroep Deep Desires','Prijsklasse Deep Desires','Voorbeelden en routes'] },
+  'Familiereis':      { code:'FM', sub:'Familiereizen — kindvriendelijke bestemmingen en arrangementen.', suggestions:['Beste familiebestemmingen','Leeftijdsgeschikte activiteiten','Kindvriendelijke hotels','Reisverzekering gezin'] },
+  'Golfreis':         { code:'GL', sub:'Golfreizen van Doets — topbanen en golfresorts wereldwijd.', suggestions:['Populaire golfbestemmingen','Golfresort arrangementen','Huurmateriaal ter plaatse','Golfvisum en regels'] },
+};
+
+// ── INIT ─────────────────────────────────────────────────────────
+function renderDefaultChips() {
+  const sugRow = document.getElementById('suggestionsRow');
+  sugRow.innerHTML = DEFAULT_SUGGESTIONS.map(s =>
+    '<button class="suggestion-chip" onclick="useChip(this)">' + esc(s) + '</button>'
+  ).join('');
+}
+
+function init() {
+  renderDefaultChips();
+  if (!apiKey) { showModal(true); return; }
+  restoreSession();
+  document.addEventListener('keydown', function(e) {
+    if (e.key === '/' && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) {
+      e.preventDefault();
+      document.getElementById(currentTab === 'chat' ? 'queryInput' : 'searchInput').focus();
+    }
+  });
+}
+
+// ── SESSION ───────────────────────────────────────────────────────
+function restoreSession() {
+  if (!messages.length) return;
+  show('msgs'); hide('welcome');
+  const c = document.getElementById('msgs');
+  c.innerHTML = '';
+  for (const m of messages) {
+    if (m.role === 'user')           renderUser(m.content, false);
+    else if (m.role === 'assistant') renderAI(m.content, m.sources || [], false);
+  }
+  scrollBottom();
+}
+
+function saveSession() { localStorage.setItem('doets_msgs', JSON.stringify(messages)); }
+
+function clearHistory() {
+  messages = [];
+  localStorage.removeItem('doets_msgs');
+  document.getElementById('msgs').innerHTML = '';
+  hide('msgs'); show('welcome');
+  if (activeDest) {
+    const d = DEST_DATA[activeDest] || {};
+    document.getElementById('suggestionsRow').innerHTML = (d.suggestions || DEFAULT_SUGGESTIONS).map(s =>
+      '<button class="suggestion-chip" onclick="useChip(this)">' + esc(s) + '</button>'
+    ).join('');
+  } else {
+    renderDefaultChips();
+  }
+  document.getElementById('suggestionsRow').classList.remove('hidden');
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────
+function showModal(isFirst) {
+  document.getElementById('keyInput').value = apiKey;
+  document.getElementById('modalCancel').style.display = isFirst ? 'none' : '';
+  document.getElementById('keyOverlay').style.display = 'flex';
+  setTimeout(function() { document.getElementById('keyInput').focus(); }, 80);
+}
+function closeModal() { document.getElementById('keyOverlay').style.display = 'none'; }
+function saveKey() {
+  const v = document.getElementById('keyInput').value.trim();
+  if (!v.startsWith('sk-ant-')) { document.getElementById('keyInput').style.borderColor = '#ff6b6b'; return; }
+  apiKey = v;
+  localStorage.setItem('doets_key', apiKey);
+  closeModal();
+  restoreSession();
+}
+function showKeyModal() { showModal(false); }
+
+// ── DESTINATION FILTER ────────────────────────────────────────────
+function setDest(el, dest) {
+  document.querySelectorAll('.sidebar-item').forEach(function(i) { i.classList.remove('active'); });
+  el.classList.add('active');
+  activeDest = dest;
+
+  const sugRow  = document.getElementById('suggestionsRow');
+  const ctxWrap = document.getElementById('ctxWrap');
+  const qInput  = document.getElementById('queryInput');
+  const wTitle  = document.getElementById('welcomeTitle');
+  const wSub    = document.getElementById('welcomeSub');
+  const wIcon   = document.getElementById('welcomeIcon');
+  const wCode   = document.getElementById('welcomeCode');
+
+  if (dest) {
+    const d = DEST_DATA[dest] || {};
+    wTitle.textContent = dest;
+    wSub.textContent   = d.sub || ('Stel vragen over ' + dest + '. Antwoorden zijn gebaseerd op Doets-documenten.');
+    wIcon.style.display = 'none';
+    wCode.style.display = 'inline';
+    wCode.textContent   = d.code || dest.slice(0, 2).toUpperCase();
+    sugRow.innerHTML = (d.suggestions || DEFAULT_SUGGESTIONS).map(s =>
+      '<button class="suggestion-chip" onclick="useChip(this)">' + esc(s) + '</button>'
+    ).join('');
+    sugRow.classList.remove('hidden');
+    qInput.placeholder = 'Stel een vraag over ' + dest + '...';
+    document.getElementById('ctxLabel').textContent = dest;
+    ctxWrap.classList.add('visible');
+    if (!messages.length) { show('welcome'); hide('msgs'); }
+  } else {
+    wTitle.textContent  = 'Kennisdatabank';
+    wSub.textContent    = 'Stel een vraag over reisbestemmingen, producten of procedures. Antwoorden zijn uitsluitend gebaseerd op Doets-documenten.';
+    wIcon.style.display = '';
+    wCode.style.display = 'none';
+    sugRow.innerHTML = DEFAULT_SUGGESTIONS.map(s =>
+      '<button class="suggestion-chip" onclick="useChip(this)">' + esc(s) + '</button>'
+    ).join('');
+    sugRow.classList.remove('hidden');
+    qInput.placeholder = 'Stel uw vraag...';
+    ctxWrap.classList.remove('visible');
+  }
+}
+
+// ── TABS ──────────────────────────────────────────────────────────
+function switchTab(tab) {
+  currentTab = tab;
+  const isChat = tab === 'chat';
+  document.getElementById('tabChat').classList.toggle('active', isChat);
+  document.getElementById('tabZoek').classList.toggle('active', !isChat);
+  document.getElementById('chatArea').classList.toggle('hidden', !isChat);
+  document.getElementById('searchResults').classList.toggle('hidden', isChat);
+  document.getElementById('searchBar').classList.toggle('hidden', isChat);
+  document.getElementById('suggestionsRow').classList.toggle('hidden', !isChat);
+  document.getElementById('inputRow').classList.toggle('hidden', !isChat);
+  document.getElementById(isChat ? 'queryInput' : 'searchInput').focus();
+}
+
+// ── CHIPS ─────────────────────────────────────────────────────────
+function useChip(btn) { document.getElementById('queryInput').value = btn.textContent; sendMsg(); }
+
+// ── SEND ──────────────────────────────────────────────────────────
+async function sendMsg() {
+  const input = document.getElementById('queryInput');
+  let q = input.value.trim();
+  if (!q || loading) return;
+  if (!apiKey) { showModal(); return; }
+
+  const displayQ = q;
+  input.value = '';
+  loading = true;
+  document.getElementById('sendBtn').disabled = true;
+  document.getElementById('suggestionsRow').classList.add('hidden');
+
+  hide('welcome');
+  show('msgs');
+
+  messages.push({ role: 'user', content: q });
+  saveSession();
+  renderUser(displayQ, true);
+
+  const typingId = renderTyping();
+  scrollBottom();
+
+  try {
+    const destSystem = activeDest
+      ? SYSTEM + '\n\nDe gebruiker heeft de ' + activeDest + '-sectie geopend. Geef prioriteit aan informatie over ' + activeDest + ' en noem het als context in je antwoord.'
+      : SYSTEM;
+
+    const sendMessages = messages.map(function(m) { return { role: m.role, content: m.content }; });
+
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ apiKey: apiKey, messages: sendMessages, system: destSystem, useRAG: true })
+    });
+
+    const contentType = res.headers.get('content-type') || '';
+    if (!res.ok || !contentType.includes('text/event-stream')) {
+      removeEl(typingId);
+      let errMsg = 'Serverfout (' + res.status + ').';
+      try { const d = await res.json(); errMsg = d.error?.message || d.error || errMsg; } catch (_) {}
+      renderError(errMsg);
+      messages.pop(); saveSession();
+      return;
+    }
+
+    const reader  = res.body.getReader();
+    const decoder = new TextDecoder();
+    let fullText = '';
+    let buffer   = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        try {
+          const data = JSON.parse(line.slice(6));
+          if (data.error) throw new Error(data.error);
+          if (data.t) fullText += data.t;
+        } catch (parseErr) {
+          if (parseErr.message && !parseErr.message.includes('JSON')) throw parseErr;
+        }
+      }
+    }
+
+    if (!fullText) fullText = 'Geen antwoord ontvangen.';
+    const sources = parseSources(fullText);
+    removeEl(typingId);
+    const uid = 'ai-' + Date.now();
+    const textTarget = createStreamingBubble(uid);
+    const cleanForReveal = fullText.replace(/\[Bron \d+:[^\]]+\]/g, '').trim();
+    await typewriterReveal(textTarget, cleanForReveal);
+    finalizeStreamingBubble(uid, fullText, sources);
+    messages.push({ role: 'assistant', content: fullText, sources: sources });
+    saveSession();
+    scrollBottom();
+
+  } catch (e) {
+    removeEl(typingId);
+    renderError('Kan de server niet bereiken. Controleer uw verbinding.');
+    messages.pop();
+    saveSession();
+  } finally {
+    loading = false;
+    document.getElementById('sendBtn').disabled = false;
+  }
+}
+
+// ── SEARCH ────────────────────────────────────────────────────────
+async function doSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  if (!q) return;
+  const c = document.getElementById('searchResults');
+  c.innerHTML = '<div style="padding:2rem;text-align:center;color:rgba(255,255,255,0.35);font-size:.78rem">Zoeken...</div>';
+  try {
+    const res  = await fetch('/api/search', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ query:q, topK:8 }) });
+    const data = await res.json();
+    if (!res.ok || !data.results?.length) {
+      c.innerHTML = '<div style="padding:2rem;text-align:center;color:rgba(255,255,255,0.35);font-size:.78rem">Geen resultaten gevonden.</div>';
+      return;
+    }
+    c.innerHTML = data.results.map(function(r) {
+      return '<div class="result-card"><div class="result-card-head"><span class="result-doc">' + esc(r.documentName) + '</span><span class="result-score">Relevantie <span>' + Math.round(r.score*100) + '%</span></span></div><div class="result-text">' + esc(r.text) + '</div></div>';
+    }).join('');
+  } catch (_) {
+    c.innerHTML = '<div style="padding:2rem;text-align:center;color:#ff7a7a;font-size:.78rem">Fout bij zoeken. Probeer opnieuw.</div>';
+  }
+}
+
+// ── RENDER HELPERS ────────────────────────────────────────────────
+function renderUser(text, animate) {
+  const el = make('div', 'message msg-user' + (animate ? '' : ' no-anim'));
+  el.innerHTML = '<div class="bubble">' + esc(text) + '</div>';
+  document.getElementById('msgs').appendChild(el);
+}
+
+function createStreamingBubble(uid) {
+  const msgEl = make('div', 'message msg-ai');
+  msgEl.id    = uid;
+  msgEl.innerHTML =
+    '<div class="ai-lbl">Kennisdatabank</div>' +
+    '<div class="ai-body">' +
+      '<div class="ai-text" id="txt-' + uid + '"></div>' +
+      '<div id="chips-' + uid + '"></div>' +
+      '<div id="fu-' + uid + '" class="followup-chips"></div>' +
+      '<div class="msg-actions" id="act-' + uid + '" style="opacity:0;transition:opacity .2s">' +
+        '<button class="act-btn" onclick="copyMsg(\'' + uid + '\')" title="Kopieer">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Kopieer' +
+        '</button>' +
+        '<button class="act-btn" onclick="vote(this,\'up\')" title="Nuttig">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>' +
+        '</button>' +
+        '<button class="act-btn" onclick="vote(this,\'down\')" title="Niet nuttig">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0122 4v7a2.31 2.31 0 01-2.33 2H17"/></svg>' +
+        '</button>' +
+      '</div>' +
+    '</div>';
+  document.getElementById('msgs').appendChild(msgEl);
+  return document.getElementById('txt-' + uid);
+}
+
+function finalizeStreamingBubble(uid, fullText, sources) {
+  const clean = fullText.replace(/\[Bron \d+:[^\]]+\]/g, '').trim();
+  document.getElementById('txt-' + uid).innerHTML = formatText(clean);
+
+  const chipsEl = document.getElementById('chips-' + uid);
+  if (sources.length) {
+    chipsEl.className = 'source-chips';
+    chipsEl.innerHTML = sources.map(function(s) { return '<span class="source-chip">' + esc(trunc(s,34)) + '</span>'; }).join('');
+  }
+
+  document.getElementById('fu-' + uid).innerHTML =
+    pickFollowups().map(function(f) { return '<button class="followup-chip" onclick="useFollowup(this)">' + esc(f) + '</button>'; }).join('');
+
+  const actEl = document.getElementById('act-' + uid);
+  if (actEl) actEl.style.opacity = '';
+}
+
+function renderAI(fullText, sources, animate) {
+  const clean = fullText.replace(/\[Bron \d+:[^\]]+\]/g, '').trim();
+  const uid   = 'ai-' + Date.now() + Math.random().toString(36).slice(2,6);
+  const el    = make('div', 'message msg-ai' + (animate ? '' : ' no-anim'));
+  el.id       = uid;
+  const chips = sources.map(function(s) { return '<span class="source-chip">' + esc(trunc(s,34)) + '</span>'; }).join('');
+  const fuHtml = pickFollowups().map(function(f) { return '<button class="followup-chip" onclick="useFollowup(this)">' + esc(f) + '</button>'; }).join('');
+  el.innerHTML =
+    '<div class="ai-lbl">Kennisdatabank</div>' +
+    '<div class="ai-body">' +
+      '<div class="ai-text">' + formatText(clean) + '</div>' +
+      (sources.length ? '<div class="source-chips">' + chips + '</div>' : '') +
+      '<div class="followup-chips">' + fuHtml + '</div>' +
+      '<div class="msg-actions">' +
+        '<button class="act-btn" onclick="copyMsg(\'' + uid + '\')">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Kopieer' +
+        '</button>' +
+        '<button class="act-btn" onclick="vote(this,\'up\')">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>' +
+        '</button>' +
+        '<button class="act-btn" onclick="vote(this,\'down\')">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0122 4v7a2.31 2.31 0 01-2.33 2H17"/></svg>' +
+        '</button>' +
+      '</div>' +
+    '</div>';
+  document.getElementById('msgs').appendChild(el);
+}
+
+function renderTyping() {
+  const id = 'typ-' + Date.now();
+  const el = make('div', 'message msg-ai');
+  el.id    = id;
+  el.innerHTML =
+    '<div class="ai-lbl">Kennisdatabank</div>' +
+    '<div class="ai-body">' +
+      '<div class="typing-dots">' +
+        '<div class="typing-dot"></div>' +
+        '<div class="typing-dot"></div>' +
+        '<div class="typing-dot"></div>' +
+      '</div>' +
+    '</div>';
+  document.getElementById('msgs').appendChild(el);
+  return id;
+}
+
+function renderError(msg) {
+  const el = make('div', 'message msg-ai msg-err');
+  el.innerHTML = '<div class="ai-lbl">Fout</div><div class="ai-body"><div class="ai-text">' + esc(msg) + '</div></div>';
+  document.getElementById('msgs').appendChild(el);
+  scrollBottom();
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────────
+function copyMsg(uid) {
+  const text = document.getElementById(uid)?.querySelector('.ai-text')?.textContent || '';
+  navigator.clipboard.writeText(text).then(function() {
+    const btn = document.getElementById(uid)?.querySelector('.act-btn');
+    if (btn) { btn.style.color = 'var(--gold)'; setTimeout(function() { btn.style.color = ''; }, 1500); }
+  });
+}
+
+function vote(btn, dir) {
+  const opp = dir === 'up' ? 'down' : 'up';
+  const sibling = btn.parentElement.querySelector('[onclick*="' + opp + '"]');
+  btn.classList.toggle('voted');
+  if (sibling) sibling.classList.remove('voted');
+}
+
+function useFollowup(btn) { document.getElementById('queryInput').value = btn.textContent; sendMsg(); }
+
+// ── UTILS ─────────────────────────────────────────────────────────
+function parseSources(text) {
+  const m = text.match(/\[Bron \d+: ([^\]]+)\]/g) || [];
+  return [...new Set(m.map(function(x) { return x.match(/\[Bron \d+: ([^\]]+)\]/)[1]; }))];
+}
+
+function pickFollowups() {
+  const pool = [...FOLLOWUPS];
+  const out  = [];
+  while (out.length < 3 && pool.length) {
+    const i = Math.floor(Math.random() * pool.length);
+    out.push(pool.splice(i, 1)[0]);
+  }
+  return out;
+}
+
+function formatText(t) {
+  return esc(t).split(/\n\n+/).map(function(p) {
+    return '<p>' + p
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g,     '<em>$1</em>')
+      .replace(/\n/g, '<br>') + '</p>';
+  }).join('');
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function trunc(s, n) { return s.length > n ? s.slice(0, n) + '...' : s; }
+function make(tag, cls) { const el = document.createElement(tag); if (cls) el.className = cls; return el; }
+function show(id) { document.getElementById(id).classList.remove('hidden'); }
+function hide(id) { document.getElementById(id).classList.add('hidden'); }
+function removeEl(id) { document.getElementById(id)?.remove(); }
+function scrollBottom() { const el = document.getElementById('msgs'); el.scrollTop = el.scrollHeight; }
+function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+
+async function typewriterReveal(el, text, msPerWord) {
+  msPerWord = msPerWord || 28;
+  const parts = text.split(/(\s+)/);
+  let acc = '';
+  for (const part of parts) {
+    acc += part;
+    el.innerHTML = formatText(acc);
+    scrollBottom();
+    if (part.trim().length > 0) await sleep(msPerWord);
+  }
+}
+
+// ── BOOT ──────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>

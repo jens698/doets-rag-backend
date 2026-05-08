@@ -405,10 +405,13 @@
         } else {
           fb.style.cssText = 'display:block;margin-top:1rem;padding:1rem;border-radius:8px;font-size:0.85rem;line-height:1.6;background:var(--gold-faint);border:1px solid var(--gold-pale);';
           fb.innerHTML = `
+                     fb.innerHTML = `
             <strong>Geslaagd!</strong><br>
             Titel: ${data.title}<br>
             Type: ${data.documentType} &nbsp;|&nbsp; Versie: v${data.version}<br>
-            Chunks: ${data.chunks} &nbsp;|&nbsp; Vectors: ${data.vectors} &nbsp;|&nbsp; Tekens: ${data.textLength}
+            Chunks: ${data.chunks} &nbsp;|&nbsp; Vectors: ${data.vectors} &nbsp;|&nbsp; Tekens: ${data.textLength}<br>
+            Methode: ${data.extractSource || '-'}
+          `;
           `;
           log('success', `Gescrapet: ${data.title} — ${data.chunks} chunks`);
           loadStats();

@@ -6,6 +6,15 @@ import {
   markVectorsInactive
 } from '../lib/pinecone.js';
 
+const NOISE_SELECTORS = [
+  'nav', 'header', 'footer', 'aside',
+  'script', 'style', 'noscript',
+  '.menu', '.navigation', '.nav', '.header', '.footer',
+  '.cookie', '.cookiebar', '.consent',
+  '.sidebar', '.widget', '.advertisement', '.ad',
+  '[aria-hidden="true"]'
+];
+
 const CONTENT_SELECTORS = [
   'main', 'article', '.entry-content', '.post-content',
   '.page-content', '.content', '#content', '#main'
@@ -167,7 +176,6 @@ function extractContent(html, url) {
     }
   }
 
-  // Aggressive: collect all paragraphs, headings, list items
   const parts = [];
   $('p, h1, h2, h3, h4, h5, h6, li, blockquote').each((_, el) => {
     const t = $(el).text().replace(/\s+/g, ' ').trim();
@@ -207,6 +215,7 @@ export default async function handler(req, res) {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'nl-NL,nl;q=0.9,en;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br',
         'Cache-Control': 'no-cache',
         'Referer': 'https://www.doetsreizen.nl/'
       },
@@ -233,7 +242,7 @@ export default async function handler(req, res) {
 
     if (!cleanedText || cleanedText.length < 80) {
       return res.status(400).json({
-        error: `Te weinig tekst gevonden (${cleanedText?.length || 0} tekens, methode: ${extractSource}).`
+        error: `Te weinig tekst gevonden (${cleanedText?.length || 0} tekens, methode: ${extractSource}). De pagina laadt mogelijk via JavaScript. Kopieer de tekst handmatig en upload als TXT-bestand.`
       });
     }
 

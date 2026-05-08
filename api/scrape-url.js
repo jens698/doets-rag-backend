@@ -18,24 +18,90 @@ function detectDocumentType(url) {
   return 'algemeen';
 }
 
+function extractFromJsonLd($) {
+  const scripts = $('script[type="application/ld+json"]');
+  let bodyText = '';
+  scripts.each((_, el) => {
+    try {
+      const data = JSON.parse($(el).html());
+      const items = Array.isArray(data) ? data : (data['@graph'] || [data]);
+      for (const item of items) {
+        const t = item.articleBody || item.description || item.text;
+        if (typeof t === 'string' && t.length > 100) bodyText += '\n\n' + t;
+      }
+    } catch (_) {}
+  });
+  return bodyText.trim();
+}
+
+function extractFromNextData($) {
+  const el = $('script#__NEXT_DATA__').first();
+  if (!el.length) return '';
+  try {
+    const data = JSON.parse(el.html());
+    const seen = new Set();
+    const out = [];
+    const walk = (node) => {
+      if (!node || typeof node !== 'object') return;
+      if (Array.isArray(node)) { node.forEach(walk); return; }
+      for (const [k, v] of Object.entries(node)) {
+        if (typeof v === 'string' && v.length > 80 && !seen.has(v)) {
+          if (/[a-z]{4,}.*[a-z]{4,}/.test(v) && !v.startsWith('http')) {
+            out.push(v);
+            seen.add(v);
+          }
+        } else if (typeof v === 'object') {
+          walk(v);
+        }
+      }
+    };
+    walk(data);
+    return out.join('\n\n');
+  } catch (_) {
+    return '';
+  }
+}
+
 function extractContent(html, url) {
   const $ = cheerio.load(html);
 
-  $('script, style, noscript').remove();
+  $('style, noscript').remove();
   $('nav, header, footer').remove();
   $('[aria-hidden="true"]').remove();
 
-  const title = $('h1').first().text().trim() || $('title').text().trim();
+  const title =
+    $('h1').first().text().trim() ||
+    $('meta[property="og:title"]').attr('content') ||
+    $('title').text().trim();
+
+  const jsonLdText = extractFromJsonLd($);
+  if (jsonLdText.length > 200) {
+    return { title, text: jsonLdText, source: 'json-ld' };
+  }
+
+  const nextText = extractFromNextData($);
+  if (nextText.length > 200) {
+    return { title, text: nextText, source: 'next-data' };
+  }
+
+  $('script').remove();
 
   for (const sel of CONTENT_SELECTORS) {
     const el = $(sel).first();
     const t  = el.text().trim();
     if (el.length && t.length > 100) {
-      return { title, text: t };
+      return { title, text: t, source: 'dom:' + sel };
     }
   }
 
-  return { title, text: $('body').text() };
+  const metaDesc =
+    $('meta[name="description"]').attr('content') ||
+    $('meta[property="og:description"]').attr('content') || '';
+  return {
+    title,
+    text: (metaDesc + '\n\n' + $('body').text()).trim(),
+    source: 'body'
+  };
 }
 
 export default async function handler(req, res) {
@@ -70,12 +136,12 @@ export default async function handler(req, res) {
     }
 
     const html = await response.text();
-    const { title, text } = extractContent(html, url);
+    const { title, text, source: extractSource } = extractContent(html, url);
     const cleanedText = cleanText(text);
 
     if (!cleanedText || cleanedText.length < 80) {
       return res.status(400).json({
-        error: `Te weinig tekst gevonden (${cleanedText?.length || 0} tekens). De pagina laadt mogelijk via JavaScript of vereist een inlog. Probeer de pagina als TXT of DOCX te exporteren en handmatig te uploaden.`
+        error: `Te weinig tekst gevonden (${cleanedText?.length || 0} tekens, methode: ${extractSource}). HTML grootte: ${html.length}. De pagina laadt mogelijk via JavaScript of vereist een inlog.`
       });
     }
 
@@ -119,6 +185,7 @@ export default async function handler(req, res) {
       chunks: chunks.length,
       vectors: vectorCount,
       textLength: cleanedText.length,
+      extractSource,
       contentHash,
       previousVersionsDeactivated: deactivatedCount
     });

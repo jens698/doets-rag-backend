@@ -11,6 +11,33 @@ const CONTENT_SELECTORS = [
   '.page-content', '.content', '#content', '#main'
 ];
 
+async function tryWordPressApi(url) {
+  try {
+    const parsed = new URL(url);
+    const parts  = parsed.pathname.replace(/\/$/, '').split('/');
+    const slug   = parts[parts.length - 1];
+    if (!slug) return null;
+
+    const apiUrl = `${parsed.origin}/wp-json/wp/v2/posts?slug=${slug}&_fields=title,content,excerpt`;
+    const res = await fetch(apiUrl, {
+      headers: { 'Accept': 'application/json' },
+      signal: AbortSignal.timeout(6000)
+    });
+    if (!res.ok) return null;
+
+    const posts = await res.json();
+    if (!Array.isArray(posts) || !posts.length) return null;
+
+    const post  = posts[0];
+    const title = cheerio.load(post.title?.rendered || '').text();
+    const html  = post.content?.rendered || post.excerpt?.rendered || '';
+    const text  = cheerio.load(html).text().trim();
+
+    if (text.length > 100) return { title, text, source: 'wordpress-api' };
+  } catch (_) {}
+  return null;
+}
+
 function detectDocumentType(url) {
   if (url.includes('/reisblog/') || url.includes('/blog/')) return 'algemeen';
   if (url.includes('/reizen/') || url.includes('/reis/'))   return 'reis';
@@ -123,7 +150,6 @@ export default async function handler(req, res) {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'nl-NL,nl;q=0.9,en;q=0.8',
-        'Accept-Encoding': 'gzip, deflate, br',
         'Cache-Control': 'no-cache',
         'Referer': 'https://www.doetsreizen.nl/'
       },
@@ -135,13 +161,20 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: `Pagina niet bereikbaar: HTTP ${response.status}` });
     }
 
-    const html = await response.text();
-    const { title, text, source: extractSource } = extractContent(html, url);
+    // Try WordPress REST API first — gets full content without JS
+    const wpResult = await tryWordPressApi(url);
+    let title, text, extractSource;
+    if (wpResult) {
+      ({ title, text, source: extractSource } = wpResult);
+    } else {
+      const html = await response.text();
+      ({ title, text, source: extractSource } = extractContent(html, url));
+    }
     const cleanedText = cleanText(text);
 
     if (!cleanedText || cleanedText.length < 80) {
       return res.status(400).json({
-        error: `Te weinig tekst gevonden (${cleanedText?.length || 0} tekens, methode: ${extractSource}). HTML grootte: ${html.length}. De pagina laadt mogelijk via JavaScript of vereist een inlog.`
+        error: `Te weinig tekst gevonden (${cleanedText?.length || 0} tekens, methode: ${extractSource}). De pagina laadt mogelijk via JavaScript of vereist een inlog.`
       });
     }
 

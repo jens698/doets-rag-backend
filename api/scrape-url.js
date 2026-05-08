@@ -11,6 +11,52 @@ const CONTENT_SELECTORS = [
   '.page-content', '.content', '#content', '#main'
 ];
 
+async function tryRssFeed(url) {
+  try {
+    const parsed = new URL(url);
+    const parts  = parsed.pathname.replace(/\/$/, '').split('/').filter(Boolean);
+    const slug   = parts[parts.length - 1];
+
+    const feedUrls = [
+      `${parsed.origin}/${parts[0]}/feed/`,
+      `${parsed.origin}/feed/`
+    ];
+
+    for (const feedUrl of feedUrls) {
+      const res = await fetch(feedUrl, {
+        headers: { 'Accept': 'application/rss+xml, application/xml, text/xml' },
+        signal: AbortSignal.timeout(6000)
+      });
+      if (!res.ok) continue;
+
+      const xml = await res.text();
+      const $   = cheerio.load(xml, { xmlMode: true });
+
+      let matched = null;
+      $('item').each((_, el) => {
+        const itemLink = $(el).find('link').text() + $(el).find('guid').text();
+        if (itemLink.includes(slug)) {
+          matched = el;
+          return false;
+        }
+      });
+
+      if (!matched) continue;
+
+      const $item   = $(matched);
+      const title   = $item.find('title').text().trim();
+      const content = $item.find('content\\:encoded, encoded').text() ||
+                      $item.find('description').text();
+
+      if (!content) continue;
+
+      const text = cheerio.load(content).text().trim();
+      if (text.length > 500) return { title, text, source: 'rss-feed' };
+    }
+  } catch (_) {}
+  return null;
+}
+
 async function tryWordPressApi(url) {
   try {
     const parsed = new URL(url);
@@ -33,7 +79,7 @@ async function tryWordPressApi(url) {
     const html  = post.content?.rendered || post.excerpt?.rendered || '';
     const text  = cheerio.load(html).text().trim();
 
-    if (text.length > 100) return { title, text, source: 'wordpress-api' };
+    if (text.length > 500) return { title, text, source: 'wordpress-api' };
   } catch (_) {}
   return null;
 }
@@ -93,8 +139,6 @@ function extractContent(html, url) {
   const $ = cheerio.load(html);
 
   $('style, noscript').remove();
-  $('nav, header, footer').remove();
-  $('[aria-hidden="true"]').remove();
 
   const title =
     $('h1').first().text().trim() ||
@@ -102,23 +146,36 @@ function extractContent(html, url) {
     $('title').text().trim();
 
   const jsonLdText = extractFromJsonLd($);
-  if (jsonLdText.length > 200) {
+  if (jsonLdText.length > 500) {
     return { title, text: jsonLdText, source: 'json-ld' };
   }
 
   const nextText = extractFromNextData($);
-  if (nextText.length > 200) {
+  if (nextText.length > 500) {
     return { title, text: nextText, source: 'next-data' };
   }
 
   $('script').remove();
+  $('nav, footer').remove();
+  $('[aria-hidden="true"]').remove();
 
   for (const sel of CONTENT_SELECTORS) {
     const el = $(sel).first();
     const t  = el.text().trim();
-    if (el.length && t.length > 100) {
+    if (el.length && t.length > 500) {
       return { title, text: t, source: 'dom:' + sel };
     }
+  }
+
+  // Aggressive: collect all paragraphs, headings, list items
+  const parts = [];
+  $('p, h1, h2, h3, h4, h5, h6, li, blockquote').each((_, el) => {
+    const t = $(el).text().replace(/\s+/g, ' ').trim();
+    if (t.length > 20) parts.push(t);
+  });
+  const tagText = parts.join('\n\n');
+  if (tagText.length > 300) {
+    return { title, text: tagText, source: 'tags' };
   }
 
   const metaDesc =
@@ -161,10 +218,12 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: `Pagina niet bereikbaar: HTTP ${response.status}` });
     }
 
-    // Try WordPress REST API first — gets full content without JS
-    const wpResult = await tryWordPressApi(url);
+    const rssResult = await tryRssFeed(url);
+    const wpResult  = rssResult ? null : await tryWordPressApi(url);
     let title, text, extractSource;
-    if (wpResult) {
+    if (rssResult) {
+      ({ title, text, source: extractSource } = rssResult);
+    } else if (wpResult) {
       ({ title, text, source: extractSource } = wpResult);
     } else {
       const html = await response.text();
@@ -174,7 +233,7 @@ export default async function handler(req, res) {
 
     if (!cleanedText || cleanedText.length < 80) {
       return res.status(400).json({
-        error: `Te weinig tekst gevonden (${cleanedText?.length || 0} tekens, methode: ${extractSource}). De pagina laadt mogelijk via JavaScript of vereist een inlog.`
+        error: `Te weinig tekst gevonden (${cleanedText?.length || 0} tekens, methode: ${extractSource}).`
       });
     }
 

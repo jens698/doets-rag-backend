@@ -141,7 +141,22 @@
         <div class="stat"><div class="stat-label">Documenten</div><div class="stat-value gold" id="stat-vectors">—</div><div class="stat-meta">opgeslagen vectors</div></div>
         <div class="stat"><div class="stat-label">Status</div><div class="stat-value" id="stat-status" style="font-size:1.5rem;padding-top:0.7rem;">—</div><div class="stat-meta">database verbinding</div></div>
         <div class="stat"><div class="stat-label">Precisie</div><div class="stat-value" id="stat-dimension">—</div><div class="stat-meta">embedding dimensies</div></div>
-      </div>
+      </div>      <section class="section">
+        <div class="section-head">
+          <h2 class="section-title">Webpagina scrapen</h2>
+          <div class="section-line"></div>
+        </div>
+        <div class="search-card">
+          <div class="search-row">
+            <input class="input" type="url" id="scrape-url" placeholder="https://www.doetsreizen.nl/reisblog/..." onkeypress="if(event.key==='Enter') scrapeUrl()">
+            <button class="btn btn-primary" id="scrape-btn" onclick="scrapeUrl()">Scrapen</button>
+          </div>
+          <div id="scrape-feedback" style="display:none;margin-top:1rem;padding:1rem;border-radius:8px;font-size:0.85rem;line-height:1.6;"></div>
+          <div style="margin-top:0.75rem;font-size:0.78rem;color:var(--ink-muted);">
+            Plak een URL van doetsreizen.nl. De tekst wordt automatisch opgehaald en opgeslagen in de kennisdatabank.
+          </div>
+        </div>
+      </section>
       <section class="section">
         <div class="section-head"><h2 class="section-title">Document toevoegen</h2><div class="section-line"></div></div>
                <div class="upload">

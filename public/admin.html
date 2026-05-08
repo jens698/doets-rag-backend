@@ -379,7 +379,52 @@
         wrap.innerHTML = data.results.map(r => `<div class="result-item"><div class="result-meta"><span class="result-source">${r.documentName}</span><span class="result-score">${(r.score * 100).toFixed(1)}% MATCH</span></div><div class="result-text">${r.text}</div></div>`).join('');
         log('success', `${data.count} resultaten gevonden voor "${q}"`);
       } catch (e) { log('error', `Zoekfout: ${e.message}`); }
+    }    async function scrapeUrl() {
+      const url = document.getElementById('scrape-url').value.trim();
+      if (!url) return;
+      const btn = document.getElementById('scrape-btn');
+      const fb  = document.getElementById('scrape-feedback');
+
+      btn.disabled = true;
+      btn.textContent = 'Bezig...';
+      fb.style.display = 'none';
+      log('info', `Scrapen: ${url}`);
+
+      try {
+        const res  = await fetch(`${API}/api/scrape-url`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          fb.style.cssText = 'display:block;margin-top:1rem;padding:1rem;border-radius:8px;font-size:0.85rem;line-height:1.6;background:#fff5f5;border:1px solid #B23A48;color:#B23A48;';
+          fb.innerHTML = `<strong>Fout:</strong> ${data.error}`;
+          log('error', `Scrapen mislukt: ${data.error}`);
+        } else {
+          fb.style.cssText = 'display:block;margin-top:1rem;padding:1rem;border-radius:8px;font-size:0.85rem;line-height:1.6;background:var(--gold-faint);border:1px solid var(--gold-pale);';
+          fb.innerHTML = `
+            <strong>Geslaagd!</strong><br>
+            Titel: ${data.title}<br>
+            Type: ${data.documentType} &nbsp;|&nbsp; Versie: v${data.version}<br>
+            Chunks: ${data.chunks} &nbsp;|&nbsp; Vectors: ${data.vectors} &nbsp;|&nbsp; Tekens: ${data.textLength}
+          `;
+          log('success', `Gescrapet: ${data.title} — ${data.chunks} chunks`);
+          loadStats();
+          document.getElementById('scrape-url').value = '';
+        }
+      } catch (e) {
+        fb.style.cssText = 'display:block;margin-top:1rem;padding:1rem;border-radius:8px;font-size:0.85rem;background:#fff5f5;border:1px solid #B23A48;color:#B23A48;';
+        fb.innerHTML = `<strong>Fout:</strong> ${e.message}`;
+        log('error', `Scrapen fout: ${e.message}`);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Scrapen';
+      }
     }
+
+
     function log(type, msg) {
       const container = document.getElementById('activity-log');
       const time = new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });

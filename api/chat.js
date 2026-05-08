@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { searchSimilar } from '../lib/pinecone.js';
+import { searchSimilar, fetchAllChunksForDocs } from '../lib/pinecone.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -23,11 +23,36 @@ export default async function handler(req, res) {
 
     if (useRAG && latestQuery) {
       try {
-        const searchResults = await searchSimilar(latestQuery, 20);
+        // Step 1: find which documents are most relevant
+        const searchResults = await searchSimilar(latestQuery, 10);
+
         if (searchResults && searchResults.length > 0) {
-          const context = searchResults
+          // Step 2: collect unique documentIds in relevance order (max 4 docs)
+          const seenIds = new Set();
+          const topDocIds = [];
+          for (const r of searchResults) {
+            if (r.documentId && !seenIds.has(r.documentId)) {
+              seenIds.add(r.documentId);
+              topDocIds.push(r.documentId);
+              if (topDocIds.length >= 4) break;
+            }
+          }
+
+          // Step 3: fetch ALL chunks for those documents so nothing is missed
+          const allChunks = await fetchAllChunksForDocs(topDocIds);
+
+          // Sort: by document relevance rank, then by chunk order within document
+          allChunks.sort((a, b) => {
+            const rankA = topDocIds.indexOf(a.documentId);
+            const rankB = topDocIds.indexOf(b.documentId);
+            if (rankA !== rankB) return rankA - rankB;
+            return (a.chunkIndex ?? 0) - (b.chunkIndex ?? 0);
+          });
+
+          const context = allChunks
             .map((r, i) => `[Bron ${i + 1}: ${r.documentName}]\n${r.text}`)
             .join('\n\n---\n\n');
+
           enhancedSystem = `${system}\n\n## INFORMATIE UIT KENNISDATABANK:\n\n${context}\n\n## INSTRUCTIES:\n1. Beantwoord de vraag UITSLUITEND op basis van bovenstaande informatie uit de Doets kennisdatabank. Gebruik NOOIT je eigen trainingskennis of externe bronnen.\n2. Lees ALLE bronnen zorgvuldig — vaak staat het antwoord verspreid over meerdere bronnen.\n3. Als een vraag vraagt om een lijst, zoek in ALLE bronnen naar concrete items.\n4. Geef het antwoord dat je wél kunt geven. Alleen als er ECHT niets staat: "Ik heb hierover geen informatie in de kennisdatabank. Neem contact op met een collega."\n5. Verwijs altijd naar de bronnaam (Bron 1, Bron 2, etc).`;
         } else {
           enhancedSystem = `${system}\n\n## STRIKTE INSTRUCTIE:\nEr zijn geen relevante documenten gevonden. Geef GEEN antwoord op basis van eigen kennis. Zeg: "Ik heb hierover geen informatie in de kennisdatabank. Neem contact op met een collega."`;

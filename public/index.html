@@ -11,21 +11,21 @@
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
     :root {
-      --paper:       #F5EFE3;
-      --paper-deep:  #ECE4D2;
-      --sidebar-bg:  #ECE2CD;
-      --ink:         #1A1A2E;
-      --ink-soft:    #3F3F52;
-      --ink-mute:    #7A7060;
-      --gold:        #A8843A;
-      --gold-soft:   #C9A856;
-      --gold-bright: #D4A848;
-      --teal:        #1F4A5C;
-      --teal-soft:   #3A7388;
-      --teal-deep:   #143845;
-      --coral:       #B85540;
-      --rule:        rgba(26,26,46,0.12);
-      --rule-soft:   rgba(26,26,46,0.06);
+      --paper:      #FAF7F2;
+      --paper-deep: #F2EDE3;
+      --sidebar-bg: #F0EAD9;
+      --ink:        #1A1A1A;
+      --ink-soft:   #4A4A4A;
+      --ink-mute:   #8B8B8B;
+      --navy:       #0D1F3C;
+      --navy-soft:  #1a3556;
+      --navy-deep:  #06122a;
+      --gold:       #C9A84C;
+      --gold-soft:  #E2C875;
+      --gold-pale:  #F4EBD0;
+      --gold-faint: #FAF5E5;
+      --rule:       #E8E2D5;
+      --rule-soft:  rgba(232,226,213,0.6);
     }
 
     html, body { height:100%; overflow:hidden; }
@@ -73,7 +73,7 @@
     .sb-brand {
       padding:22px 20px 20px;
       background:
-        linear-gradient(135deg, var(--teal-deep) 0%, var(--teal) 100%);
+        linear-gradient(135deg, var(--navy-deep) 0%, var(--navy) 100%);
       color:#fff;
       position:relative;
       overflow:hidden;
@@ -156,7 +156,7 @@
       font-weight:700;
       letter-spacing:0.2em;
       text-transform:uppercase;
-      color:var(--teal-soft);
+      color:var(--navy-soft);
       padding:0 20px;
       margin-bottom:4px;
     }
@@ -178,8 +178,8 @@
     }
 
     .nav-btn:hover {
-      background:rgba(31,74,92,0.06);
-      color:var(--teal);
+      background:rgba(13,31,60,0.06);
+      color:var(--navy);
     }
 
     .nav-btn.active {
@@ -240,8 +240,8 @@
       inset:0;
       pointer-events:none;
       background:
-        radial-gradient(circle at 75% 15%, rgba(168,132,58,0.08), transparent 55%),
-        radial-gradient(circle at 15% 85%, rgba(31,74,92,0.06), transparent 50%);
+        radial-gradient(circle at 15% 10%, rgba(201,168,76,0.08) 0%, transparent 35%),
+        radial-gradient(circle at 85% 90%, rgba(13,31,60,0.04) 0%, transparent 40%);
     }
 
     .main::after {
@@ -249,8 +249,8 @@
       position:absolute;
       inset:0;
       pointer-events:none;
-      opacity:0.06;
-      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'><g fill='none' stroke='%231F4A5C' stroke-width='0.6'><path d='M0 80 Q80 60 160 80 T320 80 T480 80'/><path d='M0 140 Q80 120 160 140 T320 140 T480 140'/><path d='M0 200 Q80 180 160 200 T320 200 T480 200'/><path d='M0 260 Q80 240 160 260 T320 260 T480 260'/><path d='M0 320 Q80 300 160 320 T320 320 T480 320'/><circle cx='100' cy='100' r='30'/><circle cx='100' cy='100' r='50'/><circle cx='300' cy='280' r='25'/><circle cx='300' cy='280' r='45'/></g></svg>");
+      opacity:0.04;
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'><g fill='none' stroke='%230D1F3C' stroke-width='0.6'><path d='M0 80 Q80 60 160 80 T320 80 T480 80'/><path d='M0 140 Q80 120 160 140 T320 140 T480 140'/><path d='M0 200 Q80 180 160 200 T320 200 T480 200'/><path d='M0 260 Q80 240 160 260 T320 260 T480 260'/><path d='M0 320 Q80 300 160 320 T320 320 T480 320'/><circle cx='100' cy='100' r='30'/><circle cx='100' cy='100' r='50'/><circle cx='300' cy='280' r='25'/><circle cx='300' cy='280' r='45'/></g></svg>");
       background-size:400px 400px;
     }
 
@@ -260,19 +260,29 @@
       z-index:2;
       flex-shrink:0;
       height:52px;
-      border-bottom:1px solid var(--rule);
+      border-bottom:none;
       display:flex;
       align-items:center;
       padding:0 24px;
       gap:10px;
-      background:var(--paper);
+      background:var(--navy);
+      box-shadow:0 1px 0 rgba(201,168,76,0.3);
+    }
+
+    .topbar::after {
+      content:'';
+      position:absolute;
+      bottom:0; left:0; right:0;
+      height:2px;
+      background:linear-gradient(90deg, transparent 0%, var(--gold) 25%, var(--gold-soft) 50%, var(--gold) 75%, transparent 100%);
+      pointer-events:none;
     }
 
     .topbar-title {
       font-family:'Fraunces', serif;
       font-size:14px;
       font-weight:400;
-      color:var(--teal);
+      color:#FAF7F2;
       letter-spacing:0.02em;
       flex:1;
       display:flex;
@@ -291,7 +301,7 @@
 
     .topbar-title em {
       font-style:italic;
-      color:var(--ink-mute);
+      color:rgba(255,255,255,0.5);
       font-size:12.5px;
     }
 
@@ -299,13 +309,13 @@
       font-family:'Fraunces', serif;
       font-style:italic;
       font-size:11.5px;
-      color:var(--ink-mute);
+      color:rgba(255,255,255,0.45);
     }
 
     .topbar-btn {
       background:transparent;
-      border:1px solid var(--rule);
-      color:var(--ink-soft);
+      border:1px solid rgba(255,255,255,0.2);
+      color:rgba(255,255,255,0.7);
       font-family:'Manrope', sans-serif;
       font-size:10.5px;
       font-weight:600;
@@ -320,9 +330,9 @@
     }
 
     .topbar-btn:hover {
-      background:var(--ink);
-      color:var(--paper);
-      border-color:var(--ink);
+      background:var(--gold);
+      color:var(--navy);
+      border-color:var(--gold);
     }
 
     /* ── WELCOME ── */
@@ -351,7 +361,7 @@
       width:64px;
       height:64px;
       margin-bottom:1.4rem;
-      color:var(--teal);
+      color:var(--navy);
       position:relative;
     }
 
@@ -408,11 +418,11 @@
       content:'';
       width:46px;
       height:1px;
-      background:var(--teal-soft);
-      opacity:0.5;
+      background:var(--navy-soft);
+      opacity:0.4;
     }
 
-    .welcome-decor span { color:var(--teal-soft); }
+    .welcome-decor span { color:var(--navy-soft); }
 
     /* ── MESSAGES ── */
     .messages-area {
@@ -486,7 +496,7 @@
       position:absolute;
       left:0; top:1.7rem; bottom:0;
       width:2px;
-      background:linear-gradient(to bottom, var(--teal), transparent);
+      background:linear-gradient(to bottom, var(--gold), transparent);
     }
 
     .msg-ai .lbl {
@@ -496,7 +506,7 @@
       font-size:0.54rem;
       font-weight:700;
       letter-spacing:0.28em;
-      color:var(--teal);
+      color:var(--navy);
       text-transform:uppercase;
       margin-bottom:0.65rem;
     }
@@ -505,7 +515,7 @@
       content:'';
       width:14px;
       height:1px;
-      background:var(--teal);
+      background:var(--gold);
     }
 
     .msg-ai .ai-text {
@@ -549,12 +559,12 @@
       font-family:'Manrope', sans-serif;
       font-size:0.6rem;
       font-weight:500;
-      color:var(--gold);
-      background:transparent;
-      border:1px solid var(--gold);
+      color:var(--navy);
+      background:var(--gold-faint);
+      border:1px solid var(--gold-pale);
       padding:0.16rem 0.55rem;
       letter-spacing:0.04em;
-      border-radius:2px;
+      border-radius:3px;
     }
 
     .msg-actions {
@@ -597,30 +607,6 @@
     @keyframes tw {
       0%,70%,100% { opacity:.25; transform:translateY(0); }
       35%         { opacity:1;   transform:translateY(-3px); }
-    }
-
-    .followup-chips {
-      display:flex; flex-wrap:wrap; gap:0.45rem;
-      margin-top:1rem;
-    }
-
-    .followup-chip {
-      font-family:'Manrope', sans-serif;
-      font-size:0.66rem;
-      font-weight:500;
-      color:var(--ink-soft);
-      border:1px solid var(--rule);
-      background:transparent;
-      padding:0.32rem 0.78rem;
-      border-radius:999px;
-      cursor:pointer;
-      transition:all .15s;
-    }
-
-    .followup-chip:hover {
-      border-color:var(--ink);
-      color:var(--ink);
-      background:rgba(20,35,62,0.04);
     }
 
     /* ── SEARCH ── */
@@ -737,8 +723,8 @@
 
     .suggestion-chip:hover {
       border-color:var(--gold);
-      color:var(--gold);
-      background:rgba(168,132,58,0.06);
+      color:var(--navy);
+      background:var(--gold-faint);
     }
 
     .input-area {
@@ -759,9 +745,9 @@
     }
 
     .input-row:focus-within {
-      border-color:var(--ink);
+      border-color:var(--gold);
       background:#fff;
-      box-shadow:0 4px 20px rgba(20,35,62,0.05);
+      box-shadow:0 0 0 3px rgba(201,168,76,0.12), 0 4px 20px rgba(13,31,60,0.05);
     }
 
     .query-input {
@@ -779,7 +765,7 @@
     .query-input::placeholder { color:var(--ink-mute); font-style:italic; }
 
     .send-btn {
-      background:var(--ink);
+      background:var(--navy);
       color:var(--paper);
       border:none;
       font-family:'Manrope', sans-serif;
@@ -789,7 +775,7 @@
       transition:background .15s;
     }
 
-    .send-btn:hover { background:var(--gold); }
+    .send-btn:hover { background:var(--gold); color:var(--navy); }
     .send-btn:disabled { opacity:.35; cursor:not-allowed; }
 
     .tab-bar {
@@ -811,7 +797,7 @@
     .tab:hover { color:var(--ink); }
 
     .tab.active {
-      color:var(--ink);
+      color:var(--navy);
       border-bottom-color:var(--gold);
     }
 
@@ -1046,25 +1032,15 @@
 <script>
 // ── STATE ─────────────────────────────────────────────────────
 var apiKey     = localStorage.getItem('doets_key') || '';
-var messages   = JSON.parse(localStorage.getItem('doets_msgs') || '[]');
+var messages   = [];
 var activeDest = '';
 var loading    = false;
 var currentTab = 'chat';
 
-var SYSTEM = "Je bent de interne kennisassistent van Doets Reizen, uitsluitend bedoeld voor medewerkers van het verkoopteam. Beantwoord vragen UITSLUITEND op basis van informatie uit de Doets Reizen kennisdatabank. Gebruik NOOIT je eigen trainingskennis of externe bronnen. Als de kennisdatabank onvoldoende informatie bevat zeg dan: \"Dit staat niet in onze kennisdatabank. Neem contact op met een collega.\" Verwijs altijd naar de bronnaam. Antwoord in het Nederlands. Wees beknopt en praktisch. Gebruik GEEN emojis, smiley-tekens of em-dashes. Schrijf gewone zinnen met punten en komma's.";
+function destKey(dest) { return 'doets_msgs_' + (dest || 'all'); }
+function loadDestMessages(dest) { return JSON.parse(localStorage.getItem(destKey(dest)) || '[]'); }
 
-var FOLLOWUPS = [
-  'Wat zijn de annuleringsvoorwaarden?',
-  'Welke vliegmaatschappijen worden gebruikt?',
-  'Wat zijn de vertrekdata?',
-  'Zijn er speciale aanbiedingen?',
-  'Wat is inbegrepen in de prijs?',
-  'Welke visumeisen zijn er?',
-  'Wat is de beste reistijd?',
-  'Zijn er kinderkortingen?',
-  'Hoe lang duurt de reis gemiddeld?',
-  'Welke reisverzekering wordt aanbevolen?'
-];
+var SYSTEM = "Je bent de interne kennisassistent van Doets Reizen, uitsluitend bedoeld voor medewerkers van het verkoopteam. Beantwoord vragen UITSLUITEND op basis van informatie uit de Doets Reizen kennisdatabank. Gebruik NOOIT je eigen trainingskennis of externe bronnen. Als de kennisdatabank onvoldoende informatie bevat zeg dan: \"Dit staat niet in onze kennisdatabank. Neem contact op met een collega.\" Verwijs altijd naar de bronnaam. Antwoord in het Nederlands. Wees beknopt en praktisch. Gebruik GEEN emojis, smiley-tekens of em-dashes. Schrijf gewone zinnen met punten en komma's.";
 
 var DEFAULT_SUGGESTIONS = [
   'Beste boekingsperiode?',
@@ -1107,6 +1083,13 @@ function renderDefaultChips() {
 }
 
 function init() {
+  // Migrate old single-key session to per-dest format
+  var oldMsgs = localStorage.getItem('doets_msgs');
+  if (oldMsgs && !localStorage.getItem(destKey(''))) {
+    localStorage.setItem(destKey(''), oldMsgs);
+    localStorage.removeItem('doets_msgs');
+  }
+  messages = loadDestMessages('');
   setDateLabel();
   renderDefaultChips();
   if (!apiKey) { showModal(true); return; }
@@ -1134,12 +1117,12 @@ function restoreSession() {
 }
 
 function saveSession() {
-  localStorage.setItem('doets_msgs', JSON.stringify(messages));
+  localStorage.setItem(destKey(activeDest), JSON.stringify(messages));
 }
 
 function clearHistory() {
   messages = [];
-  localStorage.removeItem('doets_msgs');
+  localStorage.removeItem(destKey(activeDest));
   document.getElementById('msgsInner').innerHTML = '';
   hide('msgs'); show('welcome');
   if (activeDest) {
@@ -1176,9 +1159,30 @@ function showKeyModal() { showModal(false); }
 
 // ── DESTINATION FILTER ────────────────────────────────────────
 function setDest(el, dest) {
+  // Save current session before switching
+  saveSession();
+
   document.querySelectorAll('.sidebar-item').forEach(function(i) { i.classList.remove('active'); });
   el.classList.add('active');
   activeDest = dest;
+
+  // Load messages for the new destination
+  messages = loadDestMessages(dest);
+
+  // Reset chat UI
+  var c = document.getElementById('msgsInner');
+  c.innerHTML = '';
+  if (messages.length) {
+    for (var i = 0; i < messages.length; i++) {
+      var m = messages[i];
+      if (m.role === 'user')           renderUser(m.content, false);
+      else if (m.role === 'assistant') renderAI(m.content, m.sources || [], false);
+    }
+    hide('welcome'); show('msgs');
+    scrollBottom();
+  } else {
+    hide('msgs'); show('welcome');
+  }
 
   var sugRow  = document.getElementById('suggestionsRow');
   var ctxWrap = document.getElementById('ctxWrap');
@@ -1202,7 +1206,6 @@ function setDest(el, dest) {
     qInput.placeholder = 'Stel een vraag over ' + dest + '...';
     document.getElementById('ctxLabel').textContent = dest;
     ctxWrap.classList.add('visible');
-    if (!messages.length) { show('welcome'); hide('msgs'); }
   } else {
     wTitle.innerHTML = 'Welkom in de <em>kennisdatabank</em>';
     wSub.textContent = 'Stel een vraag over reisbestemmingen, producten of procedures. Antwoorden zijn uitsluitend gebaseerd op Doets-documenten.';
@@ -1372,7 +1375,6 @@ function createStreamingBubble(uid) {
     '<div class="lbl">Kennisdatabank</div>' +
     '<div class="ai-text" id="txt-' + uid + '"></div>' +
     '<div id="chips-' + uid + '"></div>' +
-    '<div id="fu-' + uid + '" class="followup-chips"></div>' +
     '<div class="msg-actions" id="act-' + uid + '" style="opacity:0;transition:opacity .2s">' +
       '<button class="act-btn" onclick="copyMsg(\'' + uid + '\')" title="Kopieer">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Kopieer' +
@@ -1398,9 +1400,6 @@ function finalizeStreamingBubble(uid, fullText, sources) {
     chipsEl.innerHTML = sources.map(function(s) { return '<span class="source-chip">' + esc(trunc(s, 36)) + '</span>'; }).join('');
   }
 
-  document.getElementById('fu-' + uid).innerHTML =
-    pickFollowups().map(function(f) { return '<button class="followup-chip" onclick="useFollowup(this)">' + esc(f) + '</button>'; }).join('');
-
   var actEl = document.getElementById('act-' + uid);
   if (actEl) actEl.style.opacity = '';
 }
@@ -1411,12 +1410,10 @@ function renderAI(fullText, sources, animate) {
   var el = make('div', 'message msg-ai' + (animate ? '' : ' no-anim'));
   el.id = uid;
   var chips = sources.map(function(s) { return '<span class="source-chip">' + esc(trunc(s, 36)) + '</span>'; }).join('');
-  var fuHtml = pickFollowups().map(function(f) { return '<button class="followup-chip" onclick="useFollowup(this)">' + esc(f) + '</button>'; }).join('');
   el.innerHTML =
     '<div class="lbl">Kennisdatabank</div>' +
     '<div class="ai-text">' + formatText(clean) + '</div>' +
     (sources.length ? '<div class="source-chips">' + chips + '</div>' : '') +
-    '<div class="followup-chips">' + fuHtml + '</div>' +
     '<div class="msg-actions">' +
       '<button class="act-btn" onclick="copyMsg(\'' + uid + '\')">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Kopieer' +
@@ -1472,11 +1469,6 @@ function vote(btn, dir) {
   if (sibling) sibling.classList.remove('voted');
 }
 
-function useFollowup(btn) {
-  document.getElementById('queryInput').value = btn.textContent;
-  sendMsg();
-}
-
 // ── UTILS ─────────────────────────────────────────────────────
 function parseSources(text) {
   var m = text.match(/\[Bron \d+: ([^\]]+)\]/g) || [];
@@ -1485,16 +1477,6 @@ function parseSources(text) {
   for (var i = 0; i < m.length; i++) {
     var match = m[i].match(/\[Bron \d+: ([^\]]+)\]/);
     if (match && !seen[match[1]]) { seen[match[1]] = true; out.push(match[1]); }
-  }
-  return out;
-}
-
-function pickFollowups() {
-  var pool = FOLLOWUPS.slice();
-  var out = [];
-  while (out.length < 3 && pool.length) {
-    var i = Math.floor(Math.random() * pool.length);
-    out.push(pool.splice(i, 1)[0]);
   }
   return out;
 }

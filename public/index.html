@@ -102,13 +102,13 @@
     .sb-logo-mark {
       width:36px;
       height:36px;
-      background:var(--gold-bright);
+      background:var(--gold);
       border-radius:50%;
       display:flex;
       align-items:center;
       justify-content:center;
       flex-shrink:0;
-      box-shadow:0 2px 8px rgba(20,56,69,0.4), inset 0 0 0 1px rgba(255,255,255,0.15);
+      box-shadow:0 2px 8px rgba(6,18,42,0.4), inset 0 0 0 1px rgba(255,255,255,0.15);
     }
 
     .sb-logo-mark svg {
@@ -130,7 +130,7 @@
       font-weight:700;
       letter-spacing:0.24em;
       text-transform:uppercase;
-      color:var(--gold-bright);
+      color:var(--gold-soft);
       margin-top:2px;
     }
 
@@ -142,7 +142,7 @@
       font-style:italic;
       font-size:9.5px;
       color:rgba(255,255,255,0.65);
-      border:1px solid rgba(212,168,72,0.35);
+      border:1px solid rgba(226,200,117,0.35);
       border-radius:2px;
       letter-spacing:0.08em;
     }
@@ -184,7 +184,7 @@
 
     .nav-btn.active {
       border-left-color:var(--gold);
-      background:rgba(168,132,58,0.13);
+      background:rgba(201,168,76,0.12);
       color:var(--ink);
       font-weight:500;
     }
@@ -346,6 +346,7 @@
     }
 
     #chatArea.hidden { display:none; }
+    .welcome.hidden { display:none; }
 
     .welcome {
       flex:1;
@@ -369,7 +370,7 @@
       content:'';
       position:absolute;
       inset:-8px;
-      border:1px dashed rgba(168,132,58,0.35);
+      border:1px dashed rgba(201,168,76,0.35);
       border-radius:50%;
     }
 
@@ -410,7 +411,6 @@
       font-size:0.55rem;
       letter-spacing:0.3em;
       text-transform:uppercase;
-      color:var(--ink-mute);
       font-weight:600;
     }
 
@@ -690,7 +690,7 @@
       font-family:'Manrope', sans-serif;
       font-size:0.62rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase;
       color:var(--gold);
-      background:rgba(168,132,58,0.08);
+      background:rgba(201,168,76,0.08);
       border:1px solid var(--gold);
       padding:0.22rem 0.55rem 0.22rem 0.65rem;
       border-radius:2px;
@@ -804,7 +804,7 @@
     /* ── MODAL ── */
     .overlay {
       position:fixed; inset:0;
-      background:rgba(26,26,46,0.5);
+      background:rgba(13,31,60,0.55);
       display:flex; align-items:center; justify-content:center;
       z-index:200;
       backdrop-filter:blur(4px);
@@ -871,14 +871,14 @@
     .modal-cancel:hover { color:var(--ink); border-color:var(--ink); }
 
     .modal-save {
-      background:var(--ink); color:var(--paper);
-      border:1px solid var(--ink);
+      background:var(--navy); color:var(--paper);
+      border:1px solid var(--navy);
       font-family:'Manrope', sans-serif;
       font-size:0.58rem; font-weight:700; letter-spacing:0.16em; text-transform:uppercase;
       padding:0.5rem 1.2rem; cursor:pointer; transition:all .15s;
     }
 
-    .modal-save:hover { background:var(--gold); border-color:var(--gold); }
+    .modal-save:hover { background:var(--gold); border-color:var(--gold); color:var(--navy); }
 
     /* ── MOBILE ── */
     @media (max-width:680px) {
@@ -1083,7 +1083,6 @@ function renderDefaultChips() {
 }
 
 function init() {
-  // Migrate old single-key session to per-dest format
   var oldMsgs = localStorage.getItem('doets_msgs');
   if (oldMsgs && !localStorage.getItem(destKey(''))) {
     localStorage.setItem(destKey(''), oldMsgs);
@@ -1159,17 +1158,11 @@ function showKeyModal() { showModal(false); }
 
 // ── DESTINATION FILTER ────────────────────────────────────────
 function setDest(el, dest) {
-  // Save current session before switching
   saveSession();
-
   document.querySelectorAll('.sidebar-item').forEach(function(i) { i.classList.remove('active'); });
   el.classList.add('active');
   activeDest = dest;
-
-  // Load messages for the new destination
   messages = loadDestMessages(dest);
-
-  // Reset chat UI
   var c = document.getElementById('msgsInner');
   c.innerHTML = '';
   if (messages.length) {
@@ -1183,7 +1176,6 @@ function setDest(el, dest) {
   } else {
     hide('msgs'); show('welcome');
   }
-
   var sugRow  = document.getElementById('suggestionsRow');
   var ctxWrap = document.getElementById('ctxWrap');
   var qInput  = document.getElementById('queryInput');
@@ -1191,7 +1183,6 @@ function setDest(el, dest) {
   var wSub    = document.getElementById('welcomeSub');
   var wIcon   = document.getElementById('welcomeIcon');
   var wCode   = document.getElementById('welcomeCode');
-
   if (dest) {
     var d = DEST_DATA[dest] || {};
     wTitle.innerHTML = '<em>' + esc(dest) + '</em>';
@@ -1246,36 +1237,28 @@ async function sendMsg() {
   var q = input.value.trim();
   if (!q || loading) return;
   if (!apiKey) { showModal(); return; }
-
   var displayQ = q;
   input.value = '';
   loading = true;
   document.getElementById('sendBtn').disabled = true;
   document.getElementById('suggestionsRow').classList.add('hidden');
-
   hide('welcome');
   show('msgs');
-
   messages.push({ role:'user', content:q });
   saveSession();
   renderUser(displayQ, true);
-
   var typingId = renderTyping();
   scrollBottom();
-
   try {
     var destSystem = activeDest
       ? SYSTEM + '\n\nDe gebruiker heeft de ' + activeDest + '-sectie geopend. Geef prioriteit aan informatie over ' + activeDest + ' en noem het als context in je antwoord.'
       : SYSTEM;
-
     var sendMessages = messages.map(function(m) { return { role:m.role, content:m.content }; });
-
     var res = await fetch('/api/chat', {
       method:'POST',
       headers:{ 'Content-Type':'application/json' },
       body:JSON.stringify({ apiKey:apiKey, messages:sendMessages, system:destSystem, useRAG:true })
     });
-
     var contentType = res.headers.get('content-type') || '';
     if (!res.ok || !contentType.includes('text/event-stream')) {
       removeEl(typingId);
@@ -1288,12 +1271,10 @@ async function sendMsg() {
       messages.pop(); saveSession();
       return;
     }
-
     var reader = res.body.getReader();
     var decoder = new TextDecoder();
     var fullText = '';
     var buffer = '';
-
     while (true) {
       var chunk = await reader.read();
       if (chunk.done) break;
@@ -1312,7 +1293,6 @@ async function sendMsg() {
         }
       }
     }
-
     if (!fullText) fullText = 'Geen antwoord ontvangen.';
     var sources = parseSources(fullText);
     removeEl(typingId);
@@ -1324,7 +1304,6 @@ async function sendMsg() {
     messages.push({ role:'assistant', content:fullText, sources:sources });
     saveSession();
     scrollBottom();
-
   } catch (e) {
     removeEl(typingId);
     renderError('Kan de server niet bereiken. Controleer uw verbinding.');
@@ -1393,13 +1372,11 @@ function createStreamingBubble(uid) {
 function finalizeStreamingBubble(uid, fullText, sources) {
   var clean = fullText.replace(/\[Bron \d+:[^\]]+\]/g, '').trim();
   document.getElementById('txt-' + uid).innerHTML = formatText(clean);
-
   var chipsEl = document.getElementById('chips-' + uid);
   if (sources.length) {
     chipsEl.className = 'source-chips';
     chipsEl.innerHTML = sources.map(function(s) { return '<span class="source-chip">' + esc(trunc(s, 36)) + '</span>'; }).join('');
   }
-
   var actEl = document.getElementById('act-' + uid);
   if (actEl) actEl.style.opacity = '';
 }

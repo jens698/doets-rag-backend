@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { searchSimilar, fetchAllChunksForDocs } from '../lib/pinecone.js';
+import { searchSimilar, fetchAllChunksForDocs } from '../lib/pinecone.js'; 
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');

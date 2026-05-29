@@ -1,68 +1,99 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { searchSimilar } from '../lib/pinecone.js';
+import { searchSimilar, fetchAllChunksForDocs } from '../lib/pinecone.js';
+import { verifyToken } from '../lib/auth.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-api-key');
-  
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  const authHeader = req.headers['authorization'] || '';
+  const token = authHeader.replace('Bearer ', '');
+  if (!verifyToken(token)) {
+    return res.status(401).json({ error: { message: 'Niet ingelogd. Ververs de pagina en log opnieuw in.' } });
   }
-  
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+
+  const anthropicKey = process.env.ANTHROPIC_API_KEY;
+  if (!anthropicKey) {
+    return res.status(500).json({ error: { message: 'ANTHROPIC_API_KEY not configured on server' } });
   }
-  
+
   try {
-    const { apiKey, messages, system, useRAG = true } = req.body;
-    
-    if (!apiKey || !apiKey.startsWith('sk-ant-')) {
-      return res.status(400).json({ error: 'Invalid API key format' });
-    }
-    
+    const { messages, system, useRAG = true } = req.body;
+
     const userMessages = messages.filter(m => m.role === 'user');
-    const latestQuery = userMessages[userMessages.length - 1]?.content || '';
-    
+    const latestQuery  = userMessages[userMessages.length - 1]?.content || '';
+
     let enhancedSystem = system;
-    
+
     if (useRAG && latestQuery) {
       try {
-        const searchResults = await searchSimilar(latestQuery, 3);
-        
+        const searchResults = await searchSimilar(latestQuery, 10);
+
         if (searchResults && searchResults.length > 0) {
-          const context = searchResults
-            .map((r, i) => `[Bron ${i + 1}: ${r.documentName}]\n${r.text}`)
+          const seenIds = new Set();
+          const topDocIds = [];
+          for (const r of searchResults) {
+            if (r.documentId && !seenIds.has(r.documentId)) {
+              seenIds.add(r.documentId);
+              topDocIds.push(r.documentId);
+              if (topDocIds.length >= 4) break;
+            }
+          }
+
+          const allChunks = await fetchAllChunksForDocs(topDocIds);
+          allChunks.sort((a, b) => {
+            const rankA = topDocIds.indexOf(a.documentId);
+            const rankB = topDocIds.indexOf(b.documentId);
+            if (rankA !== rankB) return rankA - rankB;
+            return (a.chunkIndex ?? 0) - (b.chunkIndex ?? 0);
+          });
+
+          const context = allChunks
+            .map((r, i) => '[Bron ' + (i + 1) + ': ' + r.documentName + ']\n' + r.text)
             .join('\n\n---\n\n');
 
-          enhancedSystem = `${system}\n\n## INFORMATIE UIT KENNISDATABANK:\n\n${context}\n\n## STRIKTE INSTRUCTIE:\nBeantwoord de vraag UITSLUITEND op basis van bovenstaande informatie uit de Doets kennisdatabank. Gebruik NOOIT je eigen trainingskennis of externe bronnen. Als de kennisdatabank onvoldoende informatie bevat om de vraag te beantwoorden, zeg dan letterlijk: "Ik heb hierover geen informatie in de kennisdatabank. Neem contact op met Doets Reizen voor meer informatie." Verwijs altijd naar de bronnaam.`;
+          enhancedSystem = system + '\n\n## INFORMATIE UIT KENNISDATABANK:\n\n' + context + '\n\n## INSTRUCTIES:\n1. Beantwoord de vraag UITSLUITEND op basis van bovenstaande informatie uit de Doets kennisdatabank. Gebruik NOOIT je eigen trainingskennis of externe bronnen.\n2. Lees ALLE bronnen zorgvuldig — vaak staat het antwoord verspreid over meerdere bronnen.\n3. Als een vraag vraagt om een lijst, zoek in ALLE bronnen naar concrete items.\n4. Geef het antwoord dat je wel kunt geven. Alleen als er ECHT niets staat: "Ik heb hierover geen informatie in de kennisdatabank. Neem contact op met een collega."\n5. Verwijs altijd naar de bronnaam (Bron 1, Bron 2, etc).';
         } else {
-          enhancedSystem = `${system}\n\n## STRIKTE INSTRUCTIE:\nEr zijn geen relevante documenten gevonden in de kennisdatabank voor deze vraag. Geef GEEN antwoord op basis van eigen kennis. Zeg letterlijk: "Ik heb hierover geen informatie in de kennisdatabank. Neem contact op met Doets Reizen voor meer informatie."`;
+          enhancedSystem = system + '\n\n## STRIKTE INSTRUCTIE:\nEr zijn geen relevante documenten gevonden. Geef GEEN antwoord op basis van eigen kennis. Zeg: "Ik heb hierover geen informatie in de kennisdatabank. Neem contact op met een collega."';
         }
       } catch (ragError) {
         console.error('RAG search failed:', ragError);
-        enhancedSystem = `${system}\n\n## STRIKTE INSTRUCTIE:\nDe kennisdatabank is momenteel niet beschikbaar. Geef GEEN antwoord op basis van eigen kennis. Laat weten dat de kennisdatabank tijdelijk niet bereikbaar is.`;
       }
     }
-    
-    const anthropic = new Anthropic({ apiKey });
-    
-    const response = await anthropic.messages.create({
+
+    const anthropic = new Anthropic({ apiKey: anthropicKey });
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    const stream = anthropic.messages.stream({
       model: 'claude-sonnet-4-6',
       max_tokens: 2000,
       system: enhancedSystem,
-      messages: messages
+      messages
     });
-    
-    return res.status(200).json(response);
-    
+
+    for await (const event of stream) {
+      if (event.type === 'content_block_delta' && event.delta?.type === 'text_delta') {
+        res.write('data: ' + JSON.stringify({ t: event.delta.text }) + '\n\n');
+      }
+    }
+
+    res.write('data: [DONE]\n\n');
+    res.end();
+
   } catch (error) {
     console.error('Chat error:', error);
-    return res.status(500).json({ 
-      error: { 
-        message: error.message || 'Internal server error',
-        type: 'api_error'
-      }
-    });
+    if (!res.headersSent) {
+      res.status(500).json({ error: { message: error.message || 'Internal server error' } });
+    } else {
+      res.write('data: ' + JSON.stringify({ error: error.message }) + '\n\n');
+      res.end();
+    }
   }
 }

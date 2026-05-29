@@ -185,6 +185,15 @@
     .footer { max-width: 1200px; margin: 0 auto; padding: 2rem 2.5rem; border-top: 1px solid var(--line); display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--ink-muted); }
     .footer .ornament { color: var(--gold); font-style: italic; font-family: 'Fraunces', serif; }
 
+    .back-link {
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      color: rgba(255,255,255,0.6); text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.15); padding: 0.38rem 0.8rem; border-radius: 4px;
+      transition: all 0.2s;
+    }
+    .back-link:hover { color: #fff; border-color: rgba(201,168,76,0.6); background: rgba(201,168,76,0.1); }
+
     @keyframes slideIn { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: translateX(0); } }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -214,6 +223,7 @@
             <span class="health-dot" id="health-dot"></span>
             <span id="health-text">Verbinding actief</span>
           </div>
+          <a href="/index.html" class="back-link">&#8592; Kennisdatabank</a>
         </div>
       </div>
     </header>

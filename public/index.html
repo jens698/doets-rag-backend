@@ -6,375 +6,905 @@
   <title>Kennisdatabank — Doets Reizen</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
     :root {
-      --topbar-bg:   #06101E;
-      --sidebar-bg:  #0A1628;
-      --sidebar-hov: #0F1F35;
-      --sidebar-act: #152741;
-      --navy:        #0D1F3C;
-      --gold:        #C9A84C;
-      --gold-faint:  rgba(201,168,76,0.10);
-      --gold-border: rgba(201,168,76,0.35);
-      --muted:       rgba(255,255,255,0.40);
-      --sidebar-txt: rgba(255,255,255,0.72);
-      --sidebar-lbl: rgba(201,168,76,0.55);
-      --border:      #E4DFD4;
-      --ink:         #1A1A2E;
+      --paper:      #FAF7F2;
+      --paper-deep: #F2EDE3;
+      --sidebar-bg: #F0EAD9;
+      --ink:        #1A1A1A;
+      --ink-soft:   #4A4A4A;
+      --ink-mute:   #8B8B8B;
+      --navy:       #0D1F3C;
+      --navy-soft:  #1a3556;
+      --navy-deep:  #06122a;
+      --gold:       #C9A84C;
+      --gold-soft:  #E2C875;
+      --gold-pale:  #F4EBD0;
+      --gold-faint: #FAF5E5;
+      --rule:       #E8E2D5;
+      --rule-soft:  rgba(232,226,213,0.6);
     }
 
-    html, body { height: 100%; overflow: hidden; }
+    html, body { height:100%; overflow:hidden; }
 
     body {
-      font-family: 'Manrope', sans-serif;
-      background: var(--sidebar-bg);
-      color: var(--ink);
+      font-family:'Manrope', sans-serif;
+      background:var(--paper);
+      color:var(--ink);
     }
 
+    body::after {
+      content:'';
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:999;
+      opacity:0.28;
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='5'/><feColorMatrix values='0 0 0 0 0.4  0 0 0 0 0.32  0 0 0 0 0.2  0 0 0 0.04 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    }
+
+    /* ── APP ── */
     .app {
-      display: grid;
-      grid-template-rows: 50px 1fr;
-      grid-template-columns: 218px 1fr;
-      height: 100vh;
+      position:relative;
+      z-index:1;
+      display:flex;
+      height:100vh;
+      overflow:hidden;
     }
 
-    .topbar {
-      grid-column: 1 / -1;
-      background: var(--topbar-bg);
-      display: flex;
-      align-items: center;
-      padding: 0 1.4rem;
-      gap: 1rem;
-      border-bottom: 1px solid rgba(201,168,76,0.12);
-    }
-    .topbar-brand { display: flex; align-items: baseline; gap: 0.7rem; flex: 1; }
-    .brand-name {
-      font-family: 'Fraunces', Georgia, serif;
-      font-size: 1rem;
-      font-weight: 400;
-      letter-spacing: 0.18em;
-      color: #fff;
-      text-transform: uppercase;
-    }
-    .brand-sep { width: 1px; height: 13px; background: rgba(255,255,255,0.18); }
-    .brand-sub {
-      font-size: 0.62rem;
-      font-weight: 500;
-      letter-spacing: 0.18em;
-      color: var(--muted);
-      text-transform: uppercase;
-    }
-    .topbar-actions { display: flex; align-items: center; gap: 0.4rem; }
-    .intern-badge {
-      font-size: 0.58rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--gold);
-      border: 1px solid var(--gold);
-      padding: 0.22rem 0.55rem;
-      border-radius: 2px;
-      margin-right: 0.3rem;
-    }
-    .topbar-btn {
-      background: transparent;
-      border: none;
-      color: var(--muted);
-      font-family: 'Manrope', sans-serif;
-      font-size: 0.59rem;
-      font-weight: 600;
-      letter-spacing: 0.11em;
-      text-transform: uppercase;
-      cursor: pointer;
-      padding: 0.38rem 0.65rem;
-      border-radius: 2px;
-      transition: color .15s, background .15s;
-    }
-    .topbar-btn:hover { color: #fff; background: rgba(255,255,255,0.06); }
-
+    /* ── SIDEBAR ── */
     .sidebar {
-      background: var(--sidebar-bg);
-      overflow-y: auto;
-      border-right: 1px solid rgba(255,255,255,0.045);
-      padding: 1.2rem 0;
+      width:248px;
+      flex-shrink:0;
+      background:var(--sidebar-bg);
+      border-right:1px solid var(--rule);
+      display:flex;
+      flex-direction:column;
+      overflow-y:auto;
+      overflow-x:hidden;
     }
-    .sidebar::-webkit-scrollbar { width: 3px; }
-    .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); }
 
-    .sidebar-section { margin-bottom: 1.4rem; }
-    .sidebar-lbl {
-      font-size: 0.56rem;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--sidebar-lbl);
-      padding: 0 1rem 0.45rem;
-    }
-    .sidebar-item {
-      display: flex;
-      align-items: center;
-      gap: 0.55rem;
-      padding: 0.42rem 1rem;
-      cursor: pointer;
-      font-size: 0.76rem;
-      font-weight: 400;
-      color: var(--sidebar-txt);
-      border-left: 2px solid transparent;
-      transition: background .15s, color .15s;
-    }
-    .sidebar-item:hover { background: var(--sidebar-hov); color: #fff; }
-    .sidebar-item.active { background: var(--sidebar-act); color: #fff; border-left-color: var(--gold); }
-    .item-code {
-      font-size: 0.58rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      color: rgba(255,255,255,0.28);
-      min-width: 16px;
-    }
-    .item-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.18); flex-shrink: 0; }
-    .sidebar-item.active .item-dot { background: #4ade80; box-shadow: 0 0 5px rgba(74,222,128,.5); }
-    .sidebar-divider { height: 1px; background: rgba(255,255,255,0.045); margin: 0.6rem 0; }
+    .sidebar::-webkit-scrollbar { width:3px; }
+    .sidebar::-webkit-scrollbar-thumb { background:var(--rule); border-radius:2px; }
 
-    .main { background: #fff; display: flex; flex-direction: column; overflow: hidden; }
+    .sb-brand {
+      padding:22px 20px 20px;
+      background:
+        linear-gradient(135deg, var(--navy-deep) 0%, var(--navy) 100%);
+      color:#fff;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .sb-brand::before {
+      content:'';
+      position:absolute;
+      inset:0;
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'><g fill='none' stroke='%23D4A848' stroke-width='0.5' opacity='0.18'><circle cx='100' cy='100' r='80'/><circle cx='100' cy='100' r='60'/><circle cx='100' cy='100' r='40'/><path d='M20 100 L180 100 M100 20 L100 180'/><path d='M50 50 L150 150 M150 50 L50 150'/></g></svg>");
+      background-size:200px 200px;
+      background-position:right -40px top -40px;
+      background-repeat:no-repeat;
+      pointer-events:none;
+    }
+
+    .sb-brand > * { position:relative; z-index:1; }
+
+    .sb-logo {
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:8px;
+    }
+
+    .sb-logo-mark {
+      width:36px;
+      height:36px;
+      background:var(--gold);
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-shrink:0;
+      box-shadow:0 2px 8px rgba(6,18,42,0.4), inset 0 0 0 1px rgba(255,255,255,0.15);
+    }
+
+    .sb-logo-mark svg {
+      width:18px;
+      height:18px;
+    }
+
+    .sb-logo-name {
+      font-family:'Fraunces', serif;
+      font-size:16px;
+      font-weight:500;
+      color:#FAF6EC;
+      line-height:1.1;
+      letter-spacing:0.01em;
+    }
+
+    .sb-tagline {
+      font-size:9.5px;
+      font-weight:700;
+      letter-spacing:0.24em;
+      text-transform:uppercase;
+      color:var(--gold-soft);
+      margin-top:2px;
+    }
+
+    .sb-stamp {
+      display:inline-block;
+      margin-top:10px;
+      padding:3px 8px;
+      font-family:'Fraunces', serif;
+      font-style:italic;
+      font-size:9.5px;
+      color:rgba(255,255,255,0.65);
+      border:1px solid rgba(226,200,117,0.35);
+      border-radius:2px;
+      letter-spacing:0.08em;
+    }
+
+    .sb-section {
+      padding:14px 0 6px;
+    }
+
+    .sb-heading {
+      font-size:9.5px;
+      font-weight:700;
+      letter-spacing:0.2em;
+      text-transform:uppercase;
+      color:var(--navy-soft);
+      padding:0 20px;
+      margin-bottom:4px;
+    }
+
+    .nav-btn {
+      display:block;
+      width:100%;
+      text-align:left;
+      background:none;
+      border:none;
+      border-left:2px solid transparent;
+      padding:7px 20px;
+      font-family:'Manrope', sans-serif;
+      font-size:13px;
+      font-weight:400;
+      color:var(--ink-soft);
+      cursor:pointer;
+      transition:all .15s;
+    }
+
+    .nav-btn:hover {
+      background:rgba(13,31,60,0.06);
+      color:var(--navy);
+    }
+
+    .nav-btn.active {
+      border-left-color:var(--gold);
+      background:rgba(201,168,76,0.12);
+      color:var(--ink);
+      font-weight:500;
+    }
+
+    .nav-btn.active::after {
+      content:'';
+      display:inline-block;
+      width:4px;
+      height:4px;
+      background:var(--gold);
+      border-radius:50%;
+      margin-left:8px;
+      vertical-align:middle;
+      transform:translateY(-1px);
+    }
+
+    .sb-sep {
+      height:1px;
+      background:var(--rule);
+      margin:4px 20px;
+    }
+
+    .sb-footer {
+      margin-top:auto;
+      padding:12px 0;
+      border-top:1px solid var(--rule);
+    }
+
+    .sb-footer-link {
+      display:block;
+      padding:7px 20px;
+      font-size:12px;
+      color:var(--ink-mute);
+      text-decoration:none;
+      transition:color .15s;
+    }
+
+    .sb-footer-link:hover { color:var(--ink); }
+
+    /* ── MAIN ── */
+    .main {
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+      background:var(--paper);
+      position:relative;
+    }
+
+    .main::before {
+      content:'';
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(201,168,76,0.08) 0%, transparent 35%),
+        radial-gradient(circle at 85% 90%, rgba(13,31,60,0.04) 0%, transparent 40%);
+    }
+
+    .main::after {
+      content:'';
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      opacity:0.04;
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'><g fill='none' stroke='%230D1F3C' stroke-width='0.6'><path d='M0 80 Q80 60 160 80 T320 80 T480 80'/><path d='M0 140 Q80 120 160 140 T320 140 T480 140'/><path d='M0 200 Q80 180 160 200 T320 200 T480 200'/><path d='M0 260 Q80 240 160 260 T320 260 T480 260'/><path d='M0 320 Q80 300 160 320 T320 320 T480 320'/><circle cx='100' cy='100' r='30'/><circle cx='100' cy='100' r='50'/><circle cx='300' cy='280' r='25'/><circle cx='300' cy='280' r='45'/></g></svg>");
+      background-size:400px 400px;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      position:relative;
+      z-index:2;
+      flex-shrink:0;
+      height:52px;
+      border-bottom:none;
+      display:flex;
+      align-items:center;
+      padding:0 24px;
+      gap:10px;
+      background:var(--navy);
+      box-shadow:0 1px 0 rgba(201,168,76,0.3);
+    }
+
+    .topbar::after {
+      content:'';
+      position:absolute;
+      bottom:0; left:0; right:0;
+      height:2px;
+      background:linear-gradient(90deg, transparent 0%, var(--gold) 25%, var(--gold-soft) 50%, var(--gold) 75%, transparent 100%);
+      pointer-events:none;
+    }
+
+    .topbar-title {
+      font-family:'Fraunces', serif;
+      font-size:14px;
+      font-weight:400;
+      color:#FAF7F2;
+      letter-spacing:0.02em;
+      flex:1;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .topbar-title::before {
+      content:'';
+      width:6px;
+      height:6px;
+      background:var(--gold);
+      border-radius:50%;
+      flex-shrink:0;
+    }
+
+    .topbar-title em {
+      font-style:italic;
+      color:rgba(255,255,255,0.5);
+      font-size:12.5px;
+    }
+
+    .topbar-date {
+      font-family:'Fraunces', serif;
+      font-style:italic;
+      font-size:11.5px;
+      color:rgba(255,255,255,0.45);
+    }
+
+    .topbar-btn {
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.2);
+      color:rgba(255,255,255,0.7);
+      font-family:'Manrope', sans-serif;
+      font-size:10.5px;
+      font-weight:600;
+      letter-spacing:0.08em;
+      padding:5px 11px;
+      cursor:pointer;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      border-radius:3px;
+      transition:all .15s;
+    }
+
+    .topbar-btn:hover {
+      background:var(--gold);
+      color:var(--navy);
+      border-color:var(--gold);
+    }
+
+    /* ── WELCOME ── */
+    #chatArea {
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+      position:relative;
+      z-index:1;
+    }
+
+    #chatArea.hidden { display:none; }
+    .welcome.hidden { display:none; }
 
     .welcome {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-      text-align: center;
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      padding:2rem 1.5rem;
+      text-align:center;
     }
-    .welcome-ring {
-      width: 46px; height: 46px;
-      border: 1.5px solid var(--gold);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      margin-bottom: 1.15rem;
-      color: var(--gold);
-    }
-    .welcome-title {
-      font-family: 'Fraunces', Georgia, serif;
-      font-size: 1.4rem; font-weight: 300;
-      color: var(--navy); margin-bottom: 0.4rem;
-    }
-    .welcome-sub { font-size: 0.78rem; color: #777; max-width: 360px; line-height: 1.65; }
 
-    .messages-area {
-      flex: 1; overflow-y: auto;
-      padding: 1.4rem;
-      display: flex; flex-direction: column; gap: 1.2rem;
+    .welcome-orn {
+      width:64px;
+      height:64px;
+      margin-bottom:1.4rem;
+      color:var(--navy);
+      position:relative;
     }
-    .messages-area::-webkit-scrollbar { width: 3px; }
-    .messages-area::-webkit-scrollbar-thumb { background: #ddd; }
-    .messages-area.hidden { display: none; }
-    .welcome.hidden { display: none; }
+
+    .welcome-orn::before {
+      content:'';
+      position:absolute;
+      inset:-8px;
+      border:1px dashed rgba(201,168,76,0.35);
+      border-radius:50%;
+    }
+
+    .welcome-title {
+      font-family:'Fraunces', serif;
+      font-size:2rem;
+      font-weight:300;
+      color:var(--ink);
+      margin-bottom:0.65rem;
+      letter-spacing:-0.005em;
+      line-height:1.1;
+    }
+
+    .welcome-title em {
+      font-style:italic;
+      color:var(--gold);
+      font-weight:400;
+    }
+
+    .welcome-sub {
+      font-family:'Fraunces', serif;
+      font-style:italic;
+      font-size:0.92rem;
+      color:var(--ink-mute);
+      max-width:400px;
+      line-height:1.6;
+      font-weight:300;
+    }
+
+    .welcome-decor {
+      display:flex;
+      align-items:center;
+      gap:0.6rem;
+      margin-top:1.3rem;
+    }
+
+    .welcome-decor span {
+      font-size:0.55rem;
+      letter-spacing:0.3em;
+      text-transform:uppercase;
+      font-weight:600;
+    }
+
+    .welcome-decor::before, .welcome-decor::after {
+      content:'';
+      width:46px;
+      height:1px;
+      background:var(--navy-soft);
+      opacity:0.4;
+    }
+
+    .welcome-decor span { color:var(--navy-soft); }
+
+    /* ── MESSAGES ── */
+    .messages-area {
+      flex:1;
+      overflow-y:auto;
+      padding:2rem 1.5rem 1rem;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+    }
+
+    .messages-area.hidden { display:none; }
+    .messages-area::-webkit-scrollbar { width:4px; }
+    .messages-area::-webkit-scrollbar-thumb { background:var(--rule); border-radius:2px; }
+
+    .messages-inner {
+      width:100%;
+      max-width:660px;
+      display:flex;
+      flex-direction:column;
+      gap:2.4rem;
+    }
 
     @keyframes msgIn {
-      from { opacity: 0; transform: translateY(7px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from { opacity:0; transform:translateY(8px); }
+      to   { opacity:1; transform:translateY(0); }
     }
-    .message { animation: msgIn .22s ease-out forwards; opacity: 0; }
-    .message.no-anim { animation: none; opacity: 1; }
 
-    .msg-user { display: flex; justify-content: flex-end; }
+    .message { animation:msgIn .4s ease-out forwards; opacity:0; }
+    .message.no-anim { animation:none; opacity:1; }
+
+    .msg-user {
+      align-self:flex-end;
+      max-width:78%;
+      text-align:right;
+      position:relative;
+      padding-right:1rem;
+    }
+
+    .msg-user .lbl {
+      font-size:0.54rem;
+      font-weight:700;
+      letter-spacing:0.28em;
+      color:var(--ink-mute);
+      text-transform:uppercase;
+      margin-bottom:0.5rem;
+    }
+
     .msg-user .bubble {
-      background: var(--navy); color: #fff;
-      padding: 0.65rem 1rem;
-      border-radius: 4px 4px 0 4px;
-      max-width: 62%;
-      font-size: 0.83rem; line-height: 1.55;
-      white-space: pre-wrap;
+      font-family:'Fraunces', serif;
+      font-style:italic;
+      font-size:1.02rem;
+      line-height:1.55;
+      color:var(--ink);
+      font-weight:400;
+      white-space:pre-wrap;
     }
 
-    .msg-ai .ai-lbl {
-      font-size: 0.56rem; font-weight: 700;
-      letter-spacing: 0.18em; color: var(--gold);
-      text-transform: uppercase; margin-bottom: 0.5rem;
+    .msg-user::after {
+      content:'';
+      position:absolute;
+      right:0; top:1.7rem; bottom:0;
+      width:2px;
+      background:linear-gradient(to bottom, var(--gold), transparent);
     }
-    .msg-ai .ai-body { border-left: 2.5px solid var(--gold); padding-left: 1rem; max-width: 86%; }
-    .msg-ai .ai-text { font-size: 0.83rem; line-height: 1.66; color: #2a2a2a; }
-    .msg-ai .ai-text p { margin-bottom: 0.45em; }
-    .msg-ai .ai-text p:last-child { margin-bottom: 0; }
-    .msg-ai .ai-text strong { font-weight: 700; color: var(--navy); }
-    .msg-ai .ai-text em { font-style: italic; color: #666; }
 
-    .msg-err .ai-lbl { color: #c53030; }
-    .msg-err .ai-body { border-left-color: #c53030; }
-    .msg-err .ai-text { color: #c53030; }
+    .msg-ai { position:relative; padding-left:1.2rem; }
 
-    .source-chips { display: flex; flex-wrap: wrap; gap: 0.38rem; margin-top: 0.65rem; }
+    .msg-ai::before {
+      content:'';
+      position:absolute;
+      left:0; top:1.7rem; bottom:0;
+      width:2px;
+      background:linear-gradient(to bottom, var(--gold), transparent);
+    }
+
+    .msg-ai .lbl {
+      display:inline-flex;
+      align-items:center;
+      gap:0.5rem;
+      font-size:0.54rem;
+      font-weight:700;
+      letter-spacing:0.28em;
+      color:var(--navy);
+      text-transform:uppercase;
+      margin-bottom:0.65rem;
+    }
+
+    .msg-ai .lbl::before {
+      content:'';
+      width:14px;
+      height:1px;
+      background:var(--gold);
+    }
+
+    .msg-ai .ai-text {
+      font-family:'Fraunces', serif;
+      font-size:0.98rem;
+      line-height:1.7;
+      color:var(--ink-soft);
+      font-weight:300;
+    }
+
+    .msg-ai .ai-text p { margin-bottom:0.7em; }
+    .msg-ai .ai-text p:last-child { margin-bottom:0; }
+
+    .msg-ai .ai-text p:first-child::first-letter {
+      font-family:'Fraunces', serif;
+      font-size:2.3em;
+      font-weight:400;
+      float:left;
+      line-height:0.95;
+      padding:0.1em 0.12em 0 0;
+      color:var(--gold);
+    }
+
+    .msg-ai .ai-text strong { font-weight:600; color:var(--ink); font-style:normal; }
+    .msg-ai .ai-text em { font-style:italic; color:var(--ink-mute); }
+
+    .msg-err::before { background:linear-gradient(to bottom, #8B2D2D, transparent); }
+    .msg-err .lbl { color:#8B2D2D; }
+    .msg-err .lbl::before { background:#8B2D2D; }
+    .msg-err .ai-text { color:#8B2D2D; }
+    .msg-err .ai-text p:first-child::first-letter { color:#8B2D2D; }
+
+    .source-chips {
+      display:flex; flex-wrap:wrap; gap:0.4rem;
+      margin-top:1rem;
+      padding-top:0.8rem;
+      border-top:1px dashed var(--rule);
+    }
+
     .source-chip {
-      font-size: 0.63rem; font-weight: 500;
-      color: var(--gold);
-      border: 1px solid var(--gold-border);
-      background: var(--gold-faint);
-      padding: 0.18rem 0.55rem; border-radius: 2px;
-      cursor: default; letter-spacing: 0.02em;
+      font-family:'Manrope', sans-serif;
+      font-size:0.6rem;
+      font-weight:500;
+      color:var(--navy);
+      background:var(--gold-faint);
+      border:1px solid var(--gold-pale);
+      padding:0.16rem 0.55rem;
+      letter-spacing:0.04em;
+      border-radius:3px;
     }
 
     .msg-actions {
-      display: flex; align-items: center; gap: 0.65rem;
-      margin-top: 0.55rem; opacity: 0; transition: opacity .2s;
+      display:flex; align-items:center; gap:0.8rem;
+      margin-top:0.85rem;
+      opacity:0;
+      transition:opacity .2s;
     }
-    .msg-ai:hover .msg-actions { opacity: 1; }
+
+    .msg-ai:hover .msg-actions { opacity:1; }
+
     .act-btn {
-      background: none; border: none; cursor: pointer;
-      display: flex; align-items: center; gap: 0.28rem;
-      font-size: 0.68rem; font-family: 'Manrope', sans-serif;
-      color: #bbb; padding: 0.15rem 0; transition: color .15s;
+      background:none; border:none; cursor:pointer;
+      display:inline-flex; align-items:center; gap:0.35rem;
+      font-family:'Manrope', sans-serif;
+      font-size:0.6rem;
+      font-weight:600;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      color:var(--ink-mute);
+      padding:0;
+      transition:color .15s;
     }
-    .act-btn:hover { color: var(--ink); }
-    .act-btn.voted { color: var(--gold); }
-    .act-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
 
-    .typing-dots { display: flex; gap: 5px; align-items: center; padding: 4px 0; }
+    .act-btn:hover { color:var(--ink); }
+    .act-btn.voted { color:var(--gold); }
+    .act-btn svg { width:12px; height:12px; flex-shrink:0; }
+
+    .typing-dots { display:flex; gap:6px; align-items:center; padding:6px 0; }
+
     .typing-dot {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--gold);
-      animation: blink 1.2s ease-in-out infinite;
-    }
-    .typing-dot:nth-child(2) { animation-delay: .2s; }
-    .typing-dot:nth-child(3) { animation-delay: .4s; }
-    @keyframes blink {
-      0%,60%,100% { opacity: .2; transform: scale(.8); }
-      30%         { opacity: 1;  transform: scale(1);   }
+      width:5px; height:5px; border-radius:50%;
+      background:var(--gold);
+      animation:tw 1.3s ease-in-out infinite;
     }
 
-    .followup-chips { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.8rem; }
-    .followup-chip {
-      font-size: 0.7rem; color: var(--navy);
-      border: 1px solid rgba(13,31,60,.2);
-      background: transparent;
-      padding: 0.28rem 0.7rem; border-radius: 20px;
-      cursor: pointer; transition: all .15s;
-      font-family: 'Manrope', sans-serif;
-    }
-    .followup-chip:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+    .typing-dot:nth-child(2) { animation-delay:.2s; }
+    .typing-dot:nth-child(3) { animation-delay:.4s; }
 
-    .result-card { border: 1px solid var(--border); border-radius: 3px; padding: 0.9rem 1.1rem; }
-    .result-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem; }
-    .result-doc { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; color: var(--gold); text-transform: uppercase; }
-    .result-score { font-size: 0.63rem; color: #aaa; }
-    .result-score span { background: rgba(13,31,60,.06); color: var(--navy); padding: 0.08rem 0.38rem; border-radius: 2px; font-weight: 600; }
-    .result-text { font-size: 0.78rem; line-height: 1.6; color: #444; }
+    @keyframes tw {
+      0%,70%,100% { opacity:.25; transform:translateY(0); }
+      35%         { opacity:1;   transform:translateY(-3px); }
+    }
 
-    .overlay {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,.48);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 200; backdrop-filter: blur(3px);
-    }
-    .modal { background: #fff; padding: 1.8rem; border-radius: 4px; width: 370px; max-width: 92vw; }
-    .modal-title { font-family: 'Fraunces', Georgia, serif; font-size: 1.1rem; font-weight: 400; color: var(--navy); margin-bottom: 0.3rem; }
-    .modal-sub { font-size: 0.73rem; color: #888; margin-bottom: 1.1rem; line-height: 1.5; }
-    .modal-lbl { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--navy); display: block; margin-bottom: 0.3rem; }
-    .modal-input {
-      width: 100%; border: 1.5px solid #ddd; border-radius: 3px;
-      padding: 0.55rem 0.75rem;
-      font-family: 'Manrope', sans-serif; font-size: 0.8rem; color: var(--ink);
-      outline: none; margin-bottom: 0.9rem; transition: border-color .15s;
-    }
-    .modal-input:focus { border-color: var(--navy); }
-    .modal-actions { display: flex; gap: 0.45rem; justify-content: flex-end; }
-    .modal-cancel {
-      background: none; border: 1px solid #ddd; color: #666;
-      font-family: 'Manrope', sans-serif; font-size: 0.68rem; font-weight: 600;
-      letter-spacing: 0.09em; text-transform: uppercase;
-      padding: 0.48rem 0.9rem; border-radius: 2px; cursor: pointer;
-    }
-    .modal-cancel:hover { border-color: var(--navy); color: var(--navy); }
-    .modal-save {
-      background: var(--navy); color: #fff; border: none;
-      font-family: 'Manrope', sans-serif; font-size: 0.68rem; font-weight: 700;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      padding: 0.48rem 1rem; border-radius: 2px; cursor: pointer;
-    }
-    .modal-save:hover { background: #1a3556; }
+    /* ── SEARCH ── */
+    .search-bar { padding:1rem 1.5rem; border-bottom:1px solid var(--rule); flex-shrink:0; position:relative; z-index:2; }
+    .search-bar.hidden { display:none; }
 
-    .search-bar { padding: 0.7rem 1.4rem; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-    .search-bar.hidden { display: none; }
     .search-input {
-      width: 100%; background: #F3F0EB; border: none; border-radius: 3px;
-      padding: 0.52rem 0.9rem;
-      font-family: 'Manrope', sans-serif; font-size: 0.79rem; color: var(--ink); outline: none;
+      width:100%;
+      background:transparent;
+      border:none;
+      border-bottom:1px solid var(--rule);
+      padding:0.55rem 0;
+      font-family:'Fraunces', serif;
+      font-style:italic;
+      font-size:1rem;
+      color:var(--ink);
+      outline:none;
+      transition:border-color .15s;
     }
-    .search-input:focus { background: #ECE8E0; }
 
-    #chatArea { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-    #chatArea.hidden { display: none; }
+    .search-input:focus { border-bottom-color:var(--gold); }
+    .search-input::placeholder { color:var(--ink-mute); font-style:italic; }
 
-    .search-results { flex: 1; overflow-y: auto; padding: 1.4rem; display: flex; flex-direction: column; gap: 0.9rem; }
-    .search-results.hidden { display: none; }
+    .search-results {
+      flex:1; overflow-y:auto;
+      padding:1.5rem;
+      display:flex; flex-direction:column; align-items:center;
+      position:relative; z-index:1;
+    }
 
-    .bottom-area { flex-shrink: 0; border-top: 1px solid var(--border); }
+    .search-results.hidden { display:none; }
 
-    .ctx-wrap { padding: 0.6rem 1.4rem 0; display: none; }
-    .ctx-wrap.visible { display: flex; }
+    .search-results-inner {
+      width:100%; max-width:660px;
+      display:flex; flex-direction:column; gap:1rem;
+    }
+
+    .result-card {
+      border:1px solid var(--rule);
+      padding:1.1rem 1.3rem;
+      background:rgba(255,255,255,0.4);
+    }
+
+    .result-card-head {
+      display:flex; justify-content:space-between; align-items:baseline;
+      margin-bottom:0.55rem;
+      padding-bottom:0.5rem;
+      border-bottom:1px dashed var(--rule);
+    }
+
+    .result-doc {
+      font-family:'Fraunces', serif;
+      font-size:0.85rem; font-weight:500; color:var(--ink);
+    }
+
+    .result-score {
+      font-family:'Manrope', sans-serif;
+      font-size:0.58rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-mute);
+    }
+
+    .result-score span { color:var(--gold); font-weight:700; margin-left:0.3rem; }
+
+    .result-text {
+      font-family:'Fraunces', serif;
+      font-size:0.85rem; line-height:1.65; color:var(--ink-soft); font-weight:300;
+    }
+
+    /* ── BOTTOM ── */
+    .bottom {
+      flex-shrink:0;
+      background:var(--paper-deep);
+      border-top:1px solid var(--rule);
+      position:relative; z-index:2;
+    }
+
+    .ctx-wrap { padding:0.7rem 1.5rem 0; display:none; justify-content:center; }
+    .ctx-wrap.visible { display:flex; }
+
     .ctx-tag {
-      display: inline-flex; align-items: center; gap: 0.4rem;
-      font-size: 0.66rem; font-weight: 600; color: var(--navy);
-      background: rgba(13,31,60,0.06); border: 1px solid rgba(13,31,60,0.14);
-      padding: 0.18rem 0.45rem 0.18rem 0.55rem; border-radius: 2px; letter-spacing: 0.03em;
+      display:inline-flex; align-items:center; gap:0.5rem;
+      font-family:'Manrope', sans-serif;
+      font-size:0.62rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase;
+      color:var(--gold);
+      background:rgba(201,168,76,0.08);
+      border:1px solid var(--gold);
+      padding:0.22rem 0.55rem 0.22rem 0.65rem;
+      border-radius:2px;
     }
-    .ctx-close { background: none; border: none; cursor: pointer; color: rgba(13,31,60,0.38); font-size: 1rem; line-height: 1; padding: 0; }
 
-    .suggestions-row { padding: 0.65rem 1.4rem 0; display: flex; flex-wrap: wrap; gap: 0.45rem; }
-    .suggestions-row.hidden { display: none; }
+    .ctx-close {
+      background:none; border:none; cursor:pointer;
+      color:var(--gold); font-size:1.05rem; line-height:1; padding:0;
+    }
+
+    .suggestions-row {
+      padding:0.75rem 1.5rem 0;
+      display:flex; flex-wrap:wrap; gap:0.45rem;
+      justify-content:center;
+    }
+
+    .suggestions-row.hidden { display:none; }
+
     .suggestion-chip {
-      font-size: 0.68rem; font-weight: 500; color: #555;
-      border: 1px solid #d8d3c8; background: transparent;
-      padding: 0.28rem 0.65rem; border-radius: 2px;
-      cursor: pointer; transition: all .15s; font-family: 'Manrope', sans-serif;
+      font-family:'Manrope', sans-serif;
+      font-size:0.66rem; font-weight:500;
+      color:var(--ink-soft);
+      border:1px solid var(--rule);
+      background:rgba(255,255,255,0.4);
+      padding:0.32rem 0.8rem;
+      border-radius:2px;
+      cursor:pointer;
+      transition:all .15s;
     }
-    .suggestion-chip:hover { border-color: var(--gold); color: var(--navy); background: var(--gold-faint); }
 
-    .input-row { display: flex; align-items: center; padding: 0.7rem 1.4rem; gap: 0.7rem; }
-    .input-row.hidden { display: none; }
+    .suggestion-chip:hover {
+      border-color:var(--gold);
+      color:var(--navy);
+      background:var(--gold-faint);
+    }
+
+    .input-area {
+      padding:1rem 1.5rem 0.8rem;
+      display:flex;
+      justify-content:center;
+    }
+
+    .input-area.hidden { display:none; }
+
+    .input-row {
+      width:100%; max-width:660px;
+      display:flex; align-items:center; gap:0.7rem;
+      background:rgba(255,255,255,0.6);
+      border:1px solid var(--rule);
+      padding:0.45rem 0.5rem 0.45rem 1.25rem;
+      transition:all .2s;
+    }
+
+    .input-row:focus-within {
+      border-color:var(--gold);
+      background:#fff;
+      box-shadow:0 0 0 3px rgba(201,168,76,0.12), 0 4px 20px rgba(13,31,60,0.05);
+    }
+
     .query-input {
-      flex: 1; border: none; border-bottom: 1.5px solid #d8d3c8;
-      background: transparent; padding: 0.45rem 0;
-      font-family: 'Manrope', sans-serif; font-size: 0.83rem; color: var(--ink);
-      outline: none; transition: border-color .15s;
+      flex:1;
+      background:transparent;
+      border:none;
+      font-family:'Fraunces', serif;
+      font-style:italic;
+      font-size:1rem;
+      color:var(--ink);
+      outline:none;
+      padding:0.3rem 0;
     }
-    .query-input:focus { border-bottom-color: var(--navy); }
-    .send-btn {
-      background: var(--navy); color: #fff; border: none;
-      font-family: 'Manrope', sans-serif; font-size: 0.6rem; font-weight: 700;
-      letter-spacing: 0.14em; text-transform: uppercase;
-      padding: 0.56rem 1rem; border-radius: 2px; cursor: pointer;
-      flex-shrink: 0; transition: background .15s;
-    }
-    .send-btn:hover { background: #1a3556; }
-    .send-btn:disabled { opacity: .4; cursor: not-allowed; }
 
-    .tab-bar { display: flex; border-top: 1px solid var(--border); padding: 0 1.4rem; }
-    .tab {
-      font-size: 0.63rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
-      color: #aaa; padding: 0.5rem 0; margin-right: 1.4rem; cursor: pointer;
-      border-bottom: 2px solid transparent; transition: color .15s, border-color .15s;
+    .query-input::placeholder { color:var(--ink-mute); font-style:italic; }
+
+    .send-btn {
+      background:var(--navy);
+      color:var(--paper);
+      border:none;
+      font-family:'Manrope', sans-serif;
+      font-size:0.58rem; font-weight:700; letter-spacing:0.18em; text-transform:uppercase;
+      padding:0.6rem 1.1rem;
+      cursor:pointer; flex-shrink:0;
+      transition:background .15s;
     }
-    .tab.active { color: var(--navy); border-bottom-color: var(--gold); }
+
+    .send-btn:hover { background:var(--gold); color:var(--navy); }
+    .send-btn:disabled { opacity:.35; cursor:not-allowed; }
+
+    .tab-bar {
+      display:flex; justify-content:center;
+      padding:0 1.5rem; gap:2rem;
+      border-top:1px solid var(--rule-soft);
+    }
+
+    .tab {
+      font-family:'Manrope', sans-serif;
+      font-size:0.6rem; font-weight:700; letter-spacing:0.18em; text-transform:uppercase;
+      color:var(--ink-mute);
+      padding:0.55rem 0;
+      cursor:pointer;
+      border-bottom:2px solid transparent;
+      transition:all .15s;
+    }
+
+    .tab:hover { color:var(--ink); }
+
+    .tab.active {
+      color:var(--navy);
+      border-bottom-color:var(--gold);
+    }
+
+    /* ── MODAL ── */
+    .overlay {
+      position:fixed; inset:0;
+      background:rgba(13,31,60,0.55);
+      display:flex; align-items:center; justify-content:center;
+      z-index:200;
+      backdrop-filter:blur(4px);
+    }
+
+    .modal {
+      background:var(--paper);
+      padding:2rem 2.2rem;
+      width:400px; max-width:92vw;
+      border:1px solid var(--rule);
+      box-shadow:0 24px 64px rgba(0,0,0,0.25);
+      position:relative;
+    }
+
+    .modal::before {
+      content:'';
+      position:absolute; inset:6px;
+      border:1px solid var(--rule);
+      pointer-events:none;
+    }
+
+    .modal-stamp {
+      font-size:0.54rem; font-weight:700; letter-spacing:0.22em; text-transform:uppercase;
+      color:var(--gold); margin-bottom:0.5rem; display:block;
+    }
+
+    .modal-title {
+      font-family:'Fraunces', serif;
+      font-size:1.35rem; font-weight:400; color:var(--ink); margin-bottom:0.4rem;
+    }
+
+    .modal-sub {
+      font-family:'Fraunces', serif; font-style:italic;
+      font-size:0.85rem; color:var(--ink-mute);
+      margin-bottom:1.3rem; line-height:1.55; font-weight:300;
+    }
+
+    .modal-lbl {
+      font-size:0.55rem; font-weight:700; letter-spacing:0.18em; text-transform:uppercase;
+      color:var(--ink); display:block; margin-bottom:0.4rem;
+    }
+
+    .modal-input {
+      width:100%;
+      background:transparent; border:none;
+      border-bottom:1.5px solid var(--rule);
+      padding:0.5rem 0;
+      font-family:'Manrope', sans-serif; font-size:0.85rem; color:var(--ink);
+      outline:none; margin-bottom:1.3rem;
+      transition:border-color .15s;
+    }
+
+    .modal-input:focus { border-bottom-color:var(--gold); }
+    .modal-actions { display:flex; gap:0.5rem; justify-content:flex-end; }
+
+    .modal-cancel {
+      background:transparent; border:1px solid var(--rule);
+      color:var(--ink-mute);
+      font-family:'Manrope', sans-serif;
+      font-size:0.58rem; font-weight:600; letter-spacing:0.14em; text-transform:uppercase;
+      padding:0.5rem 1rem; cursor:pointer; transition:all .15s;
+    }
+
+    .modal-cancel:hover { color:var(--ink); border-color:var(--ink); }
+
+    .modal-save {
+      background:var(--navy); color:var(--paper);
+      border:1px solid var(--navy);
+      font-family:'Manrope', sans-serif;
+      font-size:0.58rem; font-weight:700; letter-spacing:0.16em; text-transform:uppercase;
+      padding:0.5rem 1.2rem; cursor:pointer; transition:all .15s;
+    }
+
+    .modal-save:hover { background:var(--gold); border-color:var(--gold); color:var(--navy); }
+
+    /* ── MOBILE ── */
+    @media (max-width:680px) {
+      .sidebar { display:none; }
+      .topbar { padding:0 16px; }
+      .messages-area { padding:1.3rem 1rem 0.5rem; }
+      .input-area { padding:0.8rem 1rem 0.6rem; }
+      .suggestions-row { padding:0.6rem 1rem 0; }
+    }
   </style>
 </head>
 <body>
 
-<!-- LOGIN OVERLAY -->
-<div id="loginOverlay" class="overlay" style="display:none">
+<!-- ── LOGIN OVERLAY ── -->
+<div id="loginOverlay" class="overlay">
   <div class="modal">
-    <div class="modal-title">Welkom terug</div>
-    <div class="modal-sub">Log in met je naam en wachtwoord om toegang te krijgen tot de kennisdatabank.</div>
+    <span class="modal-stamp">Doets Reizen &mdash; Kennisdatabank</span>
+    <h2 class="modal-title">Welkom terug</h2>
+    <p class="modal-sub">Log in met je naam en wachtwoord om toegang te krijgen tot de kennisdatabank.</p>
     <label class="modal-lbl" for="loginNaam">Naam</label>
     <input class="modal-input" id="loginNaam" type="text" placeholder="Voornaam Achternaam" autocomplete="username"
       onkeydown="if(event.key==='Enter')document.getElementById('loginWacht').focus()">
     <label class="modal-lbl" for="loginWacht">Wachtwoord</label>
-    <input class="modal-input" id="loginWacht" type="password" placeholder="••••••••" autocomplete="current-password"
+    <input class="modal-input" id="loginWacht" type="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" autocomplete="current-password"
       onkeydown="if(event.key==='Enter')doLogin()">
-    <div id="loginErr" style="color:#c53030;font-size:0.75rem;margin-bottom:0.7rem;display:none"></div>
+    <div id="loginErr" style="color:#8B2D2D;font-family:'Fraunces',serif;font-style:italic;font-size:0.82rem;margin-bottom:0.9rem;display:none"></div>
     <div class="modal-actions">
       <button class="modal-save" id="loginBtn" onclick="doLogin()">Inloggen</button>
     </div>
@@ -383,89 +913,69 @@
 
 <div class="app">
 
-  <header class="topbar">
-    <div class="topbar-brand">
-      <span class="brand-name">Doets Reizen</span>
-      <div class="brand-sep"></div>
-      <span class="brand-sub">Kennisdatabank</span>
-    </div>
-    <div class="topbar-actions">
-      <span class="intern-badge">Intern — Verkoopteam</span>
-      <span id="topbarUser" style="font-size:0.59rem;font-weight:500;color:rgba(255,255,255,0.5);letter-spacing:0.08em;text-transform:uppercase"></span>
-      <button class="topbar-btn" onclick="clearHistory()">Wis geschiedenis</button>
-      <button class="topbar-btn" onclick="doLogout()">Uitloggen</button>
-    </div>
-  </header>
-
+  <!-- ── SIDEBAR ── -->
   <aside class="sidebar">
-    <div class="sidebar-section">
-      <div class="sidebar-lbl">Bestemmingen</div>
-      <div class="sidebar-item active" data-dest="" onclick="setDest(this,'')">
-        <span class="item-dot"></span>Alle bestemmingen
+
+    <div class="sb-brand">
+      <div class="sb-logo">
+        <div class="sb-logo-mark">
+          <svg viewBox="0 0 64 64" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="32" cy="32" r="22"/>
+            <polygon points="43.3 20.7 37.7 37.7 20.7 43.3 26.3 26.3 43.3 20.7"/>
+            <circle cx="32" cy="32" r="2.5" fill="white" stroke="none"/>
+          </svg>
+        </div>
+        <div class="sb-logo-name">Doets Reizen</div>
       </div>
-      <div class="sidebar-item" data-dest="Verenigde Staten" onclick="setDest(this,'Verenigde Staten')">
-        <span class="item-code">US</span>Verenigde Staten
-      </div>
-      <div class="sidebar-item" data-dest="Canada" onclick="setDest(this,'Canada')">
-        <span class="item-code">CA</span>Canada
-      </div>
-      <div class="sidebar-item" data-dest="IJsland" onclick="setDest(this,'IJsland')">
-        <span class="item-code">IS</span>IJsland
-      </div>
-      <div class="sidebar-item" data-dest="Noorwegen" onclick="setDest(this,'Noorwegen')">
-        <span class="item-code">NO</span>Noorwegen
-      </div>
-      <div class="sidebar-item" data-dest="Zweden" onclick="setDest(this,'Zweden')">
-        <span class="item-code">SE</span>Zweden
-      </div>
-      <div class="sidebar-item" data-dest="Finland" onclick="setDest(this,'Finland')">
-        <span class="item-code">FI</span>Finland
-      </div>
-      <div class="sidebar-item" data-dest="Japan" onclick="setDest(this,'Japan')">
-        <span class="item-code">JP</span>Japan
-      </div>
-      <div class="sidebar-item" data-dest="China" onclick="setDest(this,'China')">
-        <span class="item-code">CN</span>China
-      </div>
+      <div class="sb-tagline">Kennisdatabank</div>
+      <div class="sb-stamp">Verre reizen sinds 1986</div>
     </div>
-    <div class="sidebar-divider"></div>
-    <div class="sidebar-section">
-      <div class="sidebar-lbl">Reissoorten</div>
-      <div class="sidebar-item" data-dest="Camperreis" onclick="setDest(this,'Camperreis')">
-        <span class="item-dot"></span>Camperreis
-      </div>
-      <div class="sidebar-item" data-dest="Autorondreis" onclick="setDest(this,'Autorondreis')">
-        <span class="item-dot"></span>Autorondreis
-      </div>
-      <div class="sidebar-item" data-dest="Stedentrip" onclick="setDest(this,'Stedentrip')">
-        <span class="item-dot"></span>Stedentrip
-      </div>
-      <div class="sidebar-item" data-dest="Wintersport" onclick="setDest(this,'Wintersport')">
-        <span class="item-dot"></span>Wintersport
-      </div>
-      <div class="sidebar-item" data-dest="Safari &amp; Wildlife" onclick="setDest(this,'Safari &amp; Wildlife')">
-        <span class="item-dot"></span>Safari &amp; Wildlife
-      </div>
-      <div class="sidebar-item" data-dest="Deep Desires" onclick="setDest(this,'Deep Desires')">
-        <span class="item-dot"></span>Deep Desires
-      </div>
-      <div class="sidebar-item" data-dest="Familiereis" onclick="setDest(this,'Familiereis')">
-        <span class="item-dot"></span>Familiereis
-      </div>
-      <div class="sidebar-item" data-dest="Golfreis" onclick="setDest(this,'Golfreis')">
-        <span class="item-dot"></span>Golfreis
-      </div>
+
+    <div class="sb-section">
+      <div class="sb-heading">Bestemmingen</div>
+      <button class="nav-btn sidebar-item active" data-dest="" onclick="setDest(this,'')">Alle bestemmingen</button>
+      <button class="nav-btn sidebar-item" data-dest="Verenigde Staten" onclick="setDest(this,'Verenigde Staten')">Verenigde Staten</button>
+      <button class="nav-btn sidebar-item" data-dest="Canada" onclick="setDest(this,'Canada')">Canada</button>
+      <button class="nav-btn sidebar-item" data-dest="IJsland" onclick="setDest(this,'IJsland')">IJsland</button>
+      <button class="nav-btn sidebar-item" data-dest="Noorwegen" onclick="setDest(this,'Noorwegen')">Noorwegen</button>
+      <button class="nav-btn sidebar-item" data-dest="Zweden" onclick="setDest(this,'Zweden')">Zweden</button>
+      <button class="nav-btn sidebar-item" data-dest="Finland" onclick="setDest(this,'Finland')">Finland</button>
+      <button class="nav-btn sidebar-item" data-dest="Japan" onclick="setDest(this,'Japan')">Japan</button>
+      <button class="nav-btn sidebar-item" data-dest="China" onclick="setDest(this,'China')">China</button>
     </div>
-    <div class="sidebar-divider"></div>
-    <div style="padding:0.5rem 0 0.8rem;">
-      <a href="/admin.html" style="display:flex;align-items:center;gap:0.55rem;padding:0.42rem 1rem;font-size:0.68rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(201,168,76,0.55);text-decoration:none;transition:color .15s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='rgba(201,168,76,0.55)'">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
-        Beheer
-      </a>
+
+    <div class="sb-sep"></div>
+
+    <div class="sb-section">
+      <div class="sb-heading">Reissoorten</div>
+      <button class="nav-btn sidebar-item" data-dest="Camperreis" onclick="setDest(this,'Camperreis')">Camperreis</button>
+      <button class="nav-btn sidebar-item" data-dest="Autorondreis" onclick="setDest(this,'Autorondreis')">Autorondreis</button>
+      <button class="nav-btn sidebar-item" data-dest="Stedentrip" onclick="setDest(this,'Stedentrip')">Stedentrip</button>
+      <button class="nav-btn sidebar-item" data-dest="Wintersport" onclick="setDest(this,'Wintersport')">Wintersport</button>
+      <button class="nav-btn sidebar-item" data-dest="Safari &amp; Wildlife" onclick="setDest(this,'Safari &amp; Wildlife')">Safari &amp; Wildlife</button>
+      <button class="nav-btn sidebar-item" data-dest="Deep Desires" onclick="setDest(this,'Deep Desires')">Deep Desires</button>
+      <button class="nav-btn sidebar-item" data-dest="Familiereis" onclick="setDest(this,'Familiereis')">Familiereis</button>
+      <button class="nav-btn sidebar-item" data-dest="Golfreis" onclick="setDest(this,'Golfreis')">Golfreis</button>
     </div>
+
+    <div class="sb-footer">
+      <a href="/admin" class="sb-footer-link">&#9881; Beheer</a>
+      <a href="/index-classic.html" class="sb-footer-link">Klassiek design</a>
+    </div>
+
   </aside>
 
+  <!-- ── MAIN ── -->
   <main class="main">
+
+    <div class="topbar">
+      <span class="topbar-title">Kennisassistent &mdash; <em>Verkoopteam</em></span>
+      <span class="topbar-date" id="mastDate"></span>
+      <button class="topbar-btn" onclick="clearHistory()">Wis</button>
+      <span id="topbarUser" style="font-family:'Manrope',sans-serif;font-size:10.5px;font-weight:500;color:rgba(255,255,255,0.5);letter-spacing:0.04em;margin-left:4px"></span>
+      <button class="topbar-btn" onclick="doLogout()">Uitloggen</button>
+    </div>
+
     <div class="search-bar hidden" id="searchBar">
       <input class="search-input" id="searchInput"
         placeholder="Zoek op trefwoord, bestemming, onderwerp..."
@@ -474,128 +984,133 @@
 
     <div id="chatArea">
       <div class="welcome" id="welcome">
-        <div class="welcome-ring" id="welcomeRing">
-          <svg id="welcomeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-            <path d="M2 17l10 5 10-5"/>
-            <path d="M2 12l10 5 10-5"/>
+        <div class="welcome-orn">
+          <svg id="welcomeIcon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2">
+            <circle cx="32" cy="32" r="26"/>
+            <circle cx="32" cy="32" r="18" stroke-dasharray="2 3"/>
+            <path d="M32 8 L34 30 L32 32 L30 30 Z" fill="currentColor" stroke="none"/>
+            <path d="M32 56 L34 34 L32 32 L30 34 Z" fill="currentColor" opacity="0.4" stroke="none"/>
+            <circle cx="32" cy="32" r="2" fill="currentColor" stroke="none"/>
+            <text x="32" y="12" text-anchor="middle" font-family="serif" font-size="6" fill="currentColor" stroke="none">N</text>
           </svg>
-          <span id="welcomeCode" style="display:none;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;color:var(--gold)"></span>
+          <span id="welcomeCode" style="display:none;font-family:'Fraunces',serif;font-size:1.4rem;font-weight:500;color:var(--gold);position:absolute;inset:0;display:none;align-items:center;justify-content:center"></span>
         </div>
-        <div class="welcome-title" id="welcomeTitle">Kennisdatabank</div>
-        <div class="welcome-sub" id="welcomeSub">Stel een vraag over reisbestemmingen, producten of procedures. Antwoorden zijn uitsluitend gebaseerd op Doets-documenten.</div>
+        <h1 class="welcome-title" id="welcomeTitle">Welkom in de <em>kennisdatabank</em></h1>
+        <p class="welcome-sub" id="welcomeSub">Stel een vraag over reisbestemmingen, producten of procedures. Antwoorden zijn uitsluitend gebaseerd op Doets-documenten.</p>
+        <div class="welcome-decor"><span>Verkoopteam</span></div>
       </div>
-      <div class="messages-area hidden" id="msgs"></div>
+      <div class="messages-area hidden" id="msgs">
+        <div class="messages-inner" id="msgsInner"></div>
+      </div>
     </div>
 
-    <div class="search-results hidden" id="searchResults"></div>
+    <div class="search-results hidden" id="searchResults">
+      <div class="search-results-inner" id="searchResultsInner"></div>
+    </div>
 
-    <div class="bottom-area">
+    <div class="bottom">
       <div class="ctx-wrap" id="ctxWrap">
         <span class="ctx-tag">
           <span id="ctxLabel"></span>
-          <button class="ctx-close" onclick="setDest(document.querySelector('[data-dest=\\'\\']'),'')">×</button>
+          <button class="ctx-close" onclick="setDest(document.querySelector('[data-dest=\\'\\']'),'')">&times;</button>
         </span>
       </div>
       <div class="suggestions-row" id="suggestionsRow"></div>
-      <div class="input-row" id="inputRow">
-        <input class="query-input" id="queryInput"
-          placeholder="Stel uw vraag..."
-          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}">
-        <button class="send-btn" id="sendBtn" onclick="sendMsg()">Versturen</button>
+      <div class="input-area" id="inputArea">
+        <div class="input-row">
+          <input class="query-input" id="queryInput"
+            placeholder="Stel uw vraag..."
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}">
+          <button class="send-btn" id="sendBtn" onclick="sendMsg()">Verstuur</button>
+        </div>
       </div>
       <div class="tab-bar">
         <div class="tab active" id="tabChat" onclick="switchTab('chat')">Chat</div>
         <div class="tab" id="tabZoek" onclick="switchTab('zoek')">Zoeken</div>
       </div>
     </div>
+
   </main>
 </div>
 
-<script>
-// STATE
-let messages = [];
-let activeDest  = '';
-let loading     = false;
-let currentTab  = 'chat';
 
-function destKey(dest) { return 'doets_msgs_' + (dest || 'all'); }
+<script>
+// ── STATE ─────────────────────────────────────────────────────
+var messages   = [];
+var activeDest = '';
+var loading    = false;
+var currentTab = 'chat';
+
+function destKey(dest) { var u = (localStorage.getItem('doets_user') || 'unknown').toLowerCase().replace(/\s+/g,'_'); return 'doets_msgs_' + u + '_' + (dest || 'all'); }
 function loadDestMessages(dest) { return JSON.parse(localStorage.getItem(destKey(dest)) || '[]'); }
 
-const SYSTEM = `Je bent de interne kennisassistent van Doets Reizen, uitsluitend bedoeld voor medewerkers van het verkoopteam. Beantwoord vragen UITSLUITEND op basis van informatie uit de Doets Reizen kennisdatabank. Gebruik NOOIT je eigen trainingskennis of externe bronnen. Als de kennisdatabank onvoldoende informatie bevat zeg dan: "Dit staat niet in onze kennisdatabank. Neem contact op met een collega." Verwijs altijd naar de bronnaam. Antwoord in het Nederlands. Wees beknopt en praktisch. Gebruik GEEN emojis, smiley-tekens of em-dashes (—). Schrijf gewone zinnen met punten en komma's.`;
+var SYSTEM = "Je bent de interne kennisassistent van Doets Reizen, uitsluitend bedoeld voor medewerkers van het verkoopteam. Beantwoord vragen UITSLUITEND op basis van informatie uit de Doets Reizen kennisdatabank. Gebruik NOOIT je eigen trainingskennis of externe bronnen. Als de kennisdatabank onvoldoende informatie bevat zeg dan: \"Dit staat niet in onze kennisdatabank. Neem contact op met een collega.\" Verwijs altijd naar de bronnaam. Antwoord in het Nederlands. Wees beknopt en praktisch. Gebruik GEEN emojis, smiley-tekens of em-dashes. Schrijf gewone zinnen met punten en komma's.";
 
-const FOLLOWUPS = [
-  'Wat zijn de annuleringsvoorwaarden?',
-  'Welke vliegmaatschappijen worden gebruikt?',
-  'Wat zijn de vertrekdata?',
-  'Zijn er speciale aanbiedingen?',
-  'Wat is inbegrepen in de prijs?',
-  'Welke visumeisen zijn er?',
-  'Wat is de beste reistijd?',
-  'Zijn er kinderkortingen?',
-  'Hoe lang duurt de reis gemiddeld?',
-  'Welke reisverzekering wordt aanbevolen?',
-];
-
-const DEFAULT_SUGGESTIONS = [
+var DEFAULT_SUGGESTIONS = [
   'Beste boekingsperiode?',
-  'Wat zijn de USPs van Doets Reizen?',
+  'USPs van Doets Reizen?',
   'Deep Desires — voor wie?',
-  'Visum overzicht alle bestemmingen',
+  'Visum overzicht alle bestemmingen'
 ];
 
-const DEST_DATA = {
-  'Verenigde Staten': { code: 'US', sub: 'Camperverhuur, nationale parken en route 66 — alles over reizen door Amerika.', suggestions: ['Camperverhuur Amerika tips', 'Nationale parken route VS', 'ESTA visum aanvragen', 'Route 66 reisschema'] },
-  'Canada': { code: 'CA', sub: 'Rocky Mountains, Oost-Canada en de mooiste camperpaden.', suggestions: ['Rocky Mountains rondreis', 'Beste reistijd Canada', 'Camperverhuur Canada', 'Niagara en Toronto tips'] },
-  'IJsland': { code: 'IS', sub: 'Noorderlicht, de Golden Circle en de ringweg door IJsland.', suggestions: ['Noorderlicht kansen IJsland', 'Ringweg rijden zelf of tour?', 'Beste reistijd IJsland', 'Camper of hotel IJsland?'] },
-  'Noorwegen': { code: 'NO', sub: 'Fjorden, midnight sun en de Lofoten eilanden.', suggestions: ['Fjorden rondreis opties', 'Lofoten eilanden tips', 'Midnight sun beleving', 'Camper in Noorwegen'] },
-  'Zweden': { code: 'SE', sub: 'Zweeds Lapland, aurora borealis en de natuur van Noord-Zweden.', suggestions: ['Zweeds Lapland winterreis', 'Huskysafari Lapland', 'Aurora borealis tips', 'Stockholm stedentrip'] },
-  'Finland': { code: 'FI', sub: 'Rovaniemi, glasiglos en safaripakketten in Finland.', suggestions: ['Glasiglo accommodaties', 'Rovaniemi Kerstman tips', 'Aurora borealis Finland', 'Husky & rendier safari'] },
-  'Japan': { code: 'JP', sub: 'Cultuur, natuur en moderne steden — unieke ervaringen in Japan.', suggestions: ['Beste reistijd Japan', 'Visumeisen Japan 2024', 'Rondreis route Japan', 'Must-see bezienswaardigheden'] },
-  'China': { code: 'CN', sub: 'Groepsreizen en individuele reizen door het grote China.', suggestions: ['Visum aanvragen China', 'Groepsreis China opties', 'Grote Muur bezoeken', 'Shanghai en Beijing tips'] },
-  'Camperreis': { code: 'RV', sub: 'Campervakanties wereldwijd — alles wat een verkoper moet weten.', suggestions: ['Beste camperbestemmingen', 'Camper huren tips klanten', 'Rijbewijs eisen camper', 'Kampeerplaatsen Europa'] },
-  'Autorondreis': { code: 'AR', sub: "Autorondreizen op maat — routes, auto's en logistiek.", suggestions: ['Populaire autorondreizen', 'Auto huren buitenland', 'Verzekering autorondreis', 'Kinderen mee op rondreis'] },
-  'Stedentrip': { code: 'CT', sub: 'City breaks en weekends weg — stedentrips van Doets.', suggestions: ['Populaire stedentrips', 'Stedentrip met kinderen', 'Beste citytrip bestemmingen', 'Stedentrip tips verkoop'] },
-  'Wintersport': { code: 'WS', sub: 'Wintersport en sneeuwvakanties — skigebieden en arrangementen.', suggestions: ['Beste skigebieden Europa', 'Beginners skivakantie', 'Gezinswintersport tips', 'Apres-ski arrangementen'] },
-  'Safari & Wildlife': { code: 'SF', sub: 'Safari- en wildlife-reizen — Big Five en meer.', suggestions: ['Safari bestemmingen vergelijken', 'Big Five spotten tips', 'Beste safari maanden', 'Familie safari opties'] },
-  'Deep Desires': { code: 'DD', sub: 'Exclusieve droomreizen op maat — het premium segment van Doets.', suggestions: ['Wat zijn Deep Desires?', 'Doelgroep Deep Desires', 'Prijsklasse Deep Desires', 'Voorbeelden en routes'] },
-  'Familiereis': { code: 'FM', sub: 'Familiereizen — kindvriendelijke bestemmingen en arrangementen.', suggestions: ['Beste familiebestemmingen', 'Leeftijdsgeschikte activiteiten', 'Kindvriendelijke hotels', 'Reisverzekering gezin'] },
-  'Golfreis': { code: 'GL', sub: 'Golfreizen van Doets — topbanen en golfresorts wereldwijd.', suggestions: ['Populaire golfbestemmingen', 'Golfresort arrangementen', 'Huurmateriaal ter plaatse', 'Golfvisum en regels'] },
+var DEST_DATA = {
+  'Verenigde Staten': { code:'US', sub:'Camperverhuur, nationale parken en route 66. Alles over reizen door Amerika.', suggestions:['Camperverhuur Amerika tips','Nationale parken route VS','ESTA visum aanvragen','Route 66 reisschema'] },
+  'Canada':           { code:'CA', sub:'Rocky Mountains, Oost-Canada en de mooiste camperpaden.', suggestions:['Rocky Mountains rondreis','Beste reistijd Canada','Camperverhuur Canada','Niagara en Toronto tips'] },
+  'IJsland':          { code:'IS', sub:'Noorderlicht, de Golden Circle en de ringweg door IJsland.', suggestions:['Noorderlicht kansen IJsland','Ringweg rijden zelf of tour?','Beste reistijd IJsland','Camper of hotel IJsland?'] },
+  'Noorwegen':        { code:'NO', sub:'Fjorden, midnight sun en de Lofoten eilanden.', suggestions:['Fjorden rondreis opties','Lofoten eilanden tips','Midnight sun beleving','Camper in Noorwegen'] },
+  'Zweden':           { code:'SE', sub:'Zweeds Lapland, aurora borealis en de natuur van Noord-Zweden.', suggestions:['Zweeds Lapland winterreis','Huskysafari Lapland','Aurora borealis tips','Stockholm stedentrip'] },
+  'Finland':          { code:'FI', sub:'Rovaniemi, glasiglos en safaripakketten in Finland.', suggestions:['Glasiglo accommodaties','Rovaniemi Kerstman tips','Aurora borealis Finland','Husky & rendier safari'] },
+  'Japan':            { code:'JP', sub:'Cultuur, natuur en moderne steden. Unieke ervaringen in Japan.', suggestions:['Beste reistijd Japan','Visumeisen Japan 2024','Rondreis route Japan','Must-see bezienswaardigheden'] },
+  'China':            { code:'CN', sub:'Groepsreizen en individuele reizen door het grote China.', suggestions:['Visum aanvragen China','Groepsreis China opties','Grote Muur bezoeken','Shanghai en Beijing tips'] },
+  'Camperreis':       { code:'RV', sub:'Campervakanties wereldwijd. Alles wat een verkoper moet weten.', suggestions:['Beste camperbestemmingen','Camper huren tips klanten','Rijbewijs eisen camper','Kampeerplaatsen Europa'] },
+  'Autorondreis':     { code:'AR', sub:"Autorondreizen op maat. Routes, auto's en logistiek.", suggestions:['Populaire autorondreizen','Auto huren buitenland','Verzekering autorondreis','Kinderen mee op rondreis'] },
+  'Stedentrip':       { code:'CT', sub:'City breaks en weekends weg. Stedentrips van Doets.', suggestions:['Populaire stedentrips','Stedentrip met kinderen','Beste citytrip bestemmingen','Stedentrip tips verkoop'] },
+  'Wintersport':      { code:'WS', sub:'Wintersport en sneeuwvakanties. Skigebieden en arrangementen.', suggestions:['Beste skigebieden Europa','Beginners skivakantie','Gezinswintersport tips','Apres-ski arrangementen'] },
+  'Safari & Wildlife':{ code:'SF', sub:'Safari- en wildlife-reizen. Big Five en meer.', suggestions:['Safari bestemmingen vergelijken','Big Five spotten tips','Beste safari maanden','Familie safari opties'] },
+  'Deep Desires':     { code:'DD', sub:'Exclusieve droomreizen op maat. Het premium segment van Doets.', suggestions:['Wat zijn Deep Desires?','Doelgroep Deep Desires','Prijsklasse Deep Desires','Voorbeelden en routes'] },
+  'Familiereis':      { code:'FM', sub:'Familiereizen. Kindvriendelijke bestemmingen en arrangementen.', suggestions:['Beste familiebestemmingen','Leeftijdsgeschikte activiteiten','Kindvriendelijke hotels','Reisverzekering gezin'] },
+  'Golfreis':         { code:'GL', sub:'Golfreizen van Doets. Topbanen en golfresorts wereldwijd.', suggestions:['Populaire golfbestemmingen','Golfresort arrangementen','Huurmateriaal ter plaatse','Golfvisum en regels'] }
 };
 
-// INIT
+// ── INIT ──────────────────────────────────────────────────────
+function setDateLabel() {
+  var d = new Date();
+  var months = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+  document.getElementById('mastDate').textContent = d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+}
+
 function renderDefaultChips() {
-  const sugRow = document.getElementById('suggestionsRow');
-  sugRow.innerHTML = DEFAULT_SUGGESTIONS.map(s =>
-    `<button class="suggestion-chip" onclick="useChip(this)">${esc(s)}</button>`
-  ).join('');
+  var sugRow = document.getElementById('suggestionsRow');
+  sugRow.innerHTML = DEFAULT_SUGGESTIONS.map(function(s) {
+    return '<button class="suggestion-chip" onclick="useChip(this)">' + esc(s) + '</button>';
+  }).join('');
 }
 
 function init() {
-  const token = localStorage.getItem('doets_token');
+  var token = localStorage.getItem('doets_token');
   if (!token) {
     document.getElementById('loginOverlay').style.display = 'flex';
-    setTimeout(() => document.getElementById('loginNaam').focus(), 80);
+    setTimeout(function() { document.getElementById('loginNaam').focus(); }, 80);
     return;
   }
   document.getElementById('loginOverlay').style.display = 'none';
-  const userName = localStorage.getItem('doets_user') || '';
-  const topbarUser = document.getElementById('topbarUser');
+  var userName = localStorage.getItem('doets_user') || '';
+  var topbarUser = document.getElementById('topbarUser');
   if (topbarUser && userName) topbarUser.textContent = userName.split(' ')[0];
   initApp();
 }
 
 function initApp() {
-  // migrate old global messages to per-dest format
-  const oldMsgs = localStorage.getItem('doets_msgs');
+  var oldMsgs = localStorage.getItem('doets_msgs');
   if (oldMsgs && !localStorage.getItem(destKey(''))) {
     localStorage.setItem(destKey(''), oldMsgs);
     localStorage.removeItem('doets_msgs');
   }
   messages = loadDestMessages('');
+  setDateLabel();
   renderDefaultChips();
   restoreSession();
-  document.addEventListener('keydown', e => {
+  document.addEventListener('keydown', function(e) {
     if (e.key === '/' && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) {
       e.preventDefault();
       document.getElementById(currentTab === 'chat' ? 'queryInput' : 'searchInput').focus();
@@ -603,14 +1118,15 @@ function initApp() {
   });
 }
 
-// SESSION
+// ── SESSION ───────────────────────────────────────────────────
 function restoreSession() {
   if (!messages.length) return;
   show('msgs'); hide('welcome');
-  const c = document.getElementById('msgs');
+  var c = document.getElementById('msgsInner');
   c.innerHTML = '';
-  for (const m of messages) {
-    if (m.role === 'user')      renderUser(m.content, false);
+  for (var i = 0; i < messages.length; i++) {
+    var m = messages[i];
+    if (m.role === 'user')           renderUser(m.content, false);
     else if (m.role === 'assistant') renderAI(m.content, m.sources || [], false);
   }
   scrollBottom();
@@ -623,31 +1139,32 @@ function saveSession() {
 function clearHistory() {
   messages = [];
   localStorage.removeItem(destKey(activeDest));
-  document.getElementById('msgs').innerHTML = '';
+  document.getElementById('msgsInner').innerHTML = '';
   hide('msgs'); show('welcome');
   if (activeDest) {
-    const d = DEST_DATA[activeDest] || {};
-    document.getElementById('suggestionsRow').innerHTML = (d.suggestions || DEFAULT_SUGGESTIONS).map(s =>
-      `<button class="suggestion-chip" onclick="useChip(this)">${esc(s)}</button>`
-    ).join('');
+    var d = DEST_DATA[activeDest] || {};
+    document.getElementById('suggestionsRow').innerHTML = (d.suggestions || DEFAULT_SUGGESTIONS).map(function(s) {
+      return '<button class="suggestion-chip" onclick="useChip(this)">' + esc(s) + '</button>';
+    }).join('');
   } else {
     renderDefaultChips();
   }
   document.getElementById('suggestionsRow').classList.remove('hidden');
 }
 
-// DESTINATION FILTER
+// ── DESTINATION FILTER ────────────────────────────────────────
 function setDest(el, dest) {
   saveSession();
-  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(function(i) { i.classList.remove('active'); });
   el.classList.add('active');
   activeDest = dest;
   messages = loadDestMessages(dest);
-  const msgsEl = document.getElementById('msgs');
-  msgsEl.innerHTML = '';
+  var c = document.getElementById('msgsInner');
+  c.innerHTML = '';
   if (messages.length) {
-    for (const m of messages) {
-      if (m.role === 'user') renderUser(m.content, false);
+    for (var i = 0; i < messages.length; i++) {
+      var m = messages[i];
+      if (m.role === 'user')           renderUser(m.content, false);
       else if (m.role === 'assistant') renderAI(m.content, m.sources || [], false);
     }
     hide('welcome'); show('msgs');
@@ -655,126 +1172,115 @@ function setDest(el, dest) {
   } else {
     hide('msgs'); show('welcome');
   }
-
-  const sugRow  = document.getElementById('suggestionsRow');
-  const ctxWrap = document.getElementById('ctxWrap');
-  const qInput  = document.getElementById('queryInput');
-  const wTitle  = document.getElementById('welcomeTitle');
-  const wSub    = document.getElementById('welcomeSub');
-  const wIcon   = document.getElementById('welcomeIcon');
-  const wCode   = document.getElementById('welcomeCode');
-
+  var sugRow  = document.getElementById('suggestionsRow');
+  var ctxWrap = document.getElementById('ctxWrap');
+  var qInput  = document.getElementById('queryInput');
+  var wTitle  = document.getElementById('welcomeTitle');
+  var wSub    = document.getElementById('welcomeSub');
+  var wIcon   = document.getElementById('welcomeIcon');
+  var wCode   = document.getElementById('welcomeCode');
   if (dest) {
-    const d = DEST_DATA[dest] || {};
-    wTitle.textContent = dest;
-    wSub.textContent   = d.sub || `Stel vragen over ${dest}. Antwoorden zijn gebaseerd op Doets-documenten.`;
+    var d = DEST_DATA[dest] || {};
+    wTitle.innerHTML = '<em>' + esc(dest) + '</em>';
+    wSub.textContent = d.sub || ('Stel vragen over ' + dest + '. Antwoorden zijn gebaseerd op Doets-documenten.');
     wIcon.style.display = 'none';
-    wCode.style.display = 'inline';
-    wCode.textContent   = d.code || dest.slice(0, 2).toUpperCase();
-    sugRow.innerHTML = (d.suggestions || DEFAULT_SUGGESTIONS).map(s =>
-      `<button class="suggestion-chip" onclick="useChip(this)">${esc(s)}</button>`
-    ).join('');
+    wCode.style.display = 'flex';
+    wCode.textContent = d.code || dest.slice(0, 2).toUpperCase();
+    sugRow.innerHTML = (d.suggestions || DEFAULT_SUGGESTIONS).map(function(s) {
+      return '<button class="suggestion-chip" onclick="useChip(this)">' + esc(s) + '</button>';
+    }).join('');
     sugRow.classList.remove('hidden');
-    qInput.placeholder = `Stel een vraag over ${dest}...`;
+    qInput.placeholder = 'Stel een vraag over ' + dest + '...';
     document.getElementById('ctxLabel').textContent = dest;
     ctxWrap.classList.add('visible');
   } else {
-    wTitle.textContent  = 'Kennisdatabank';
-    wSub.textContent    = 'Stel een vraag over reisbestemmingen, producten of procedures. Antwoorden zijn uitsluitend gebaseerd op Doets-documenten.';
+    wTitle.innerHTML = 'Welkom in de <em>kennisdatabank</em>';
+    wSub.textContent = 'Stel een vraag over reisbestemmingen, producten of procedures. Antwoorden zijn uitsluitend gebaseerd op Doets-documenten.';
     wIcon.style.display = '';
     wCode.style.display = 'none';
-    sugRow.innerHTML = DEFAULT_SUGGESTIONS.map(s =>
-      `<button class="suggestion-chip" onclick="useChip(this)">${esc(s)}</button>`
-    ).join('');
+    sugRow.innerHTML = DEFAULT_SUGGESTIONS.map(function(s) {
+      return '<button class="suggestion-chip" onclick="useChip(this)">' + esc(s) + '</button>';
+    }).join('');
     sugRow.classList.remove('hidden');
     qInput.placeholder = 'Stel uw vraag...';
     ctxWrap.classList.remove('visible');
   }
 }
 
-// TABS
+// ── TABS ──────────────────────────────────────────────────────
 function switchTab(tab) {
   currentTab = tab;
-  const isChat = tab === 'chat';
+  var isChat = tab === 'chat';
   document.getElementById('tabChat').classList.toggle('active', isChat);
   document.getElementById('tabZoek').classList.toggle('active', !isChat);
   document.getElementById('chatArea').classList.toggle('hidden', !isChat);
   document.getElementById('searchResults').classList.toggle('hidden', isChat);
   document.getElementById('searchBar').classList.toggle('hidden', isChat);
   document.getElementById('suggestionsRow').classList.toggle('hidden', !isChat);
-  document.getElementById('inputRow').classList.toggle('hidden', !isChat);
+  document.getElementById('inputArea').classList.toggle('hidden', !isChat);
   document.getElementById(isChat ? 'queryInput' : 'searchInput').focus();
 }
 
-// CHIPS
+// ── CHIPS ─────────────────────────────────────────────────────
 function useChip(btn) {
   document.getElementById('queryInput').value = btn.textContent;
   sendMsg();
 }
 
-// SEND
+// ── SEND ──────────────────────────────────────────────────────
 async function sendMsg() {
-  const input = document.getElementById('queryInput');
-  let q = input.value.trim();
+  var input = document.getElementById('queryInput');
+  var q = input.value.trim();
   if (!q || loading) return;
-
-  const displayQ = q;
+  var displayQ = q;
   input.value = '';
   loading = true;
   document.getElementById('sendBtn').disabled = true;
   document.getElementById('suggestionsRow').classList.add('hidden');
-
   hide('welcome');
   show('msgs');
-
-  messages.push({ role: 'user', content: q });
+  messages.push({ role:'user', content:q });
   saveSession();
   renderUser(displayQ, true);
-
-  const typingId = renderTyping();
+  var typingId = renderTyping();
   scrollBottom();
-
   try {
-    const destSystem = activeDest
-      ? `${SYSTEM}\n\nDe gebruiker heeft de ${activeDest}-sectie geopend. Geef prioriteit aan informatie over ${activeDest} en noem het als context in je antwoord.`
+    var destSystem = activeDest
+      ? SYSTEM + '\n\nDe gebruiker heeft de ' + activeDest + '-sectie geopend. Geef prioriteit aan informatie over ' + activeDest + ' en noem het als context in je antwoord.'
       : SYSTEM;
-
-    const sendMessages = messages.map(({ role, content }) => ({ role, content }));
-
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + (localStorage.getItem('doets_token') || '')
-      },
-      body: JSON.stringify({ messages: sendMessages, system: destSystem, useRAG: true })
+    var sendMessages = messages.map(function(m) { return { role:m.role, content:m.content }; });
+    var res = await fetch('/api/chat', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + (localStorage.getItem('doets_token') || '') },
+      body:JSON.stringify({ messages:sendMessages, system:destSystem, useRAG:true })
     });
-
-    const contentType = res.headers.get('content-type') || '';
+    var contentType = res.headers.get('content-type') || '';
     if (!res.ok || !contentType.includes('text/event-stream')) {
       removeEl(typingId);
-      let errMsg = `Serverfout (${res.status}).`;
-      try { const d = await res.json(); errMsg = d.error?.message || d.error || errMsg; } catch (_) {}
+      var errMsg = 'Serverfout (' + res.status + ').';
+      try {
+        var d = await res.json();
+        errMsg = (d.error && d.error.message) ? d.error.message : (d.error || errMsg);
+      } catch (_) {}
       renderError(errMsg);
       messages.pop(); saveSession();
       return;
     }
-
-    const reader  = res.body.getReader();
-    const decoder = new TextDecoder();
-    let fullText = '';
-    let buffer   = '';
-
+    var reader = res.body.getReader();
+    var decoder = new TextDecoder();
+    var fullText = '';
+    var buffer = '';
     while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
+      var chunk = await reader.read();
+      if (chunk.done) break;
+      buffer += decoder.decode(chunk.value, { stream:true });
+      var lines = buffer.split('\n');
       buffer = lines.pop();
-      for (const line of lines) {
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
         if (!line.startsWith('data: ')) continue;
         try {
-          const data = JSON.parse(line.slice(6));
+          var data = JSON.parse(line.slice(6));
           if (data.error) throw new Error(data.error);
           if (data.t) fullText += data.t;
         } catch (parseErr) {
@@ -782,19 +1288,17 @@ async function sendMsg() {
         }
       }
     }
-
     if (!fullText) fullText = 'Geen antwoord ontvangen.';
-    const sources = parseSources(fullText);
+    var sources = parseSources(fullText);
     removeEl(typingId);
-    const uid = 'ai-' + Date.now();
-    const textTarget = createStreamingBubble(uid);
-    const cleanForReveal = fullText.replace(/\[Bron \d+:[^\]]+\]/g, '').trim();
+    var uid = 'ai-' + Date.now();
+    var textTarget = createStreamingBubble(uid);
+    var cleanForReveal = fullText.replace(/\[Bron \d+:[^\]]+\]/g, '').trim();
     await typewriterReveal(textTarget, cleanForReveal);
     finalizeStreamingBubble(uid, fullText, sources);
-    messages.push({ role: 'assistant', content: fullText, sources });
+    messages.push({ role:'assistant', content:fullText, sources:sources });
     saveSession();
     scrollBottom();
-
   } catch (e) {
     removeEl(typingId);
     renderError('Kan de server niet bereiken. Controleer uw verbinding.');
@@ -806,182 +1310,191 @@ async function sendMsg() {
   }
 }
 
-// SEARCH
+// ── SEARCH ────────────────────────────────────────────────────
 async function doSearch() {
-  const q = document.getElementById('searchInput').value.trim();
+  var q = document.getElementById('searchInput').value.trim();
   if (!q) return;
-  const c = document.getElementById('searchResults');
-  c.innerHTML = '<div style="padding:2rem;text-align:center;color:#aaa;font-size:.78rem">Zoeken...</div>';
+  var c = document.getElementById('searchResultsInner');
+  c.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--ink-mute);font-family:Fraunces,serif;font-style:italic">Zoeken...</div>';
   try {
-    const res  = await fetch('/api/search', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + (localStorage.getItem('doets_token') || '')
-      },
-      body: JSON.stringify({ query: q, topK: 8 })
+    var res = await fetch('/api/search', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + (localStorage.getItem('doets_token') || '') },
+      body:JSON.stringify({ query:q, topK:8 })
     });
-    const data = await res.json();
-    if (!res.ok || !data.results?.length) {
-      c.innerHTML = '<div style="padding:2rem;text-align:center;color:#aaa;font-size:.78rem">Geen resultaten gevonden.</div>';
+    var data = await res.json();
+    if (!res.ok || !data.results || !data.results.length) {
+      c.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--ink-mute);font-family:Fraunces,serif;font-style:italic">Geen resultaten gevonden.</div>';
       return;
     }
-    c.innerHTML = data.results.map(r => `
-      <div class="result-card">
-        <div class="result-card-head">
-          <span class="result-doc">${esc(r.documentName)}</span>
-          <span class="result-score">Relevantie <span>${Math.round(r.score * 100)}%</span></span>
-        </div>
-        <div class="result-text">${esc(r.text)}</div>
-      </div>`).join('');
-  } catch {
-    c.innerHTML = '<div style="padding:2rem;text-align:center;color:#c53030;font-size:.78rem">Fout bij zoeken. Probeer opnieuw.</div>';
+    c.innerHTML = data.results.map(function(r) {
+      return '<div class="result-card"><div class="result-card-head"><span class="result-doc">' + esc(r.documentName) + '</span><span class="result-score">Relevantie <span>' + Math.round(r.score*100) + '%</span></span></div><div class="result-text">' + esc(r.text) + '</div></div>';
+    }).join('');
+  } catch (_) {
+    c.innerHTML = '<div style="padding:2rem;text-align:center;color:#8B2D2D;font-family:Fraunces,serif;font-style:italic">Fout bij zoeken. Probeer opnieuw.</div>';
   }
 }
 
-// RENDER HELPERS
+// ── RENDER HELPERS ────────────────────────────────────────────
 function renderUser(text, animate) {
-  const el = make('div', `message msg-user${animate ? '' : ' no-anim'}`);
-  el.innerHTML = `<div class="bubble">${esc(text)}</div>`;
-  document.getElementById('msgs').appendChild(el);
+  var el = make('div', 'message msg-user' + (animate ? '' : ' no-anim'));
+  el.innerHTML = '<div class="lbl">Vraag</div><div class="bubble">' + esc(text) + '</div>';
+  document.getElementById('msgsInner').appendChild(el);
 }
 
 function createStreamingBubble(uid) {
-  const msgEl = make('div', 'message msg-ai');
-  msgEl.id    = uid;
-  msgEl.innerHTML = `
-    <div class="ai-lbl">Kennisdatabank</div>
-    <div class="ai-body">
-      <div class="ai-text" id="txt-${uid}"></div>
-      <div id="chips-${uid}"></div>
-      <div id="fu-${uid}" class="followup-chips"></div>
-      <div class="msg-actions" id="act-${uid}" style="opacity:0;transition:opacity .2s">
-        <button class="act-btn" onclick="copyMsg('${uid}')" title="Kopieer">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
-          </svg>Kopieer
-        </button>
-        <button class="act-btn" onclick="vote(this,'up')" title="Nuttig">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/>
-            <path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/>
-          </svg>
-        </button>
-        <button class="act-btn" onclick="vote(this,'down')" title="Niet nuttig">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3H10z"/>
-            <path d="M17 2h2.67A2.31 2.31 0 0122 4v7a2.31 2.31 0 01-2.33 2H17"/>
-          </svg>
-        </button>
-      </div>
-    </div>`;
-  document.getElementById('msgs').appendChild(msgEl);
+  var msgEl = make('div', 'message msg-ai');
+  msgEl.id = uid;
+  msgEl.innerHTML =
+    '<div class="lbl">Kennisdatabank</div>' +
+    '<div class="ai-text" id="txt-' + uid + '"></div>' +
+    '<div id="chips-' + uid + '"></div>' +
+    '<div class="msg-actions" id="act-' + uid + '" style="opacity:0;transition:opacity .2s">' +
+      '<button class="act-btn" onclick="copyMsg(\'' + uid + '\')" title="Kopieer">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Kopieer' +
+      '</button>' +
+      '<button class="act-btn" onclick="vote(this,\'up\')" title="Nuttig">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>Nuttig' +
+      '</button>' +
+      '<button class="act-btn" onclick="vote(this,\'down\')" title="Niet nuttig">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0122 4v7a2.31 2.31 0 01-2.33 2H17"/></svg>Niet' +
+      '</button>' +
+    '</div>';
+  document.getElementById('msgsInner').appendChild(msgEl);
   return document.getElementById('txt-' + uid);
 }
 
 function finalizeStreamingBubble(uid, fullText, sources) {
-  const clean = fullText.replace(/\[Bron \d+:[^\]]+\]/g, '').trim();
+  var clean = fullText.replace(/\[Bron \d+:[^\]]+\]/g, '').trim();
   document.getElementById('txt-' + uid).innerHTML = formatText(clean);
-  const chipsEl = document.getElementById('chips-' + uid);
+  var chipsEl = document.getElementById('chips-' + uid);
   if (sources.length) {
     chipsEl.className = 'source-chips';
-    chipsEl.innerHTML = sources.map(s => `<span class="source-chip">${esc(trunc(s,34))}</span>`).join('');
+    chipsEl.innerHTML = sources.map(function(s) { return '<span class="source-chip">' + esc(trunc(s, 36)) + '</span>'; }).join('');
   }
-  document.getElementById('fu-' + uid).innerHTML =
-    pickFollowups().map(f => `<button class="followup-chip" onclick="useFollowup(this)">${esc(f)}</button>`).join('');
-  const actEl = document.getElementById('act-' + uid);
+  var actEl = document.getElementById('act-' + uid);
   if (actEl) actEl.style.opacity = '';
 }
 
 function renderAI(fullText, sources, animate) {
-  const clean = fullText.replace(/\[Bron \d+:[^\]]+\]/g, '').trim();
-  const uid   = 'ai-' + Date.now() + Math.random().toString(36).slice(2,6);
-  const el    = make('div', `message msg-ai${animate ? '' : ' no-anim'}`);
-  el.id       = uid;
-  const chips = sources.map(s => `<span class="source-chip">${esc(trunc(s,34))}</span>`).join('');
-  const fuHtml = pickFollowups().map(f => `<button class="followup-chip" onclick="useFollowup(this)">${esc(f)}</button>`).join('');
-  el.innerHTML = `
-    <div class="ai-lbl">Kennisdatabank</div>
-    <div class="ai-body">
-      <div class="ai-text">${formatText(clean)}</div>
-      ${sources.length ? `<div class="source-chips">${chips}</div>` : ''}
-      <div class="followup-chips">${fuHtml}</div>
-      <div class="msg-actions">
-        <button class="act-btn" onclick="copyMsg('${uid}')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
-          </svg>Kopieer
-        </button>
-        <button class="act-btn" onclick="vote(this,'up')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 002-2.3H14z"/>
-            <path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/>
-          </svg>
-        </button>
-        <button class="act-btn" onclick="vote(this,'down')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3H10z"/>
-            <path d="M17 2h2.67A2.31 2.31 0 0122 4v7a2.31 2.31 0 01-2.33 2H17"/>
-          </svg>
-        </button>
-      </div>
-    </div>`;
-  document.getElementById('msgs').appendChild(el);
+  var clean = fullText.replace(/\[Bron \d+:[^\]]+\]/g, '').trim();
+  var uid = 'ai-' + Date.now() + Math.random().toString(36).slice(2, 6);
+  var el = make('div', 'message msg-ai' + (animate ? '' : ' no-anim'));
+  el.id = uid;
+  var chips = sources.map(function(s) { return '<span class="source-chip">' + esc(trunc(s, 36)) + '</span>'; }).join('');
+  el.innerHTML =
+    '<div class="lbl">Kennisdatabank</div>' +
+    '<div class="ai-text">' + formatText(clean) + '</div>' +
+    (sources.length ? '<div class="source-chips">' + chips + '</div>' : '') +
+    '<div class="msg-actions">' +
+      '<button class="act-btn" onclick="copyMsg(\'' + uid + '\')">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Kopieer' +
+      '</button>' +
+      '<button class="act-btn" onclick="vote(this,\'up\')">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>Nuttig' +
+      '</button>' +
+      '<button class="act-btn" onclick="vote(this,\'down\')">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0122 4v7a2.31 2.31 0 01-2.33 2H17"/></svg>Niet' +
+      '</button>' +
+    '</div>';
+  document.getElementById('msgsInner').appendChild(el);
 }
 
 function renderTyping() {
-  const id = 'typ-' + Date.now();
-  const el = make('div', 'message msg-ai');
-  el.id    = id;
-  el.innerHTML = `
-    <div class="ai-lbl">Kennisdatabank</div>
-    <div class="ai-body">
-      <div class="typing-dots">
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
-      </div>
-    </div>`;
-  document.getElementById('msgs').appendChild(el);
+  var id = 'typ-' + Date.now();
+  var el = make('div', 'message msg-ai');
+  el.id = id;
+  el.innerHTML =
+    '<div class="lbl">Kennisdatabank</div>' +
+    '<div class="typing-dots">' +
+      '<div class="typing-dot"></div>' +
+      '<div class="typing-dot"></div>' +
+      '<div class="typing-dot"></div>' +
+    '</div>';
+  document.getElementById('msgsInner').appendChild(el);
   return id;
 }
 
 function renderError(msg) {
-  const el = make('div', 'message msg-ai msg-err');
-  el.innerHTML = `
-    <div class="ai-lbl">Fout</div>
-    <div class="ai-body"><div class="ai-text">${esc(msg)}</div></div>`;
-  document.getElementById('msgs').appendChild(el);
+  var el = make('div', 'message msg-ai msg-err');
+  el.innerHTML = '<div class="lbl">Fout</div><div class="ai-text"><p>' + esc(msg) + '</p></div>';
+  document.getElementById('msgsInner').appendChild(el);
   scrollBottom();
 }
 
-// ACTIONS
+// ── ACTIONS ───────────────────────────────────────────────────
 function copyMsg(uid) {
-  const text = document.getElementById(uid)?.querySelector('.ai-text')?.textContent || '';
-  navigator.clipboard.writeText(text).then(() => {
-    const btn = document.getElementById(uid)?.querySelector('.act-btn');
-    if (btn) { btn.style.color = 'var(--gold)'; setTimeout(() => btn.style.color = '', 1500); }
+  var msgEl = document.getElementById(uid);
+  if (!msgEl) return;
+  var txtEl = msgEl.querySelector('.ai-text');
+  var text = txtEl ? txtEl.textContent : '';
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = msgEl.querySelector('.act-btn');
+    if (btn) { btn.style.color = 'var(--gold)'; setTimeout(function() { btn.style.color = ''; }, 1500); }
   });
 }
 
 function vote(btn, dir) {
-  const opp = dir === 'up' ? 'down' : 'up';
-  const sibling = btn.parentElement.querySelector(`[onclick*="'${opp}'"]`);
+  var opp = dir === 'up' ? 'down' : 'up';
+  var sibling = btn.parentElement.querySelector('[onclick*="' + opp + '"]');
   btn.classList.toggle('voted');
   if (sibling) sibling.classList.remove('voted');
 }
 
-function useFollowup(btn) {
-  document.getElementById('queryInput').value = btn.textContent;
-  sendMsg();
+// ── UTILS ─────────────────────────────────────────────────────
+function parseSources(text) {
+  var m = text.match(/\[Bron \d+: ([^\]]+)\]/g) || [];
+  var seen = {};
+  var out = [];
+  for (var i = 0; i < m.length; i++) {
+    var match = m[i].match(/\[Bron \d+: ([^\]]+)\]/);
+    if (match && !seen[match[1]]) { seen[match[1]] = true; out.push(match[1]); }
+  }
+  return out;
 }
 
-// AUTH
+function formatText(t) {
+  return esc(t).split(/\n\n+/).map(function(p) {
+    return '<p>' + p
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g,     '<em>$1</em>')
+      .replace(/\n/g, '<br>') + '</p>';
+  }).join('');
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function trunc(s, n) { return s.length > n ? s.slice(0, n) + '...' : s; }
+function make(tag, cls) { var el = document.createElement(tag); if (cls) el.className = cls; return el; }
+function show(id) { document.getElementById(id).classList.remove('hidden'); }
+function hide(id) { document.getElementById(id).classList.add('hidden'); }
+function removeEl(id) { var el = document.getElementById(id); if (el) el.remove(); }
+function scrollBottom() {
+  var el = document.getElementById('msgs');
+  el.scrollTop = el.scrollHeight;
+}
+function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+
+async function typewriterReveal(el, text, msPerWord) {
+  msPerWord = msPerWord || 22;
+  var parts = text.split(/(\s+)/);
+  var acc = '';
+  for (var i = 0; i < parts.length; i++) {
+    acc += parts[i];
+    el.innerHTML = formatText(acc);
+    scrollBottom();
+    if (parts[i].trim().length > 0) await sleep(msPerWord);
+  }
+}
+
+// ── AUTH ──────────────────────────────────────────────────────
 async function doLogin() {
-  const naam  = document.getElementById('loginNaam').value.trim();
-  const wacht = document.getElementById('loginWacht').value;
-  const errEl = document.getElementById('loginErr');
-  const btn   = document.getElementById('loginBtn');
+  var naam  = document.getElementById('loginNaam').value.trim();
+  var wacht = document.getElementById('loginWacht').value;
+  var errEl = document.getElementById('loginErr');
+  var btn   = document.getElementById('loginBtn');
   errEl.style.display = 'none';
   if (!naam || !wacht) {
     errEl.textContent = 'Vul je naam en wachtwoord in.';
@@ -991,18 +1504,18 @@ async function doLogin() {
   btn.disabled = true;
   btn.textContent = 'Bezig...';
   try {
-    const res = await fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ naam, wachtwoord: wacht })
+    var res = await fetch('/api/login', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body:JSON.stringify({ naam:naam, wachtwoord:wacht })
     });
-    let data = {};
+    var data = {};
     try { data = await res.json(); } catch(_) {}
     if (res.ok) {
       localStorage.setItem('doets_token', data.token);
       localStorage.setItem('doets_user', data.naam);
       document.getElementById('loginOverlay').style.display = 'none';
-      const topbarUser = document.getElementById('topbarUser');
+      var topbarUser = document.getElementById('topbarUser');
       if (topbarUser) topbarUser.textContent = data.naam.split(' ')[0];
       initApp();
     } else {
@@ -1011,7 +1524,7 @@ async function doLogin() {
       document.getElementById('loginWacht').value = '';
       document.getElementById('loginWacht').focus();
     }
-  } catch(e) {
+  } catch (e) {
     errEl.textContent = 'Kan de server niet bereiken.';
     errEl.style.display = 'block';
   } finally {
@@ -1026,68 +1539,7 @@ function doLogout() {
   location.reload();
 }
 
-// UTILS
-function parseSources(text) {
-  const m = text.match(/\[Bron \d+: ([^\]]+)\]/g) || [];
-  return [...new Set(m.map(x => x.match(/\[Bron \d+: ([^\]]+)\]/)[1]))];
-}
-
-function pickFollowups() {
-  const pool = [...FOLLOWUPS];
-  const out  = [];
-  while (out.length < 3 && pool.length) {
-    const i = Math.floor(Math.random() * pool.length);
-    out.push(pool.splice(i, 1)[0]);
-  }
-  return out;
-}
-
-function formatText(t) {
-  const paragraphs = esc(t).split(/\n\n+/);
-  return paragraphs
-    .map(p => `<p>${p
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.+?)\*/g,   '<em>$1</em>')
-      .replace(/\n/g, '<br>')
-    }</p>`)
-    .join('');
-}
-
-function esc(s) {
-  return String(s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function trunc(s, n) { return s.length > n ? s.slice(0, n) + '...' : s; }
-
-function make(tag, cls) {
-  const el = document.createElement(tag);
-  if (cls) el.className = cls;
-  return el;
-}
-
-function show(id) { document.getElementById(id).classList.remove('hidden'); }
-function hide(id) { document.getElementById(id).classList.add('hidden'); }
-function removeEl(id) { document.getElementById(id)?.remove(); }
-function scrollBottom() {
-  const el = document.getElementById('msgs');
-  el.scrollTop = el.scrollHeight;
-}
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-async function typewriterReveal(el, text, msPerWord = 28) {
-  const parts = text.split(/(\s+)/);
-  let acc = '';
-  for (const part of parts) {
-    acc += part;
-    el.innerHTML = formatText(acc);
-    scrollBottom();
-    if (part.trim().length > 0) await sleep(msPerWord);
-  }
-}
-
-// BOOT
+// ── BOOT ──────────────────────────────────────────────────────
 init();
 </script>
 </body>

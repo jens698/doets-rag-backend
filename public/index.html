@@ -172,6 +172,7 @@
     .messages-area::-webkit-scrollbar { width: 3px; }
     .messages-area::-webkit-scrollbar-thumb { background: #ddd; }
     .messages-area.hidden { display: none; }
+    .welcome.hidden { display: none; }
 
     @keyframes msgIn {
       from { opacity: 0; transform: translateY(7px); }
@@ -454,6 +455,13 @@
       <div class="sidebar-item" data-dest="Golfreis" onclick="setDest(this,'Golfreis')">
         <span class="item-dot"></span>Golfreis
       </div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div style="padding:0.5rem 0 0.8rem;">
+      <a href="/admin.html" style="display:flex;align-items:center;gap:0.55rem;padding:0.42rem 1rem;font-size:0.68rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(201,168,76,0.55);text-decoration:none;transition:color .15s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='rgba(201,168,76,0.55)'">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+        Beheer
+      </a>
     </div>
   </aside>
 

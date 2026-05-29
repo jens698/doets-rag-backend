@@ -892,6 +892,25 @@
 </head>
 <body>
 
+<!-- ── LOGIN OVERLAY ── -->
+<div id="loginOverlay" class="overlay">
+  <div class="modal">
+    <span class="modal-stamp">Doets Reizen &mdash; Kennisdatabank</span>
+    <h2 class="modal-title">Welkom terug</h2>
+    <p class="modal-sub">Log in met je naam en wachtwoord om toegang te krijgen tot de kennisdatabank.</p>
+    <label class="modal-lbl" for="loginNaam">Naam</label>
+    <input class="modal-input" id="loginNaam" type="text" placeholder="Voornaam Achternaam" autocomplete="username"
+      onkeydown="if(event.key==='Enter')document.getElementById('loginWacht').focus()">
+    <label class="modal-lbl" for="loginWacht">Wachtwoord</label>
+    <input class="modal-input" id="loginWacht" type="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" autocomplete="current-password"
+      onkeydown="if(event.key==='Enter')doLogin()">
+    <div id="loginErr" style="color:#8B2D2D;font-family:'Fraunces',serif;font-style:italic;font-size:0.82rem;margin-bottom:0.9rem;display:none"></div>
+    <div class="modal-actions">
+      <button class="modal-save" id="loginBtn" onclick="doLogin()">Inloggen</button>
+    </div>
+  </div>
+</div>
+
 <div class="app">
 
   <!-- ── SIDEBAR ── -->
@@ -953,7 +972,8 @@
       <span class="topbar-title">Kennisassistent &mdash; <em>Verkoopteam</em></span>
       <span class="topbar-date" id="mastDate"></span>
       <button class="topbar-btn" onclick="clearHistory()">Wis</button>
-      <button class="topbar-btn" onclick="showKeyModal()">Sleutel</button>
+      <span id="topbarUser" style="font-family:'Manrope',sans-serif;font-size:10.5px;font-weight:500;color:rgba(255,255,255,0.5);letter-spacing:0.04em;margin-left:4px"></span>
+      <button class="topbar-btn" onclick="doLogout()">Uitloggen</button>
     </div>
 
     <div class="search-bar hidden" id="searchBar">
@@ -1013,25 +1033,9 @@
   </main>
 </div>
 
-<!-- API-sleutel modal -->
-<div class="overlay" id="keyOverlay" style="display:none">
-  <div class="modal">
-    <span class="modal-stamp">Toegang</span>
-    <div class="modal-title">API-sleutel</div>
-    <div class="modal-sub">Voer uw Anthropic API-sleutel in. Deze wordt alleen lokaal in uw browser opgeslagen.</div>
-    <label class="modal-lbl">Anthropic sleutel</label>
-    <input class="modal-input" id="keyInput" type="password" placeholder="sk-ant-..."
-      onkeydown="if(event.key==='Enter') saveKey()">
-    <div class="modal-actions">
-      <button class="modal-cancel" id="modalCancel" onclick="closeModal()">Annuleren</button>
-      <button class="modal-save" onclick="saveKey()">Opslaan</button>
-    </div>
-  </div>
-</div>
 
 <script>
 // ── STATE ─────────────────────────────────────────────────────
-var apiKey     = localStorage.getItem('doets_key') || '';
 var messages   = [];
 var activeDest = '';
 var loading    = false;
@@ -1083,6 +1087,20 @@ function renderDefaultChips() {
 }
 
 function init() {
+  var token = localStorage.getItem('doets_token');
+  if (!token) {
+    document.getElementById('loginOverlay').style.display = 'flex';
+    setTimeout(function() { document.getElementById('loginNaam').focus(); }, 80);
+    return;
+  }
+  document.getElementById('loginOverlay').style.display = 'none';
+  var userName = localStorage.getItem('doets_user') || '';
+  var topbarUser = document.getElementById('topbarUser');
+  if (topbarUser && userName) topbarUser.textContent = userName.split(' ')[0];
+  initApp();
+}
+
+function initApp() {
   var oldMsgs = localStorage.getItem('doets_msgs');
   if (oldMsgs && !localStorage.getItem(destKey(''))) {
     localStorage.setItem(destKey(''), oldMsgs);
@@ -1091,7 +1109,6 @@ function init() {
   messages = loadDestMessages('');
   setDateLabel();
   renderDefaultChips();
-  if (!apiKey) { showModal(true); return; }
   restoreSession();
   document.addEventListener('keydown', function(e) {
     if (e.key === '/' && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) {
@@ -1134,27 +1151,6 @@ function clearHistory() {
   }
   document.getElementById('suggestionsRow').classList.remove('hidden');
 }
-
-// ── MODAL ─────────────────────────────────────────────────────
-function showModal(isFirst) {
-  document.getElementById('keyInput').value = apiKey;
-  document.getElementById('modalCancel').style.display = isFirst ? 'none' : '';
-  document.getElementById('keyOverlay').style.display = 'flex';
-  setTimeout(function() { document.getElementById('keyInput').focus(); }, 80);
-}
-function closeModal() { document.getElementById('keyOverlay').style.display = 'none'; }
-function saveKey() {
-  var v = document.getElementById('keyInput').value.trim();
-  if (!v.startsWith('sk-ant-')) {
-    document.getElementById('keyInput').style.borderColor = '#8B2D2D';
-    return;
-  }
-  apiKey = v;
-  localStorage.setItem('doets_key', apiKey);
-  closeModal();
-  restoreSession();
-}
-function showKeyModal() { showModal(false); }
 
 // ── DESTINATION FILTER ────────────────────────────────────────
 function setDest(el, dest) {
@@ -1236,7 +1232,6 @@ async function sendMsg() {
   var input = document.getElementById('queryInput');
   var q = input.value.trim();
   if (!q || loading) return;
-  if (!apiKey) { showModal(); return; }
   var displayQ = q;
   input.value = '';
   loading = true;
@@ -1256,8 +1251,8 @@ async function sendMsg() {
     var sendMessages = messages.map(function(m) { return { role:m.role, content:m.content }; });
     var res = await fetch('/api/chat', {
       method:'POST',
-      headers:{ 'Content-Type':'application/json' },
-      body:JSON.stringify({ apiKey:apiKey, messages:sendMessages, system:destSystem, useRAG:true })
+      headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + (localStorage.getItem('doets_token') || '') },
+      body:JSON.stringify({ messages:sendMessages, system:destSystem, useRAG:true })
     });
     var contentType = res.headers.get('content-type') || '';
     if (!res.ok || !contentType.includes('text/event-stream')) {
@@ -1324,7 +1319,7 @@ async function doSearch() {
   try {
     var res = await fetch('/api/search', {
       method:'POST',
-      headers:{ 'Content-Type':'application/json' },
+      headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + (localStorage.getItem('doets_token') || '') },
       body:JSON.stringify({ query:q, topK:8 })
     });
     var data = await res.json();
@@ -1492,6 +1487,56 @@ async function typewriterReveal(el, text, msPerWord) {
     scrollBottom();
     if (parts[i].trim().length > 0) await sleep(msPerWord);
   }
+}
+
+// ── AUTH ──────────────────────────────────────────────────────
+async function doLogin() {
+  var naam  = document.getElementById('loginNaam').value.trim();
+  var wacht = document.getElementById('loginWacht').value;
+  var errEl = document.getElementById('loginErr');
+  var btn   = document.getElementById('loginBtn');
+  errEl.style.display = 'none';
+  if (!naam || !wacht) {
+    errEl.textContent = 'Vul je naam en wachtwoord in.';
+    errEl.style.display = 'block';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Bezig...';
+  try {
+    var res = await fetch('/api/login', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body:JSON.stringify({ naam:naam, wachtwoord:wacht })
+    });
+    var data = {};
+    try { data = await res.json(); } catch(_) {}
+    if (res.ok) {
+      localStorage.setItem('doets_token', data.token);
+      localStorage.setItem('doets_user', data.naam);
+      document.getElementById('loginOverlay').style.display = 'none';
+      var topbarUser = document.getElementById('topbarUser');
+      if (topbarUser) topbarUser.textContent = data.naam.split(' ')[0];
+      initApp();
+    } else {
+      errEl.textContent = data.error || 'Naam of wachtwoord onjuist.';
+      errEl.style.display = 'block';
+      document.getElementById('loginWacht').value = '';
+      document.getElementById('loginWacht').focus();
+    }
+  } catch (e) {
+    errEl.textContent = 'Kan de server niet bereiken.';
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Inloggen';
+  }
+}
+
+function doLogout() {
+  localStorage.removeItem('doets_token');
+  localStorage.removeItem('doets_user');
+  location.reload();
 }
 
 // ── BOOT ──────────────────────────────────────────────────────

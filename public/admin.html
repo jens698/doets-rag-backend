@@ -153,11 +153,13 @@
     .input:focus { border-color: var(--gold); background: #fff; box-shadow: 0 0 0 4px rgba(201, 168, 76, 0.12); }
     .input::placeholder { color: var(--ink-muted); }
 
-    .btn { padding: 0 1.75rem; border-radius: 10px; font-size: 0.9rem; font-weight: 600; font-family: 'Manrope', sans-serif; cursor: pointer; border: none; transition: all 0.25s; letter-spacing: 0.02em; display: inline-flex; align-items: center; gap: 0.5rem; }
+    .btn { padding: 0 1.75rem; border-radius: 10px; font-size: 0.9rem; font-weight: 600; font-family: 'Manrope', sans-serif; cursor: pointer; border: none; transition: all 0.25s; letter-spacing: 0.02em; display: inline-flex; align-items: center; gap: 0.5rem; height: 52px; }
     .btn-primary { background: var(--navy); color: #fff; position: relative; overflow: hidden; }
     .btn-primary::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(201, 168, 76, 0.3), transparent); transition: left 0.6s; }
     .btn-primary:hover { background: var(--navy-soft); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(13, 31, 60, 0.25); }
     .btn-primary:hover::before { left: 100%; }
+    .btn-danger { background: #B23A48; color: #fff; }
+    .btn-danger:hover { background: #8f2d39; transform: translateY(-1px); }
 
     .results-wrap { display: none; margin-top: 1.5rem; }
     .results-wrap.visible { display: block; animation: fadeIn 0.3s ease; }
@@ -266,6 +268,45 @@
           <div id="scrape-feedback" style="display:none;margin-top:1rem;padding:1rem;border-radius:8px;font-size:0.85rem;line-height:1.6;"></div>
           <div style="margin-top:0.75rem;font-size:0.78rem;color:var(--ink-muted);">
             Plak een URL van doetsreizen.nl. De tekst wordt automatisch opgehaald en opgeslagen in de kennisdatabank.
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <h2 class="section-title">Bulk scrapen via sitemap</h2>
+          <div class="section-line"></div>
+        </div>
+        <div class="search-card">
+          <div style="margin-bottom:1rem;font-size:0.82rem;color:var(--ink-muted);line-height:1.6;">
+            Upload een sitemap.xml om alle pagina's van doetsreizen.nl in één keer te importeren. Onnodige pagina's (team, blog, legal) worden automatisch overgeslagen.
+          </div>
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap;">
+            <label style="display:inline-flex;align-items:center;gap:0.5rem;background:var(--cream-dark);border:1.5px dashed var(--gold);border-radius:8px;padding:0.65rem 1.1rem;cursor:pointer;font-size:0.82rem;color:var(--navy);font-weight:600;transition:all .2s;" onmouseover="this.style.background='rgba(201,168,76,0.12)'" onmouseout="this.style.background='var(--cream-dark)'">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Kies sitemap.xml
+              <input type="file" id="sitemap-input" accept=".xml" onchange="loadSitemap(this)">
+            </label>
+            <span id="sitemap-preview" style="font-size:0.82rem;color:var(--ink-muted);"></span>
+          </div>
+          <div id="bulk-url-list" style="display:none;max-height:150px;overflow-y:auto;background:var(--cream);border:1px solid var(--line);border-radius:8px;padding:0.6rem 0.8rem;margin-bottom:1rem;font-size:0.72rem;font-family:monospace;color:#555;line-height:1.8;"></div>
+          <div style="display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap;">
+            <button class="btn btn-primary" id="bulk-start-btn" onclick="startBulkScrape()" style="display:none;">Start bulk scrapen</button>
+            <button class="btn btn-danger" id="bulk-stop-btn" onclick="stopBulkScrape()" style="display:none;">Stop</button>
+          </div>
+          <div id="bulk-progress-wrap" style="display:none;margin-top:1.25rem;padding:1rem 1.25rem;background:var(--gold-faint);border:1px solid var(--gold-pale);border-radius:10px;">
+            <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:var(--ink-soft);font-weight:500;margin-bottom:0.5rem;">
+              <span id="bulk-progress-label">Bezig...</span>
+              <span id="bulk-progress-pct">0%</span>
+            </div>
+            <div style="height:4px;background:var(--cream-dark);border-radius:2px;overflow:hidden;">
+              <div id="bulk-progress-bar" style="height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-soft));border-radius:2px;width:0%;transition:width .3s ease;"></div>
+            </div>
+            <div style="display:flex;gap:1.2rem;margin-top:0.65rem;font-size:0.75rem;">
+              <span style="color:#2D6A4F;">✓ <span id="bulk-ok">0</span> geslaagd</span>
+              <span style="color:#B23A48;">✗ <span id="bulk-err">0</span> mislukt</span>
+              <span style="color:var(--ink-muted);">van <span id="bulk-total">0</span> URLs</span>
+            </div>
           </div>
         </div>
       </section>
@@ -580,6 +621,98 @@
         btn.disabled = false;
         btn.textContent = 'Scrapen';
       }
+    }
+
+    // BULK SCRAPE
+    var EXCLUDE_PATTERNS = [
+      '/team/', '/reisblog/', '/vacature', '/stage-bij',
+      '/cookiebeleid', '/privacy-policy', '/disclaimer', '/copyright',
+      '/campertool/', '/doets-digi-date', '/plan-een-afspraak', '/afspraak-maken',
+      '/reisalert', '/co2-meter', '/maak-kennis-met-bob', '/pacific-wild',
+      '/samenwerking-met-milieu', '/wk-experience', '/offerte-op-maat',
+      '/geef-een-cadeaubon', '/reisoverzicht/', '/boek-go-doets-deals',
+      '/vacature-reisspecialist', '/doets-digi-date'
+    ];
+
+    var bulkUrls = [];
+    var bulkRunning = false;
+    var bulkStop = false;
+
+    function loadSitemap(input) {
+      var file = input.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var parser = new DOMParser();
+        var xml = parser.parseFromString(e.target.result, 'text/xml');
+        var locs = Array.from(xml.querySelectorAll('loc')).map(function(el) { return el.textContent.trim(); });
+        bulkUrls = locs.filter(function(url) {
+          return !EXCLUDE_PATTERNS.some(function(p) { return url.includes(p); });
+        });
+        var skipped = locs.length - bulkUrls.length;
+        document.getElementById('sitemap-preview').textContent =
+          locs.length + ' URLs gevonden — ' + bulkUrls.length + ' nuttig, ' + skipped + ' overgeslagen';
+        var listEl = document.getElementById('bulk-url-list');
+        listEl.innerHTML = bulkUrls.map(function(u) { return '<div>' + escapeHtml(u) + '</div>'; }).join('');
+        listEl.style.display = 'block';
+        document.getElementById('bulk-total').textContent = bulkUrls.length;
+        document.getElementById('bulk-start-btn').style.display = 'inline-flex';
+      };
+      reader.readAsText(file);
+    }
+
+    async function startBulkScrape() {
+      if (bulkRunning || !bulkUrls.length) return;
+      bulkRunning = true;
+      bulkStop = false;
+      document.getElementById('bulk-start-btn').style.display = 'none';
+      document.getElementById('bulk-stop-btn').style.display = 'inline-flex';
+      document.getElementById('bulk-progress-wrap').style.display = 'block';
+      var ok = 0, err = 0;
+      var token = localStorage.getItem('doets_token') || '';
+      for (var i = 0; i < bulkUrls.length; i++) {
+        if (bulkStop) break;
+        var url = bulkUrls[i];
+        var pct = Math.round((i / bulkUrls.length) * 100);
+        document.getElementById('bulk-progress-bar').style.width = pct + '%';
+        document.getElementById('bulk-progress-pct').textContent = pct + '%';
+        document.getElementById('bulk-progress-label').textContent = (i + 1) + '/' + bulkUrls.length + ' — ' + url.replace('https://www.doetsreizen.nl', '');
+        try {
+          var res = await fetch(API + '/api/scrape-url', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body: JSON.stringify({ url: url })
+          });
+          var data = await res.json();
+          if (res.ok) {
+            ok++;
+            log('success', url.replace('https://www.doetsreizen.nl', '') + ' — ' + data.chunks + ' chunks');
+          } else {
+            err++;
+            log('error', url.replace('https://www.doetsreizen.nl', '') + ' mislukt: ' + (data.error || res.status));
+          }
+        } catch(e) {
+          err++;
+          log('error', url.replace('https://www.doetsreizen.nl', '') + ' fout: ' + e.message);
+        }
+        document.getElementById('bulk-ok').textContent = ok;
+        document.getElementById('bulk-err').textContent = err;
+        await new Promise(function(r) { setTimeout(r, 400); });
+      }
+      bulkRunning = false;
+      document.getElementById('bulk-progress-bar').style.width = '100%';
+      document.getElementById('bulk-progress-pct').textContent = '100%';
+      document.getElementById('bulk-stop-btn').style.display = 'none';
+      document.getElementById('bulk-start-btn').style.display = 'inline-flex';
+      document.getElementById('bulk-start-btn').textContent = 'Opnieuw scrapen';
+      document.getElementById('bulk-progress-label').textContent = (bulkStop ? 'Gestopt. ' : 'Klaar! ') + ok + ' geslaagd, ' + err + ' mislukt.';
+      log('info', 'Bulk scrape klaar: ' + ok + ' geslaagd, ' + err + ' mislukt van ' + bulkUrls.length + ' URLs.');
+      loadStats();
+    }
+
+    function stopBulkScrape() {
+      bulkStop = true;
+      document.getElementById('bulk-progress-label').textContent = 'Stoppen na huidige URL...';
     }
 
     function log(type, msg) {

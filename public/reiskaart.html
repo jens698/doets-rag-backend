@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Doets Reizen — Reiskaart</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+:root{
+  --paper:#FBF9F4; --paper-2:#F4EFE5; --hover:#F6F0E3; --panel:#FCFAF6;
+  --ink:#23201B; --ink-2:#5C564B; --ink-3:#938C7E; --ink-4:#B8B0A0;
+  --line:#EBE4D5; --line-2:#DED5C2; --line-3:#CFC4AC;
+  --gold:#B8962E; --gold-deep:#937322; --gold-soft:#E9DCB8; --gold-tint:#F5EFDF;
+
+  --hotel-1:#9FB6D6; --hotel-2:#3A6EA5; --hotel-3:#B8962E;
+  --exc:#C25A3A; --transfer:#6F7785; --tour:#2E8B78; --alt:#2E9E5B;
+
+  --shadow-sm:0 1px 3px rgba(35,32,27,.10);
+  --shadow-md:0 6px 22px rgba(35,32,27,.13);
+  --shadow-lg:0 18px 50px rgba(35,32,27,.20);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:"Inter",system-ui,sans-serif;font-size:14px;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:0;background:none;color:inherit;}
+input,select{font-family:inherit;border-radius:0;}
+select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23938C7E' stroke-width='1.4' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--line-3);border:3px solid var(--paper);}
+::-webkit-scrollbar-thumb:hover{background:var(--gold);}
+
+/* ============================ SHELL ============================ */
+#app{display:flex;height:100%;flex-direction:column;}
+.topbar{height:60px;flex:0 0 60px;z-index:1500;display:flex;align-items:center;gap:22px;padding:0 22px;background:var(--panel);border-top:3px solid var(--gold);border-bottom:1px solid var(--line-2);}
+.brand{display:flex;align-items:baseline;gap:8px;white-space:nowrap;}
+.brand .wm{font-family:"Cormorant Garamond",serif;font-size:25px;font-weight:700;letter-spacing:.2px;}
+.brand .wm .d{color:var(--gold);} .brand .wm .r{color:var(--ink);}
+.brand .tag{font-size:9.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--ink-4);border-left:1px solid var(--line-2);padding-left:9px;}
+.back-portal{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;font-size:11px;font-weight:600;letter-spacing:1.1px;text-transform:uppercase;color:var(--ink-3);border:1px solid var(--line-2);text-decoration:none;transition:all .15s;background:#fff;}
+.back-portal:hover{border-color:var(--gold);color:var(--gold-deep);background:var(--gold-tint);}
+.dests{display:flex;gap:3px;align-items:center;overflow-x:auto;scrollbar-width:none;}
+.dests::-webkit-scrollbar{display:none;}
+.dest-btn{padding:7px 13px;font-size:12.5px;letter-spacing:.2px;white-space:nowrap;color:var(--ink-3);position:relative;transition:color .14s;}
+.dest-btn:hover{color:var(--ink);}
+.dest-btn.active{color:var(--gold-deep);font-weight:600;}
+.dest-btn.active::after{content:"";position:absolute;left:13px;right:13px;bottom:-20px;height:2px;background:var(--gold);}
+.dest-btn.soon{cursor:not-allowed;opacity:.4;}
+.dest-btn.soon:hover{opacity:.6;color:var(--ink-3);}
+.tb-spacer{flex:1;}
+.user{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--ink-3);}
+.user .avatar{width:30px;height:30px;background:var(--gold-tint);border:1px solid var(--gold-soft);color:var(--gold-deep);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12.5px;}
+.user b{color:var(--ink);font-weight:600;}
+.btn-logout{padding:7px 13px;font-size:11px;letter-spacing:.7px;text-transform:uppercase;border:1px solid var(--line-2);color:var(--ink-2);transition:all .15s;}
+.btn-logout:hover{border-color:var(--gold);color:var(--gold-deep);background:var(--gold-tint);}
+
+.main{flex:1;display:flex;min-height:0;position:relative;}
+
+/* ============================ SIDEBAR (master/detail) ============================ */
+.sidebar{width:412px;flex:0 0 412px;z-index:1200;position:relative;background:var(--panel);border-right:1px solid var(--line-2);transition:margin-left .26s cubic-bezier(.4,0,.2,1);overflow:hidden;}
+.sidebar.collapsed{margin-left:-412px;}
+.sb-view{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--panel);transition:transform .26s cubic-bezier(.4,0,.2,1),opacity .2s;}
+#viewList{transform:none;}
+.sidebar.show-detail #viewList{transform:translateX(-7%);opacity:.4;pointer-events:none;}
+#viewDetail{transform:translateX(104%);}
+.sidebar.show-detail #viewDetail{transform:none;}
+.sidebar.collapsed.show-detail{overflow:visible;}
+.sidebar.collapsed.show-detail #viewDetail{
+  position:fixed;top:66px;right:18px;left:auto;transform:none;
+  width:396px;max-width:calc(100vw - 36px);max-height:calc(100vh - 88px);
+  background:var(--panel);border:1px solid var(--line-2);box-shadow:var(--shadow-lg);z-index:1400;
+}
+.sidebar.collapsed.show-detail #viewList{display:none;}
+.sidebar.collapsed.show-detail #btnBack{display:none;}
+
+.panel-head{padding:20px 24px 14px;}
+.eyebrow{font-size:10px;letter-spacing:2.6px;text-transform:uppercase;color:var(--gold-deep);font-weight:600;}
+.dest-title{font-family:"Cormorant Garamond",serif;font-size:38px;font-weight:700;line-height:.95;color:var(--ink);margin-top:6px;}
+.dest-counts{font-size:12px;color:var(--ink-3);margin-top:8px;}
+
+.search{padding:0 24px 12px;position:relative;z-index:30;}
+.search .box{position:relative;}
+.search svg{position:absolute;left:13px;top:13px;width:15px;height:15px;stroke:var(--ink-4);pointer-events:none;}
+.search input{width:100%;padding:11px 36px 11px 38px;font-size:14px;outline:none;background:#fff;border:1px solid var(--line-2);color:var(--ink);transition:border-color .15s,box-shadow .15s;}
+.search input::placeholder{color:var(--ink-4);}
+.search input:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-tint);}
+.search .clear{position:absolute;right:6px;top:6px;width:28px;height:28px;display:none;align-items:center;justify-content:center;color:var(--ink-4);font-size:16px;}
+.search .clear:hover{color:var(--ink);}
+.search.has-q .clear{display:flex;}
+.suggest{position:absolute;left:24px;right:24px;top:100%;margin-top:-9px;background:#fff;border:1px solid var(--line-2);box-shadow:var(--shadow-lg);max-height:348px;overflow-y:auto;display:none;}
+.suggest.open{display:block;}
+.sg-group{padding:9px 14px 5px;font-size:9.5px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--ink-4);border-top:1px solid var(--line);}
+.sg-group:first-child{border-top:none;}
+.sg-item{display:flex;align-items:center;gap:11px;width:100%;text-align:left;padding:9px 14px;font-size:13px;transition:background .1s;}
+.sg-item:hover,.sg-item.hl{background:var(--gold-tint);}
+.sg-item .pd{flex:0 0 auto;border-radius:50%;border:1.5px solid #fff;box-shadow:var(--shadow-sm);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;}
+.sg-item .nm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;color:var(--ink);}
+.sg-item .pl{color:var(--ink-3);font-size:11.5px;flex:0 0 auto;}
+.sg-item .cd{color:var(--ink-4);font-size:10px;letter-spacing:.6px;flex:0 0 auto;}
+.sg-empty{padding:16px 14px;font-size:12.5px;color:var(--ink-3);}
+
+.seg{display:flex;margin:0 24px 12px;border:1px solid var(--line-2);background:#fff;}
+.seg button{flex:1;padding:9px 4px;font-size:11.5px;font-weight:600;color:var(--ink-3);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:2px;transition:background .14s,color .14s;}
+.seg button:last-child{border-right:none;}
+.seg button .cnt{font-size:10px;font-weight:600;color:var(--ink-4);}
+.seg button:hover{background:var(--paper-2);color:var(--ink);}
+.seg button.active{background:var(--ink);color:#fff;}
+.seg button.active .cnt{color:var(--gold-soft);}
+.filters{display:flex;gap:8px;padding:0 24px 10px;}
+.filters select{flex:1;min-width:0;padding:8px 22px 8px 11px;font-size:12px;outline:none;background:#fff;border:1px solid var(--line-2);color:var(--ink-2);cursor:pointer;transition:border-color .15s;}
+.filters select:focus{border-color:var(--gold);}
+.filters select.hidden{display:none;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 24px 12px;border-bottom:1px solid var(--line);}
+.chips:empty{padding:0 24px 4px;border-bottom:1px solid var(--line);}
+.chip{display:inline-flex;align-items:center;gap:7px;padding:4px 6px 4px 10px;font-size:11px;font-weight:600;background:var(--gold-tint);border:1px solid var(--gold-soft);color:var(--gold-deep);}
+.chip .x{font-size:13px;line-height:1;padding:0 3px;color:var(--gold-deep);opacity:.7;}
+.chip:hover .x{opacity:1;}
+.chip.reset{background:#fff;border-color:var(--line-2);color:var(--ink-3);}
+.chip.reset:hover{color:var(--ink);border-color:var(--line-3);}
+
+.list{flex:1;overflow-y:auto;}
+.reg{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:11px;padding:14px 24px 8px;background:linear-gradient(var(--panel) 72%,rgba(252,250,246,0));}
+.reg .tx{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--gold-deep);white-space:nowrap;}
+.reg .ln{flex:1;height:1px;background:var(--line-2);}
+.reg .n{font-size:10.5px;color:var(--ink-4);}
+.card{display:flex;align-items:center;gap:13px;padding:11px 24px;cursor:pointer;border-left:2px solid transparent;transition:background .12s,border-color .12s;}
+.card+.card{border-top:1px solid var(--line);}
+.card:hover{background:var(--hover);border-left-color:var(--gold);}
+.card.sel{background:var(--gold-tint);border-left-color:var(--gold);}
+.cdot{flex:0 0 auto;display:flex;align-items:center;justify-content:center;border-radius:50%;color:#fff;font-weight:700;box-shadow:var(--shadow-sm);}
+.card .info{flex:1;min-width:0;}
+.card .nm{font-size:13.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.card .mt{font-size:11.5px;color:var(--ink-3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.card .mt .code{color:var(--ink-4);letter-spacing:.4px;}
+.card .chev{flex:0 0 auto;color:var(--ink-4);font-size:15px;opacity:0;transition:opacity .12s,transform .12s;}
+.card:hover .chev,.card.sel .chev{opacity:1;transform:translateX(2px);}
+.list-empty{padding:48px 30px;text-align:center;color:var(--ink-3);font-size:13px;line-height:1.7;}
+.list-empty .serif{display:block;font-family:"Cormorant Garamond",serif;font-size:22px;color:var(--ink-2);margin-bottom:6px;}
+.sb-foot{padding:11px 24px;border-top:1px solid var(--line-2);font-size:10.5px;letter-spacing:.3px;color:var(--ink-4);display:flex;justify-content:space-between;}
+
+.dt-top{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line);}
+.dt-close{flex:0 0 auto;width:30px;height:30px;font-size:21px;color:var(--ink-4);border:1px solid var(--line-2);background:#fff;}
+.dt-close:hover{color:#A23A22;border-color:#E7B7A9;}
+.btn-back{display:flex;align-items:center;gap:8px;padding:7px 12px 7px 9px;font-size:12px;font-weight:600;color:var(--ink-2);border:1px solid var(--line-2);background:#fff;transition:all .14s;}
+.btn-back:hover{border-color:var(--gold);color:var(--gold-deep);background:var(--gold-tint);}
+.dt-top .crumb{flex:1;min-width:0;font-size:10.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--ink-4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dt-scroll{flex:1;overflow-y:auto;}
+.dt-hero{padding:20px 24px 18px;background:linear-gradient(180deg,var(--gold-tint),var(--panel) 86%);border-bottom:1px solid var(--line);}
+.dt-type{display:inline-flex;align-items:center;gap:7px;font-size:10px;font-weight:700;letter-spacing:1.7px;text-transform:uppercase;color:var(--ink-2);}
+.dt-type .pd{width:10px;height:10px;border-radius:50%;}
+.dt-hero h2{font-family:"Cormorant Garamond",serif;font-size:30px;font-weight:700;line-height:1.04;color:var(--ink);margin-top:9px;}
+.dt-hero .loc{font-size:12.5px;color:var(--ink-3);margin-top:6px;}
+.dt-codes{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;}
+.dt-code{font-size:10px;font-weight:600;letter-spacing:.8px;padding:3px 9px;background:#fff;color:var(--ink-2);border:1px solid var(--line-2);}
+.dt-code.tr{background:#EAF1FB;border-color:#C6DAF5;color:#2B5FA6;}
+.dt-actions{display:flex;gap:8px;padding:14px 24px;border-bottom:1px solid var(--line);}
+.dt-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 8px;font-size:11.5px;font-weight:600;letter-spacing:.4px;border:1px solid var(--line-2);background:#fff;color:var(--ink-2);transition:all .14s;}
+.dt-btn:hover{border-color:var(--gold);color:var(--gold-deep);background:var(--gold-tint);}
+.dt-btn.primary{background:var(--ink);border-color:var(--ink);color:#fff;}
+.dt-btn.primary:hover{background:var(--gold-deep);border-color:var(--gold-deep);}
+.dt-btn[disabled]{opacity:.4;cursor:not-allowed;}
+.dt-sec{padding:16px 24px 4px;}
+.dt-sec h4{display:flex;align-items:center;gap:10px;font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--gold-deep);margin-bottom:11px;}
+.dt-sec h4::after{content:"";flex:1;height:1px;background:var(--line);}
+.kv{display:grid;grid-template-columns:104px 1fr;gap:9px 14px;font-size:13px;padding-bottom:12px;}
+.kv .k{color:var(--ink-4);font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;padding-top:2px;}
+.kv .v{color:var(--ink);overflow-wrap:anywhere;line-height:1.45;}
+.kv .v a{color:#2B5FA6;text-decoration:none;}
+.kv .v a:hover{text-decoration:underline;}
+.dt-chips{display:flex;flex-wrap:wrap;gap:6px;padding-bottom:14px;}
+.dt-chip{font-size:11px;font-weight:600;padding:4px 10px;background:#fff;border:1px solid var(--line-2);color:var(--ink-2);}
+.dt-note{font-size:13px;color:var(--ink-2);font-style:italic;line-height:1.6;padding-bottom:14px;}
+.nearby{padding-bottom:10px;}
+.nb{display:flex;align-items:center;gap:11px;width:100%;text-align:left;padding:10px 12px;margin-bottom:6px;font-size:13px;background:#fff;border:1px solid var(--line);color:var(--ink);transition:border-color .12s,background .12s;}
+.nb:hover{border-color:var(--gold);background:var(--gold-tint);}
+.nb .pd{flex:0 0 auto;border-radius:50%;border:1.5px solid #fff;box-shadow:var(--shadow-sm);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;}
+.nb .nm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;}
+.nb .sub{display:block;font-weight:400;font-size:11px;color:var(--ink-3);margin-top:1px;}
+.nb .km{color:var(--ink-4);font-size:11px;flex:0 0 auto;font-weight:600;}
+.alt-head-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;}
+.alt-clear-link{font-size:11px;color:var(--ink-3);text-decoration:underline;}
+.alt-clear-link:hover{color:var(--ink);}
+.dt-bottom-pad{height:26px;}
+
+.fav-toggle{flex:0 0 auto;width:36px;display:flex;align-items:center;justify-content:center;font-size:15px;border:1px solid var(--line-2);background:#fff;color:var(--ink-4);transition:all .14s;}
+.fav-toggle:hover{color:var(--gold);border-color:var(--gold-soft);}
+.fav-toggle.on{background:var(--gold-tint);border-color:var(--gold-soft);color:var(--gold-deep);}
+.card .star{flex:0 0 auto;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--ink-4);opacity:0;transition:opacity .12s,color .12s;}
+.card:hover .star,.card .star.on{opacity:1;}
+.card .star.on{color:var(--gold);}
+.card .star:hover{color:var(--gold-deep);}
+.dt-hero{position:relative;}
+.dt-photo{width:100%;height:178px;overflow:hidden;background:var(--paper-2);border-bottom:1px solid var(--line);}
+.dt-photo img{width:100%;height:100%;object-fit:cover;display:block;}
+.dt-hidden-note{padding:9px 18px;background:#FBEFE9;border-bottom:1px solid #E7C8B7;color:#9A4A2A;font-size:11.5px;font-weight:600;}
+.season-lbl{font-size:12.5px;color:var(--ink-2);margin-bottom:9px;}
+.season-strip{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;}
+.season-strip span{font-size:9.5px;text-align:center;padding:5px 0;background:var(--paper-2);border:1px solid var(--line);color:var(--ink-4);text-transform:uppercase;letter-spacing:.2px;}
+.season-strip span.on{background:var(--tour);border-color:var(--tour);color:#fff;}
+.season-strip.closed span{background:#FBEFE9;border-color:#E7C8B7;color:#C08B73;}
+.repo-bar{position:absolute;top:18px;left:50%;transform:translateX(-50%) translateY(-160%);z-index:1450;display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--ink);color:var(--paper);box-shadow:var(--shadow-lg);transition:transform .25s;}
+.repo-bar.show{transform:translateX(-50%);}
+.repo-bar .t{font-size:12.5px;font-weight:600;}
+.repo-bar button{padding:7px 13px;font-size:12px;font-weight:600;border:1px solid rgba(255,255,255,.25);color:#fff;}
+.repo-bar button:hover{border-color:var(--gold);color:var(--gold-soft);}
+.repo-bar button.done{background:var(--gold);color:#fff;border-color:var(--gold);}
+.repo-bar button.done:hover{background:var(--gold-soft);color:#fff;}
+.mk-dot.moving{box-shadow:0 0 0 5px rgba(184,150,46,.5),0 2px 8px rgba(35,32,27,.5);cursor:grab;}
+.dt-hero-actions{position:absolute;top:16px;right:18px;display:flex;gap:6px;}
+.dt-icon{width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:15px;background:#fff;border:1px solid var(--line-2);color:var(--ink-3);transition:all .14s;}
+.dt-icon:hover{border-color:var(--gold);color:var(--gold-deep);background:var(--gold-tint);}
+.dt-icon.on{color:var(--gold);border-color:var(--gold-soft);background:var(--gold-tint);}
+.radius-tabs{display:inline-flex;gap:0;border:1px solid var(--line-2);margin-left:auto;}
+.radius-tabs button{padding:3px 9px;font-size:10.5px;font-weight:600;color:var(--ink-3);border-right:1px solid var(--line);background:#fff;}
+.radius-tabs button:last-child{border-right:none;}
+.radius-tabs button.on{background:var(--ink);color:#fff;}
+.rijbtn{margin-left:auto;margin-right:8px;padding:3px 10px;font-size:10.5px;font-weight:600;border:1px solid var(--line-2);background:#fff;color:var(--ink-2);}
+.rijbtn:hover{border-color:var(--tour);color:var(--tour);background:#EAF6F1;}
+.nb .km b{color:var(--tour);}
+.dt-sec h4.with-ctrl{align-items:center;}
+.dt-sec h4.with-ctrl::after{display:none;}
+
+.dt-badges{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px;}
+.badge-rec{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;padding:3px 9px;background:var(--gold);color:#fff;}
+.badge-price{display:inline-flex;align-items:center;font-size:11px;font-weight:700;letter-spacing:1px;padding:3px 9px;background:#fff;border:1px solid var(--line-2);color:var(--ink-2);}
+.card .rec{color:var(--gold);margin-right:5px;font-size:12px;}
+.card .price{color:var(--ink-4);font-weight:600;margin-left:6px;}
+.card .hidtag{margin-left:7px;font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#9A4A2A;background:#FBEFE9;border:1px solid #E7C8B7;padding:1px 5px;}
+.card.ishidden{opacity:.62;}
+.dq-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+.dq-tab{padding:6px 11px;font-size:12px;font-weight:600;border:1px solid var(--line-2);background:#fff;color:var(--ink-2);}
+.dq-tab.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+.dq-list{max-height:46vh;overflow-y:auto;border:1px solid var(--line);}
+.dq-row{display:flex;align-items:center;gap:11px;width:100%;text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);background:#fff;}
+.dq-row:hover{background:var(--gold-tint);}
+.dq-row .pd{flex:0 0 auto;width:16px;height:16px;border-radius:50%;border:1.5px solid #fff;box-shadow:var(--shadow-sm);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:9px;}
+.dq-row .nm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;font-size:13px;}
+.dq-row .miss{font-size:10.5px;color:#9A4A2A;}
+.dq-empty{padding:24px;text-align:center;color:var(--ink-3);font-size:13px;}
+.dt-note.team{background:var(--gold-tint);border-left:3px solid var(--gold);padding:11px 13px;font-style:normal;}
+
+.edit-bar{display:flex;gap:8px;padding:12px 24px;background:var(--gold-tint);border-bottom:1px solid var(--gold-soft);position:sticky;top:0;z-index:4;}
+.edit-bar .lbl{flex:1;display:flex;align-items:center;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--gold-deep);}
+.edit-form{padding:6px 24px 24px;}
+.ef-row{margin-top:15px;}
+.ef-row label{display:block;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--ink-3);margin-bottom:6px;}
+.ef-row input[type=text],.ef-row textarea,.ef-row select{width:100%;padding:9px 11px;font-size:13px;outline:none;background:#fff;border:1px solid var(--line-2);color:var(--ink);transition:border-color .14s,box-shadow .14s;}
+.ef-row input[type=text]:focus,.ef-row textarea:focus,.ef-row select:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-tint);}
+.ef-row textarea{min-height:62px;resize:vertical;line-height:1.5;}
+.ef-row .hint{font-size:10.5px;color:var(--ink-4);margin-top:5px;}
+.ef-check{display:flex;align-items:center;gap:9px;cursor:pointer;font-size:13px;font-weight:600;color:var(--ink);padding:4px 0;}
+.ef-check input{width:16px;height:16px;accent-color:var(--gold);}
+.ef-btn{padding:9px 16px;font-size:12px;font-weight:600;letter-spacing:.4px;border:1px solid var(--line-2);background:#fff;color:var(--ink-2);transition:all .14s;}
+.ef-btn:hover{border-color:var(--gold);color:var(--gold-deep);}
+.ef-btn.save{background:var(--ink);border-color:var(--ink);color:#fff;}
+.ef-btn.save:hover{background:var(--gold-deep);border-color:var(--gold-deep);}
+.ef-suggest{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px;}
+.ef-sg{font-size:11px;padding:3px 9px;background:#fff;border:1px solid var(--line-2);color:var(--ink-3);}
+.ef-sg:hover{border-color:var(--gold);color:var(--gold-deep);background:var(--gold-tint);}
+
+.beheer-link{font-size:10.5px;letter-spacing:.3px;color:var(--ink-4);text-decoration:underline;background:none;}
+.beheer-link:hover{color:var(--gold-deep);}
+.modal-bg{position:fixed;inset:0;z-index:4000;background:rgba(35,32,27,.45);display:none;align-items:center;justify-content:center;padding:24px;}
+.modal-bg.open{display:flex;}
+.modal{width:100%;max-width:560px;background:var(--panel);border:1px solid var(--line-2);box-shadow:var(--shadow-lg);max-height:86vh;display:flex;flex-direction:column;}
+.modal-head{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;}
+.modal-head h3{font-family:"Cormorant Garamond",serif;font-size:24px;font-weight:700;color:var(--ink);flex:1;}
+.modal-head .x{font-size:22px;color:var(--ink-4);width:30px;height:30px;}
+.modal-head .x:hover{color:var(--ink);}
+.modal-body{padding:18px 22px;overflow-y:auto;}
+.modal-body p{font-size:12.5px;color:var(--ink-2);line-height:1.6;margin-bottom:12px;}
+.modal-body textarea{width:100%;min-height:150px;padding:11px;font-family:ui-monospace,Menlo,monospace;font-size:11.5px;border:1px solid var(--line-2);background:#fff;color:var(--ink);outline:none;resize:vertical;}
+.modal-body textarea:focus{border-color:var(--gold);}
+.modal-foot{padding:14px 22px;border-top:1px solid var(--line);display:flex;gap:9px;justify-content:flex-end;}
+.modal-foot .note{flex:1;font-size:11px;color:var(--ink-4);align-self:center;}
+
+.tb-actions{display:flex;align-items:center;gap:8px;}
+.tb-btn{display:inline-flex;align-items:center;gap:7px;padding:7px 13px;font-size:12.5px;font-weight:600;color:var(--ink-2);border:1px solid var(--line-2);background:#fff;transition:all .14s;}
+.tb-btn:hover{border-color:var(--gold);color:var(--gold-deep);background:var(--gold-tint);}
+.tb-btn .cnt{display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:19px;padding:0 5px;font-size:11px;font-weight:700;background:var(--gold);color:#fff;}
+.tb-btn .cnt.zero{background:var(--line-2);color:var(--ink-3);}
+
+.modal.wide{max-width:940px;}
+
+.trip-drawer{position:absolute;top:0;right:0;bottom:0;width:380px;z-index:1300;background:var(--panel);border-left:1px solid var(--line-2);box-shadow:-12px 0 40px rgba(35,32,27,.16);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .26s cubic-bezier(.4,0,.2,1);}
+.trip-drawer.open{transform:none;}
+.trip-head{padding:18px 20px 14px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;gap:10px;}
+.trip-head .ttl{flex:1;}
+.trip-head h3{font-family:"Cormorant Garamond",serif;font-size:26px;font-weight:700;color:var(--ink);line-height:1;}
+.trip-head .sub{font-size:11.5px;color:var(--ink-3);margin-top:4px;}
+.trip-head .x{width:30px;height:30px;font-size:20px;color:var(--ink-4);}
+.trip-head .x:hover{color:var(--ink);}
+.trip-list{flex:1;overflow-y:auto;padding:8px 0;}
+.trip-empty{padding:46px 28px;text-align:center;color:var(--ink-3);font-size:13px;line-height:1.7;}
+.trip-empty .serif{display:block;font-family:"Cormorant Garamond",serif;font-size:22px;color:var(--ink-2);margin-bottom:6px;}
+.trip-leg{display:flex;align-items:center;gap:8px;padding:2px 20px;color:var(--ink-4);font-size:10.5px;}
+.trip-leg .dash{flex:1;border-top:1px dashed var(--line-3);}
+.trip-item{display:flex;align-items:center;gap:11px;padding:9px 20px;}
+.trip-item .num{flex:0 0 22px;width:22px;height:22px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+.trip-item .ti{flex:1;min-width:0;cursor:pointer;}
+.trip-item .ti .nm{font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.trip-item .ti .mt{font-size:11px;color:var(--ink-3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.trip-item .ti:hover .nm{color:var(--gold-deep);}
+.trip-ord{display:flex;flex-direction:column;gap:1px;}
+.trip-ord button,.trip-rm{width:22px;height:18px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ink-4);border:1px solid var(--line);background:#fff;}
+.trip-ord button:hover{color:var(--gold-deep);border-color:var(--gold-soft);}
+.trip-rm{height:22px;font-size:14px;}
+.trip-rm:hover{color:#A23A22;border-color:#E7B7A9;}
+.trip-foot{border-top:1px solid var(--line);padding:14px 20px;}
+.trip-total{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-2);margin-bottom:12px;}
+.trip-total b{color:var(--ink);}
+.trip-actions{display:flex;gap:8px;}
+.trip-actions .ef-btn{flex:1;text-align:center;}
+
+.cmp-tray{position:absolute;left:50%;bottom:24px;transform:translateX(-50%) translateY(140%);z-index:1250;display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--ink);color:var(--paper);box-shadow:var(--shadow-lg);transition:transform .25s;}
+.cmp-tray.show{transform:translateX(-50%);}
+.cmp-tray .lbl{font-size:12px;font-weight:600;letter-spacing:.3px;}
+.cmp-tray .chips{display:flex;gap:6px;padding:0;border:none;}
+.cmp-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 6px 4px 10px;font-size:11.5px;font-weight:600;background:rgba(255,255,255,.1);color:#fff;max-width:150px;}
+.cmp-chip .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cmp-chip .x{opacity:.7;font-size:13px;}
+.cmp-chip .x:hover{opacity:1;}
+.cmp-tray .go{padding:8px 15px;font-size:12px;font-weight:700;letter-spacing:.4px;background:var(--gold);color:#fff;}
+.cmp-tray .go[disabled]{opacity:.4;cursor:not-allowed;}
+.cmp-tray .go:not([disabled]):hover{background:var(--gold-soft);}
+.cmp-tray .clr{font-size:11px;color:rgba(255,255,255,.6);text-decoration:underline;}
+.cmp-tray .clr:hover{color:#fff;}
+
+.cmp-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+.cmp-table th,.cmp-table td{text-align:left;vertical-align:top;padding:11px 12px;border-bottom:1px solid var(--line);}
+.cmp-table thead th{position:sticky;top:0;background:var(--panel);border-bottom:2px solid var(--line-2);}
+.cmp-table .rowlbl{width:150px;color:var(--ink-4);font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;background:var(--paper);}
+.cmp-h{display:flex;flex-direction:column;gap:6px;}
+.cmp-h .top{display:flex;align-items:center;gap:8px;}
+.cmp-h .pd{width:20px;height:20px;border-radius:50%;border:2px solid #fff;box-shadow:var(--shadow-sm);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:10px;flex:0 0 auto;}
+.cmp-h .nm{font-family:"Cormorant Garamond",serif;font-size:18px;font-weight:700;color:var(--ink);line-height:1.05;}
+.cmp-h .rm{align-self:flex-start;font-size:10.5px;color:var(--ink-4);text-decoration:underline;}
+.cmp-h .rm:hover{color:#A23A22;}
+.cmp-chips-cell{display:flex;flex-wrap:wrap;gap:4px;}
+.cmp-chips-cell span{font-size:10.5px;padding:2px 7px;background:var(--paper-2);border:1px solid var(--line-2);color:var(--ink-2);}
+.cmp-rec{color:var(--gold);font-weight:700;}
+.cmp-dim{color:var(--ink-4);}
+
+.mapwrap{flex:1;min-width:0;position:relative;display:flex;flex-direction:column;background:var(--paper-2);}
+#map{flex:1;}
+.leaflet-control-zoom{border:1px solid var(--line-2)!important;box-shadow:var(--shadow-sm)!important;}
+.leaflet-control-zoom a{background:var(--panel)!important;color:var(--ink-2)!important;border-bottom:1px solid var(--line)!important;}
+.leaflet-control-zoom a:hover{background:var(--gold-tint)!important;color:var(--gold-deep)!important;}
+.leaflet-bar{border-radius:0!important;}
+.sb-toggle{position:absolute;top:16px;left:16px;z-index:1100;width:38px;height:38px;font-size:17px;background:var(--panel);color:var(--ink);border:1px solid var(--line-2);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-md);transition:background .15s;}
+.sb-toggle:hover{background:var(--gold-tint);color:var(--gold-deep);}
+.legend{position:absolute;right:16px;bottom:28px;z-index:1100;width:206px;font-size:12.5px;background:var(--panel);border:1px solid var(--line-2);box-shadow:var(--shadow-md);}
+.legend-head{width:100%;display:flex;align-items:center;justify-content:space-between;padding:11px 14px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ink-3);}
+.legend-body{padding:3px 8px 10px;}
+.legend.closed .legend-body{display:none;}
+.lg-row{width:100%;display:flex;align-items:center;gap:11px;padding:6px 8px;color:var(--ink);text-align:left;font-size:12.5px;transition:background .12s;}
+.lg-row.toggle:hover{background:var(--paper-2);}
+.lg-row.off{opacity:.34;}
+.lg-row .sw{flex:0 0 auto;border-radius:50%;border:2px solid #fff;box-shadow:var(--shadow-sm);}
+.lg-row .lbl{flex:1;}
+.lg-sep{height:1px;background:var(--line);margin:6px 8px;}
+.lg-static{display:flex;align-items:center;gap:11px;padding:6px 8px;color:var(--ink-3);font-size:12px;}
+.lg-static .ring{width:15px;height:15px;border:2.5px solid var(--alt);border-radius:50%;}
+.toast{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);z-index:2000;pointer-events:none;opacity:0;padding:11px 19px;font-size:12.5px;background:var(--ink);color:var(--paper);border-left:3px solid var(--gold);box-shadow:var(--shadow-lg);transition:opacity .25s,transform .25s;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
+
+.mk-dot{display:flex;align-items:center;justify-content:center;border-radius:50%;border:2px solid #fff;color:#fff;font-weight:700;line-height:1;box-shadow:0 1px 4px rgba(35,32,27,.4);transition:transform .12s,box-shadow .12s;}
+.leaflet-marker-icon:hover .mk-dot{transform:scale(1.14);}
+.mk-dot.sel{box-shadow:0 0 0 4px rgba(184,150,46,.45),0 1px 5px rgba(35,32,27,.45);transform:scale(1.12);}
+.cl{display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:50%;background:var(--panel);color:var(--ink);border:2px solid var(--gold);font:700 13px/1 "Inter",sans-serif;box-shadow:var(--shadow-md);}
+.alt-ring{border:3px solid var(--alt);border-radius:50%;background:rgba(46,158,91,.14);box-shadow:0 0 16px rgba(46,158,91,.5);}
+.leaflet-tooltip.mk-tip{background:var(--ink);color:var(--paper);border:none;border-radius:0;box-shadow:var(--shadow-md);font:600 11.5px/1.3 "Inter",sans-serif;padding:5px 9px;}
+.leaflet-tooltip.mk-tip::before{display:none;}
+
+@media (max-width:760px){
+  .sidebar{position:absolute;inset:0 auto 0 0;width:336px;flex-basis:336px;box-shadow:var(--shadow-lg);}
+  .sidebar.collapsed{margin-left:-336px;}
+  .dests,.brand .tag{display:none;}
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header class="topbar">
+    <a href="/dashboard.html" class="back-portal" title="Terug naar Doets AI portaal">&larr; Portaal</a>
+    <div class="brand"><span class="wm"><span class="d">Doets</span> <span class="r">Reizen</span></span><span class="tag">Reiskaart</span></div>
+    <nav class="dests" id="destSwitcher"></nav>
+    <div class="tb-spacer"></div>
+    <div class="tb-actions">
+      <button class="tb-btn" id="tripBtn" title="Mijn reis">Reis <span class="cnt zero" id="tripCount">0</span></button>
+    </div>
+    <div class="user"><div class="avatar" id="userAvatar">?</div><span>Ingelogd als&nbsp;<b id="userName">—</b></span></div>
+    <button class="btn-logout" id="btnLogout">Uitloggen</button>
+  </header>
+
+  <div class="main">
+    <aside class="sidebar" id="sidebar">
+
+      <div class="sb-view" id="viewList">
+        <div class="panel-head">
+          <div class="eyebrow">Bestemming</div>
+          <div class="dest-title" id="destTitle">IJsland</div>
+          <div class="dest-counts" id="destSub"></div>
+        </div>
+        <div class="search" id="searchWrap">
+          <div class="box">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input type="text" id="searchInput" placeholder="Zoek hotel, excursie, plaats of code..." autocomplete="off" />
+            <button class="clear" id="searchClear" title="Wissen">&times;</button>
+          </div>
+          <div class="suggest" id="suggest"></div>
+        </div>
+        <div class="seg" id="tabs"></div>
+        <div class="filters">
+          <select id="fRegion"><option value="">Alle regio's</option></select>
+          <select id="fLeverancier"><option value="">Alle leveranciers</option></select>
+          <select id="fCat">
+            <option value="">Alle categorieen</option>
+            <option value="1">Categorie 1</option>
+            <option value="2">Categorie 2</option>
+            <option value="3">Categorie 3</option>
+          </select>
+          <select id="fMonth"><option value="">Open in elke maand</option></select>
+          <button class="fav-toggle" id="favToggle" title="Toon alleen favorieten">&#9733;</button>
+          <button class="fav-toggle" id="hidToggle" title="Toon verborgen items">&#8856;</button>
+        </div>
+        <div class="chips" id="chips"></div>
+        <div class="list" id="list"></div>
+        <div class="sb-foot"><span id="footCounts"></span><span style="display:flex;gap:12px"><button class="beheer-link" id="dqLink">Datakwaliteit</button><button class="beheer-link" id="beheerLink">Eigen info beheren</button></span></div>
+      </div>
+
+      <div class="sb-view" id="viewDetail">
+        <div class="dt-top">
+          <button class="btn-back" id="btnBack">&lsaquo; Lijst</button>
+          <span class="crumb" id="dtCrumb"></span>
+          <button class="dt-close" id="dtClose" title="Sluiten en deselecteren">&times;</button>
+        </div>
+        <div class="dt-scroll" id="dtScroll"></div>
+      </div>
+
+    </aside>
+
+    <div class="mapwrap">
+      <button class="sb-toggle" id="sbToggle" title="Zijbalk in-/uitklappen">&lsaquo;</button>
+      <div id="map"></div>
+      <div class="legend" id="legend">
+        <button class="legend-head" id="legendHead">Legenda <span id="legendChevron">&#9662;</span></button>
+        <div class="legend-body" id="legendBody"></div>
+      </div>
+      <div class="toast" id="toast"></div>
+
+      <div class="repo-bar" id="repoBar">
+        <span class="t" id="repoText">Sleep de stip naar de juiste plek</span>
+        <button id="repoReset">Terug naar register</button>
+        <button class="done" id="repoDone">Klaar</button>
+      </div>
+
+      <div class="cmp-tray" id="cmpTray">
+        <span class="lbl">Vergelijken:</span>
+        <div class="chips" id="cmpChips"></div>
+        <button class="go" id="cmpGo" disabled>Vergelijk</button>
+        <button class="clr" id="cmpClear">wissen</button>
+      </div>
+
+      <aside class="trip-drawer" id="tripDrawer">
+        <div class="trip-head">
+          <div class="ttl"><h3>Mijn reis</h3><div class="sub" id="tripSub">Nog geen onderdelen</div></div>
+          <button class="x" id="tripClose">&times;</button>
+        </div>
+        <div class="trip-list" id="tripList"></div>
+        <div class="trip-foot">
+          <div class="trip-total"><span>Totale route-afstand</span><b id="tripTotal">&mdash;</b></div>
+          <div class="trip-actions">
+            <button class="ef-btn" id="tripClear">Wis reis</button>
+            <button class="ef-btn save" id="tripCopy">Kopieer overzicht</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="beheerModal">
+    <div class="modal">
+      <div class="modal-head"><h3>Eigen productinfo</h3><button class="x" id="beheerClose">&times;</button></div>
+      <div class="modal-body">
+        <p>Je eigen ingevulde info (kamertypes, verzorging, faciliteiten, notities...) wordt in deze browser bewaard. Kopieer onderstaande tekst om te bewaren of met een collega te delen. Plak hier een eerder geexporteerde tekst en klik <b>Importeren</b> om die over te nemen.</p>
+        <textarea id="beheerText" spellcheck="false" placeholder="(hier verschijnt je export)"></textarea>
+      </div>
+      <div class="modal-foot">
+        <span class="note" id="beheerNote"></span>
+        <button class="ef-btn" id="beheerImport">Importeren</button>
+        <button class="ef-btn save" id="beheerCopy">Kopieren</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="cmpModal">
+    <div class="modal wide">
+      <div class="modal-head"><h3>Hotels vergelijken</h3><button class="x" id="cmpModalClose">&times;</button></div>
+      <div class="modal-body" id="cmpBody"></div>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="dqModal">
+    <div class="modal">
+      <div class="modal-head"><h3>Datakwaliteit - wat mist nog?</h3><button class="x" id="dqClose">&times;</button></div>
+      <div class="modal-body" id="dqBody"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+<script src="/reiskaart-data.js"></script>
+
+<script>
+/* ------------------------- Portaal auth ------------------------- */
+(function(){
+  var token = localStorage.getItem('doets_token');
+  var user  = localStorage.getItem('doets_user');
+  if(!token || !user){ window.location.href = '/dashboard.html'; return; }
+})();
+
+/* ============================ APP ============================ */
+const DESTINATIONS = {
+  ijsland: { id:"ijsland", name:"IJsland", active:true, center:[64.93,-18.8], zoom:6, items: (typeof IJSLAND_ITEMS !== "undefined" ? IJSLAND_ITEMS : []) }
+};
+
+function getDest(id){ return DESTINATIONS[id||currentDestId]||DESTINATIONS.ijsland; }
+
+const TYPE_META = {
+  hotel:    { label:"Hotels",    one:"Hotel",    color:"#3A6EA5", size:28 },
+  excursie: { label:"Excursies", one:"Excursie", color:"#C25A3A", size:22 },
+  transfer: { label:"Transfers", one:"Transfer", color:"#6F7785", size:19 },
+  tour:     { label:"Tours",     one:"Tour",     color:"#2E8B78", size:22 }
+};
+const HOTEL_CAT_COLORS = { 1:"#9FB6D6", 2:"#3A6EA5", 3:"#B8962E" };
+const REGION_ORDER = ["Reykjavik","Reykjanes / vliegveld","Zuid-IJsland / Golden Circle","West-IJsland","Noord-IJsland","Oost-IJsland"];
+
+let map=null, clusterGroup=null, altLayer=null, currentDestId="ijsland";
+const markerById={}, itemById={};
+const filterState={ search:"", region:"", leverancier:"", cat:"", month:"", tab:"hotel", onlyFav:false, showHidden:false };
+const typeVisible={ hotel:true, excursie:true, transfer:true, tour:true };
+let selectedId=null;
+let altForId=null;
+let currentUser="";
+let radiusLayer=null;
+let detailRadiusKm=25;
+
+const REF_REYKJAVIK=[64.1466,-21.9426];
+const REF_KEFLAVIK=[63.9850,-22.6056];
+
+let favs=new Set();
+function favKey(){ return "doets_fav_"+(currentUser||"_"); }
+function loadFavs(){ try{ favs=new Set(JSON.parse(localStorage.getItem(favKey())||"[]")); }catch(e){ favs=new Set(); } }
+function saveFavs(){ localStorage.setItem(favKey(),JSON.stringify([...favs])); }
+function isFav(id){ return favs.has(id); }
+function toggleFav(id){ if(favs.has(id)) favs.delete(id); else favs.add(id); saveFavs(); }
+
+const CURATED = {};
+const OV_KEY = "doets_overrides_v1";
+let overrides = {};
+function loadOverrides(){ try{ overrides=JSON.parse(localStorage.getItem(OV_KEY)||"{}"); }catch(e){ overrides={}; } }
+function saveOverrides(){ localStorage.setItem(OV_KEY,JSON.stringify(overrides)); }
+function ov(id){ return Object.assign({}, CURATED[id]||{}, overrides[id]||{}); }
+function hasOv(id){ const o=ov(id); return Object.keys(o).some(k=>{ const v=o[k]; return Array.isArray(v)?v.length:(v!==""&&v!=null&&v!==false); }); }
+function setOverride(id,patch){
+  const cur=Object.assign({},overrides[id]||{});
+  Object.keys(patch).forEach(k=>{
+    const v=patch[k];
+    const empty=Array.isArray(v)?v.length===0:(v===""||v==null||v===false);
+    if(empty) delete cur[k]; else cur[k]=v;
+  });
+  if(Object.keys(cur).length) overrides[id]=cur; else delete overrides[id];
+  saveOverrides();
+}
+function disp(it){
+  const o=ov(it.id);
+  const m=Object.assign({},it,o);
+  if(o.kamertypes && o.kamertypes.length) m.kamertypes=o.kamertypes;
+  return m;
+}
+function dispName(it){ const o=ov(it.id); return o.naam||it.name; }
+function dispCode(it){ const o=ov(it.id); return o.code||it.code; }
+function dispTravia(it){ const o=ov(it.id); return o.travia||it.traviaCode; }
+function nameChanged(it){ const o=ov(it.id); return !!(o.naam&&o.naam!==it.name)||!!(o.code&&o.code!==it.code); }
+function cco(it){ const o=ov(it.id); return (o.coords&&o.coords.length===2)?o.coords:it.coords; }
+function isHidden(it){ return !!ov(it.id).hidden; }
+const MONTHS_NL=["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"];
+const MONTHS_FULL=["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"];
+function seasonHtml(it){
+  if(!it.openMonths) return "";
+  const set=new Set(it.openMonths), closed=it.openMonths.length===0;
+  const strip='<div class="season-strip'+(closed?" closed":"")+'">'+MONTHS_NL.map((m,i)=>'<span class="'+(set.has(i+1)?"on":"")+'">'+m+'</span>').join("")+'</div>';
+  return '<div class="dt-sec"><h4>Seizoen</h4><div class="season-lbl">'+esc(it.seizoen||"")+'</div>'+strip+'</div>';
+}
+const FACIL_SUGGEST=["Zwembad","Spa / wellness","Restaurant","Bar","Wifi","Parkeren","Fitness","Geothermisch bad","Sauna","Huisdieren toegestaan"];
+const PRIJS_OPTS=["","€","€€","€€€","€€€€"];
+
+/* Reisbouwer */
+let trip=[], tripLayer=null, tripDrive=null, tripDriveBusy=false;
+function tripKey(){ return "doets_trip_"+(currentUser||"_"); }
+function loadTrip(){ try{ trip=JSON.parse(localStorage.getItem(tripKey())||"[]").filter(id=>itemById[id]); }catch(e){ trip=[]; } }
+function saveTrip(){ localStorage.setItem(tripKey(),JSON.stringify(trip)); }
+function inTrip(id){ return trip.indexOf(id)>=0; }
+function toggleTrip(id){
+  const i=trip.indexOf(id);
+  if(i>=0) trip.splice(i,1); else trip.push(id);
+  tripDrive=null; saveTrip(); updateTripCount(); drawTripLine();
+  if(document.getElementById("tripDrawer").classList.contains("open")) renderTrip();
+}
+function moveTrip(id,dir){
+  const i=trip.indexOf(id); const j=i+dir;
+  if(i<0||j<0||j>=trip.length) return;
+  const t=trip[i]; trip[i]=trip[j]; trip[j]=t;
+  tripDrive=null; saveTrip(); renderTrip(); drawTripLine();
+}
+function clearTrip(){ trip=[]; tripDrive=null; saveTrip(); updateTripCount(); renderTrip(); drawTripLine(); }
+function fetchTripDrive(key){
+  if(tripDriveBusy) return; tripDriveBusy=true;
+  osrmRoute(trip.map(id=>cco(itemById[id])).filter(Boolean)).then(r=>{
+    tripDriveBusy=false;
+    if(r){ tripDrive={key:key,legs:r.legs,total:r.total};
+      if(document.getElementById("tripDrawer").classList.contains("open") && trip.join(",")===key) renderTrip();
+    }
+  });
+}
+function updateTripCount(){
+  const c=document.getElementById("tripCount"); if(!c) return;
+  c.textContent=trip.length; c.classList.toggle("zero",trip.length===0);
+}
+function tripLegs(){
+  let total=0; const legs=[];
+  for(let i=1;i<trip.length;i++){
+    const a=itemById[trip[i-1]], b=itemById[trip[i]];
+    const d=(a&&b)?map.distance(cco(a),cco(b)):0; legs.push(d); total+=d;
+  }
+  return {legs,total};
+}
+function drawTripLine(){
+  if(!tripLayer) return;
+  tripLayer.clearLayers();
+  const open=document.getElementById("tripDrawer").classList.contains("open");
+  if(!open||trip.length<2) return;
+  const pts=trip.map(id=>itemById[id]&&cco(itemById[id])).filter(Boolean);
+  L.polyline(pts,{color:"#B8962E",weight:2.5,opacity:.85,dashArray:"3 7",interactive:false}).addTo(tripLayer);
+}
+function renderTrip(){
+  const sub=document.getElementById("tripSub"), listEl=document.getElementById("tripList"), tot=document.getElementById("tripTotal");
+  sub.textContent=trip.length?trip.length+" onderde"+(trip.length===1?"el":"len"):"Nog geen onderdelen";
+  if(!trip.length){
+    listEl.innerHTML='<div class="trip-empty"><span class="serif">Je reis is leeg</span>Voeg hotels, excursies of transfers toe met de knop + in een productpagina.</div>';
+    tot.textContent="&mdash;"; return;
+  }
+  const {legs,total}=tripLegs();
+  const key=trip.join(",");
+  const drive=(tripDrive && tripDrive.key===key)?tripDrive:null;
+  let html="";
+  trip.forEach((id,idx)=>{
+    const it=itemById[id]; if(!it) return;
+    if(idx>0){
+      const legTxt=drive ? fmtDur(drive.legs[idx-1].dur)+' &middot; '+kmTxt(drive.legs[idx-1].dist) : kmTxt(legs[idx-1]);
+      html+='<div class="trip-leg"><span class="dash"></span>'+legTxt+'<span class="dash"></span></div>';
+    }
+    html+='<div class="trip-item">'+
+      '<span class="num" style="background:'+colorFor(it)+'">'+(idx+1)+'</span>'+
+      '<div class="ti" data-open="'+id+'"><div class="nm">'+esc(dispName(it))+'</div><div class="mt">'+TYPE_META[it.type].one+' &middot; '+esc(it.plaats)+(dispCode(it)?' &middot; '+esc(dispCode(it)):'')+'</div></div>'+
+      '<div class="trip-ord"><button data-up="'+id+'" title="Omhoog">&#9650;</button><button data-down="'+id+'" title="Omlaag">&#9660;</button></div>'+
+      '<button class="trip-rm" data-rm="'+id+'" title="Verwijderen">&times;</button>'+
+      '</div>';
+  });
+  listEl.innerHTML=html;
+  if(drive){ tot.innerHTML=fmtDur(drive.total.dur)+' &middot; '+kmTxt(drive.total.dist)+' <span style="color:var(--ink-4);font-weight:400">rijden</span>'; }
+  else { tot.innerHTML="&asymp; "+kmTxt(total)+' <span style="color:var(--ink-4);font-weight:400">hemelsbreed</span>'; if(trip.length>=2) fetchTripDrive(key); }
+  listEl.querySelectorAll("[data-open]").forEach(b=>b.addEventListener("click",()=>{ closeTrip(); openDetail(b.dataset.open,{fly:true}); }));
+  listEl.querySelectorAll("[data-up]").forEach(b=>b.addEventListener("click",()=>moveTrip(b.dataset.up,-1)));
+  listEl.querySelectorAll("[data-down]").forEach(b=>b.addEventListener("click",()=>moveTrip(b.dataset.down,1)));
+  listEl.querySelectorAll("[data-rm]").forEach(b=>b.addEventListener("click",()=>{ toggleTrip(b.dataset.rm); refreshDetailButtons(); }));
+}
+function openTrip(){ document.getElementById("tripDrawer").classList.add("open"); renderTrip(); drawTripLine(); }
+function closeTrip(){ document.getElementById("tripDrawer").classList.remove("open"); drawTripLine(); }
+function tripText(){
+  const dest=getDest();
+  const lines=["DOETS REIZEN - Reisoverzicht ("+dest.name+")",
+    "Samengesteld door "+(currentUser||"-")+" op "+new Date().toLocaleDateString("nl-NL"),""];
+  const {legs,total}=tripLegs();
+  const drive=(tripDrive && tripDrive.key===trip.join(","))?tripDrive:null;
+  trip.forEach((id,idx)=>{
+    const it=itemById[id]; if(!it) return; const o=ov(id); const email=firstEmail(it.email);
+    lines.push((idx+1)+". "+TYPE_META[it.type].one.toUpperCase()+" - "+dispName(it)+(dispCode(it)?"  ["+dispCode(it)+"]":""));
+    lines.push("   "+it.plaats+" "+it.region+(it.type==="hotel"?" Categorie "+(it.cat||"?"):""));
+    const meta=[];
+    if(it.leverancier) meta.push("Leverancier: "+it.leverancier);
+    if(it.contact) meta.push("Contact: "+it.contact);
+    if(email) meta.push(email);
+    if(meta.length) lines.push("   "+meta.join(" | "));
+    if(o.prijsklasse) lines.push("   Prijsklasse: "+o.prijsklasse);
+    if(idx<trip.length-1) lines.push("   -> "+(drive?fmtDur(drive.legs[idx].dur)+" rijden ("+kmTxt(drive.legs[idx].dist)+")":kmTxt(legs[idx])+" hemelsbreed")+" naar volgende stop");
+  });
+  lines.push("");
+  lines.push(drive ? "Totale rijtijd: "+fmtDur(drive.total.dur)+" ("+kmTxt(drive.total.dist)+")"
+                   : "Totale route-afstand: ca "+kmTxt(total)+" (hemelsbreed)");
+  return lines.join("\n");
+}
+function copyTrip(){
+  if(!trip.length){ showToast("Je reis is nog leeg"); return; }
+  const txt=tripText();
+  const done=()=>showToast("Reisoverzicht gekopieerd");
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done,()=>prompt("Kopieer:",txt)); else prompt("Kopieer:",txt);
+}
+
+let compare=[];
+function inCompare(id){ return compare.indexOf(id)>=0; }
+function toggleCompare(id){
+  const i=compare.indexOf(id);
+  if(i>=0) compare.splice(i,1);
+  else { if(compare.length>=3){ showToast("Maximaal 3 hotels vergelijken"); return; } compare.push(id); }
+  renderCmpTray(); refreshDetailButtons();
+}
+function clearCompare(){ compare=[]; renderCmpTray(); refreshDetailButtons(); }
+function renderCmpTray(){
+  const tray=document.getElementById("cmpTray");
+  document.getElementById("cmpChips").innerHTML=compare.map(id=>{
+    const it=itemById[id]; if(!it) return "";
+    return '<span class="cmp-chip"><span class="nm">'+esc(dispName(it))+'</span><button class="x" data-crm="'+id+'">&times;</button></span>';
+  }).join("");
+  document.getElementById("cmpGo").disabled=compare.length<2;
+  tray.classList.toggle("show",compare.length>0);
+  document.getElementById("cmpChips").querySelectorAll("[data-crm]").forEach(b=>b.addEventListener("click",()=>toggleCompare(b.dataset.crm)));
+}
+function openCompare(){
+  if(compare.length<2) return;
+  const items=compare.map(id=>itemById[id]).filter(Boolean);
+  const facosWithin=it=>excursionsWithin(it,25).length;
+  const rows=[
+    {k:"Categorie",f:it=>"Categorie "+(it.cat||"?")},
+    {k:"Prijsklasse",f:it=>ov(it.id).prijsklasse||'<span class="cmp-dim">&mdash;</span>'},
+    {k:"Aanrader",f:it=>ov(it.id).aanrader?'<span class="cmp-rec">ja</span>':'<span class="cmp-dim">&mdash;</span>'},
+    {k:"Plaats / regio",f:it=>esc(it.plaats)+'<br><span class="cmp-dim">'+esc(it.region)+'</span>'},
+    {k:"Tot Reykjavik",f:it=>kmTxt(map.distance(cco(it),REF_REYKJAVIK))},
+    {k:"Tot luchthaven KEF",f:it=>kmTxt(map.distance(cco(it),REF_KEFLAVIK))},
+    {k:"Excursies < 25 km",f:it=>facosWithin(it)+""},
+    {k:"Kamertypes",f:it=>chipsCell(disp(it).kamertypes)},
+    {k:"Verzorging",f:it=>esc(ov(it.id).verzorging)||'<span class="cmp-dim">&mdash;</span>'},
+    {k:"Faciliteiten",f:it=>chipsCell(ov(it.id).faciliteiten)},
+    {k:"Leverancier",f:it=>esc(it.leverancier)||'<span class="cmp-dim">&mdash;</span>'},
+    {k:"Boekwijze",f:it=>esc(it.boekwijze)||'<span class="cmp-dim">&mdash;</span>'},
+    {k:"Code",f:it=>esc(dispCode(it))+(dispTravia(it)?' | Travia '+esc(dispTravia(it)):'')}
+  ];
+  function chipsCell(arr){ return (arr&&arr.length)?'<div class="cmp-chips-cell">'+arr.map(x=>'<span>'+esc(x)+'</span>').join("")+'</div>':'<span class="cmp-dim">&mdash;</span>'; }
+  let html='<table class="cmp-table"><thead><tr><th class="rowlbl"></th>'+items.map(it=>
+    '<th><div class="cmp-h"><div class="top"><span class="pd" style="background:'+colorFor(it)+'">'+(it.cat||"")+'</span><span class="nm">'+esc(dispName(it))+'</span></div>'+
+    '<button class="rm" data-cgo="'+it.id+'">Open productpagina</button><button class="rm" data-crm2="'+it.id+'">Verwijderen</button></div></th>').join("")+'</tr></thead><tbody>';
+  rows.forEach(r=>{
+    html+='<tr><td class="rowlbl">'+r.k+'</td>'+items.map(it=>'<td>'+r.f(it)+'</td>').join("")+'</tr>';
+  });
+  html+='</tbody></table>';
+  document.getElementById("cmpBody").innerHTML=html;
+  document.getElementById("cmpModal").classList.add("open");
+  document.getElementById("cmpBody").querySelectorAll("[data-cgo]").forEach(b=>b.addEventListener("click",()=>{ closeCmpModal(); openDetail(b.dataset.cgo,{fly:true}); }));
+  document.getElementById("cmpBody").querySelectorAll("[data-crm2]").forEach(b=>b.addEventListener("click",()=>{ toggleCompare(b.dataset.crm2); if(compare.length<2) closeCmpModal(); else openCompare(); }));
+}
+function closeCmpModal(){ document.getElementById("cmpModal").classList.remove("open"); }
+
+function refreshDetailButtons(){
+  const t=document.getElementById("dtTrip");
+  if(t&&selectedId){ const on=inTrip(selectedId); t.classList.toggle("on",on); t.textContent=on?"OK":"+"; t.title=on?"Uit reis halen":"Aan reis toevoegen"; }
+  const c=document.getElementById("dtCmp");
+  if(c&&selectedId){ const on=inCompare(selectedId); c.classList.toggle("on",on); c.title=on?"Uit vergelijking":"Vergelijk dit hotel"; }
+}
+
+function startApp(){
+  currentUser=localStorage.getItem('doets_user')||"";
+  loadFavs(); loadOverrides();
+  document.getElementById("userName").textContent=currentUser;
+  document.getElementById("userAvatar").textContent=(currentUser||"?").charAt(0).toUpperCase();
+  if(!map) initMap();
+  loadTrip(); updateTripCount();
+  setTimeout(()=>{ map.invalidateSize(); openFromHash(); },60);
+}
+document.getElementById("btnLogout").addEventListener("click",()=>{
+  localStorage.removeItem('doets_token');
+  localStorage.removeItem('doets_user');
+  window.location.href="/dashboard.html";
+});
+
+function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+function colorFor(it){ return it.type==="hotel" ? (HOTEL_CAT_COLORS[it.cat]||TYPE_META.hotel.color) : TYPE_META[it.type].color; }
+function kmTxt(m){ return m<950 ? Math.round(m/50)*50+" m" : (m/1000).toFixed(m<9500?1:0)+" km"; }
+function fmtDur(s){ if(s==null) return ""; const mn=Math.round(s/60); if(mn<60) return mn+" min"; const h=Math.floor(mn/60); return h+" u "+(mn%60)+" min"; }
+function osrmCoords(list){ return list.map(c=>c[1]+","+c[0]).join(";"); }
+async function osrmTable(src,dests){
+  try{
+    const url="https://router.project-osrm.org/table/v1/driving/"+osrmCoords([src].concat(dests))+"?sources=0&annotations=duration,distance";
+    const r=await fetch(url); if(!r.ok) return null;
+    const j=await r.json(); if(j.code!=="Ok") return null;
+    const dur=j.durations&&j.durations[0], dist=j.distances&&j.distances[0];
+    return dests.map((_,i)=>({dur:dur?dur[i+1]:null, dist:dist?dist[i+1]:null}));
+  }catch(e){ return null; }
+}
+async function osrmRoute(list){
+  try{
+    if(list.length<2) return null;
+    const url="https://router.project-osrm.org/route/v1/driving/"+osrmCoords(list)+"?overview=false&annotations=false";
+    const r=await fetch(url); if(!r.ok) return null;
+    const j=await r.json(); if(j.code!=="Ok"||!j.routes||!j.routes[0]) return null;
+    const rt=j.routes[0];
+    return { legs:rt.legs.map(l=>({dur:l.duration,dist:l.distance})), total:{dur:rt.duration,dist:rt.distance} };
+  }catch(e){ return null; }
+}
+async function annotateDrive(container, fromItem){
+  if(!container) return;
+  const rows=[...container.querySelectorAll(".nb[data-goto]")];
+  if(!rows.length) return;
+  showToast("Rijtijden ophalen...");
+  const res=await osrmTable(cco(fromItem), rows.map(r=>cco(itemById[r.dataset.goto])));
+  if(!res){ showToast("Rijtijden niet beschikbaar (geen verbinding)"); return; }
+  rows.forEach((r,i)=>{ const km=r.querySelector(".km"); if(km&&res[i]&&res[i].dur!=null) km.innerHTML='<b>'+fmtDur(res[i].dur)+'</b> &middot; '+kmTxt(res[i].dist); });
+  showToast("Rijtijden bijgewerkt");
+}
+function firstEmail(raw){ const m=String(raw||"").match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/); return m?m[0]:null; }
+function typeLabelFor(it){ return it.type==="hotel" ? "Hotel - Categorie "+(it.cat||"?") : TYPE_META[it.type].one; }
+function dotBadge(it,size){
+  const inner=it.type==="hotel"?'<span style="font-size:'+Math.round(size*0.46)+'px">'+(it.cat||"")+'</span>':"";
+  return '<span class="pd" style="width:'+size+'px;height:'+size+'px;background:'+colorFor(it)+'">'+inner+'</span>';
+}
+function nearestOfType(item,type,n,maxM,excludeId){
+  const dest=getDest();
+  return dest.items.filter(i=>i.type===type && i.id!==item.id && i.id!==excludeId)
+    .map(i=>({i,d:map.distance(cco(item),cco(i))}))
+    .filter(o=>o.d<=maxM).sort((a,b)=>a.d-b.d).slice(0,n);
+}
+
+function dotIcon(it,sel){
+  const size=TYPE_META[it.type].size;
+  const inner=it.type==="hotel"?'<span style="font-size:12px">'+(it.cat||"")+'</span>':"";
+  return L.divIcon({ className:"", iconSize:[size,size], iconAnchor:[size/2,size/2],
+    html:'<span class="mk-dot'+(sel?" sel":"")+'" style="width:'+size+'px;height:'+size+'px;background:'+colorFor(it)+'">'+inner+'</span>' });
+}
+
+function initMap(){
+  const dest=getDest();
+  map=L.map("map",{zoomControl:false}).setView(dest.center,dest.zoom);
+  L.control.zoom({position:"bottomleft"}).addTo(map);
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",{
+    maxZoom:19, subdomains:"abcd",
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+  }).addTo(map);
+  altLayer=L.layerGroup().addTo(map);
+  radiusLayer=L.layerGroup().addTo(map);
+  tripLayer=L.layerGroup().addTo(map);
+  clusterGroup=makeClusterGroup();
+  map.addLayer(clusterGroup);
+  buildDestinationSwitcher(); buildTabs(); buildLegend(); buildMonthFilter();
+  loadDestination(currentDestId);
+}
+function makeClusterGroup(){
+  return L.markerClusterGroup({
+    showCoverageOnHover:false, maxClusterRadius:36, disableClusteringAtZoom:11,
+    iconCreateFunction:c=>{ const n=c.getChildCount(); const s=n>=50?50:n>=15?44:38;
+      return L.divIcon({html:'<div class="cl">'+n+'</div>',className:"",iconSize:L.point(s,s)}); }
+  });
+}
+function loadDestination(destId){
+  currentDestId=destId;
+  const dest=getDest(destId);
+  clearAlternatives(); closeDetail();
+  clusterGroup.clearLayers();
+  for(const k in markerById) delete markerById[k];
+  for(const k in itemById) delete itemById[k];
+  dest.items.forEach(it=>{
+    itemById[it.id]=it;
+    const m=L.marker(cco(it),{icon:dotIcon(it,false)});
+    m.bindTooltip(()=>dispName(it),{className:"mk-tip",direction:"top",offset:[0,-10]});
+    m.on("click",()=>{
+      if(selectedId===it.id && document.getElementById("sidebar").classList.contains("show-detail")) closeDetail();
+      else openDetail(it.id,{fly:false});
+    });
+    markerById[it.id]=m;
+  });
+  document.getElementById("destTitle").textContent=dest.name;
+  const c=countByType(dest.items);
+  document.getElementById("destSub").textContent=
+    (c.hotel||0)+" hotels &middot; "+(c.excursie||0)+" excursies &middot; "+(c.transfer||0)+" transfers &middot; "+(c.tour||0)+" tours";
+  buildRegionFilter(dest); buildLeverancierFilter(dest);
+  applyFilters();
+  map.setView(dest.center,dest.zoom);
+  if(typeof clearCompare==="function") clearCompare();
+  if(tripLayer){ updateTripCount(); drawTripLine(); }
+}
+function countByType(items){ const o={}; items.forEach(i=>o[i.type]=(o[i.type]||0)+1); return o; }
+
+function matches(it){
+  if(isHidden(it) && !filterState.showHidden) return false;
+  if(filterState.month && it.openMonths && it.openMonths.indexOf(+filterState.month)<0) return false;
+  if(filterState.onlyFav && !isFav(it.id)) return false;
+  if(filterState.region && it.region!==filterState.region) return false;
+  if(filterState.leverancier && (it.leverancier||"").toUpperCase()!==filterState.leverancier) return false;
+  if(filterState.cat && it.type==="hotel" && String(it.cat)!==filterState.cat) return false;
+  if(filterState.search){
+    const o=ov(it.id);
+    const hay=[it.name,it.code,it.traviaCode||"",o.naam||"",o.code||"",o.travia||"",it.plaats,it.leverancier,it.region,it.opmerking].join(" ").toLowerCase();
+    if(!hay.includes(filterState.search)) return false;
+  }
+  return true;
+}
+function applyFilters(){
+  const dest=getDest();
+  clusterGroup.clearLayers();
+  const filtered=dest.items.filter(matches);
+  const byType={hotel:[],excursie:[],transfer:[],tour:[]};
+  filtered.forEach(it=>byType[it.type].push(it));
+  Object.keys(byType).forEach(t=>{
+    if(!typeVisible[t]) return;
+    byType[t].forEach(it=>clusterGroup.addLayer(markerById[it.id]));
+  });
+  renderTabs(byType);
+  renderList(byType[filterState.tab]||[]);
+  renderChips();
+  updateFavToggle();
+  document.getElementById("fCat").classList.toggle("hidden",filterState.tab!=="hotel");
+  document.getElementById("footCounts").textContent=filtered.length+" van "+dest.items.length+" zichtbaar";
+}
+function renderTabs(byType){
+  document.querySelectorAll(".seg button").forEach(el=>{
+    const t=el.dataset.tab;
+    el.querySelector(".cnt").textContent=(byType[t]||[]).length;
+    el.classList.toggle("active",t===filterState.tab);
+  });
+}
+function buildTabs(){
+  const wrap=document.getElementById("tabs"); wrap.innerHTML="";
+  Object.keys(TYPE_META).forEach(t=>{
+    const b=document.createElement("button");
+    b.className=(t===filterState.tab?"active":""); b.dataset.tab=t;
+    b.innerHTML="<span>"+TYPE_META[t].label+"</span><span class='cnt'></span>";
+    b.addEventListener("click",()=>{ filterState.tab=t; Object.keys(typeVisible).forEach(k=>typeVisible[k]=(k===t)); applyFilters(); });
+    wrap.appendChild(b);
+  });
+}
+function renderList(items){
+  const listEl=document.getElementById("list");
+  if(!items.length){ listEl.innerHTML='<div class="list-empty"><span class="serif">Niets gevonden</span>Pas je zoekterm of filters aan.</div>'; return; }
+  const groups={};
+  items.forEach(it=>{ (groups[it.region]=groups[it.region]||[]).push(it); });
+  const regions=REGION_ORDER.filter(r=>groups[r]).concat(Object.keys(groups).filter(r=>!REGION_ORDER.includes(r)));
+  let html="";
+  regions.forEach(r=>{
+    const arr=groups[r].slice().sort((a,b)=>
+      a.type==="hotel"&&b.type==="hotel"&&a.cat!==b.cat ? (b.cat||0)-(a.cat||0) : a.name.localeCompare(b.name,"nl"));
+    html+='<div class="reg"><span class="tx">'+r+'</span><span class="ln"></span><span class="n">'+arr.length+'</span></div>';
+    arr.forEach(it=>{
+      const size=it.type==="hotel"?26:18;
+      const inner=it.type==="hotel"?'<span style="font-size:'+Math.round(size*0.46)+'px">'+(it.cat||"")+'</span>':"";
+      const o=ov(it.id);
+      const rec=o.aanrader?'<span class="rec" title="Doets-aanrader">*</span>':"";
+      const price=o.prijsklasse?'<span class="price">'+esc(o.prijsklasse)+'</span>':"";
+      const hid=o.hidden?'<span class="hidtag" title="Verborgen">verborgen</span>':"";
+      html+='<div class="card'+(it.id===selectedId?" sel":"")+(o.hidden?" ishidden":"")+'" data-id="'+it.id+'">'+
+        '<span class="cdot" style="width:'+size+'px;height:'+size+'px;background:'+colorFor(it)+'">'+inner+'</span>'+
+        '<div class="info"><div class="nm">'+rec+esc(dispName(it))+price+hid+'</div>'+
+        '<div class="mt">'+esc(it.plaats)+(dispCode(it)?' &middot; <span class="code">'+esc(dispCode(it))+'</span>':'')+'</div></div>'+
+        '<button class="star'+(isFav(it.id)?" on":"")+'" data-fav="'+it.id+'" title="Favoriet">'+(isFav(it.id)?"&#9733;":"&#9734;")+'</button>'+
+        '<span class="chev">&rsaquo;</span></div>';
+    });
+  });
+  listEl.innerHTML=html;
+  listEl.querySelectorAll(".card").forEach(el=>el.addEventListener("click",ev=>{
+    if(ev.target.closest("[data-fav]")) return;
+    openDetail(el.dataset.id,{fly:true});
+  }));
+  listEl.querySelectorAll("[data-fav]").forEach(b=>b.addEventListener("click",ev=>{
+    ev.stopPropagation(); toggleFav(b.dataset.fav);
+    if(filterState.onlyFav) applyFilters(); else { b.classList.toggle("on"); b.innerHTML=isFav(b.dataset.fav)?"&#9733;":"&#9734;"; updateFavToggle(); }
+    if(selectedId===b.dataset.fav) refreshDetailStar();
+  }));
+}
+function updateFavToggle(){
+  const t=document.getElementById("favToggle");
+  if(t){ t.classList.toggle("on",filterState.onlyFav); t.title=filterState.onlyFav?"Toon alles":"Toon alleen favorieten ("+favs.size+")"; }
+}
+function buildRegionFilter(dest){
+  const sel=document.getElementById("fRegion");
+  const regions=[...new Set(dest.items.map(i=>i.region))];
+  const ordered=REGION_ORDER.filter(r=>regions.includes(r)).concat(regions.filter(r=>!REGION_ORDER.includes(r)));
+  sel.innerHTML='<option value="">Alle regio\'s</option>'+ordered.map(r=>"<option>"+r+"</option>").join("");
+}
+function buildLeverancierFilter(dest){
+  const sel=document.getElementById("fLeverancier");
+  const freq={};
+  dest.items.forEach(i=>{ const l=(i.leverancier||"").toUpperCase(); if(l) freq[l]=(freq[l]||0)+1; });
+  const opts=Object.keys(freq).sort((a,b)=>freq[b]-freq[a]);
+  sel.innerHTML='<option value="">Alle leveranciers</option>'+opts.map(l=>'<option value="'+l+'">'+l+" ("+freq[l]+")</option>").join("");
+}
+
+function renderChips(){
+  const wrap=document.getElementById("chips");
+  const chips=[];
+  if(filterState.search) chips.push({k:"search",label:'Zoek: "'+esc(filterState.search)+'"'});
+  if(filterState.region) chips.push({k:"region",label:esc(filterState.region)});
+  if(filterState.leverancier) chips.push({k:"leverancier",label:esc(filterState.leverancier)});
+  if(filterState.cat) chips.push({k:"cat",label:"Categorie "+filterState.cat});
+  if(filterState.month) chips.push({k:"month",label:"Open in "+MONTHS_FULL[+filterState.month-1]});
+  if(filterState.onlyFav) chips.push({k:"fav",label:"Favorieten"});
+  if(!chips.length){ wrap.innerHTML=""; return; }
+  wrap.innerHTML=chips.map(c=>'<button class="chip" data-k="'+c.k+'">'+c.label+'<span class="x">&times;</span></button>').join("")+
+    (chips.length>1?'<button class="chip reset" data-k="*">Alles wissen</button>':"");
+  wrap.querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{
+    const k=b.dataset.k;
+    if(k==="*"||k==="search"){ filterState.search=""; document.getElementById("searchInput").value=""; document.getElementById("searchWrap").classList.remove("has-q"); }
+    if(k==="*"||k==="region"){ filterState.region=""; document.getElementById("fRegion").value=""; }
+    if(k==="*"||k==="leverancier"){ filterState.leverancier=""; document.getElementById("fLeverancier").value=""; }
+    if(k==="*"||k==="cat"){ filterState.cat=""; document.getElementById("fCat").value=""; }
+    if(k==="*"||k==="month"){ filterState.month=""; document.getElementById("fMonth").value=""; }
+    if(k==="*"||k==="fav"){ filterState.onlyFav=false; }
+    applyFilters();
+  }));
+}
+
+const searchInput=document.getElementById("searchInput");
+const suggestEl=document.getElementById("suggest");
+const searchWrap=document.getElementById("searchWrap");
+let sgItems=[], sgIndex=-1;
+function buildSuggestions(q){
+  const dest=getDest();
+  const ql=q.toLowerCase();
+  const scored=[];
+  dest.items.forEach(it=>{
+    const name=dispName(it).toLowerCase(), code=(dispCode(it)||"").toLowerCase(), plaats=it.plaats.toLowerCase();
+    let score=-1;
+    if(name.startsWith(ql)) score=0;
+    else if(name.includes(ql)) score=1;
+    else if(code.startsWith(ql)) score=2;
+    else if(plaats.startsWith(ql)) score=3;
+    else if((it.leverancier||"").toLowerCase().includes(ql)) score=4;
+    if(score>=0) scored.push({it,score});
+  });
+  scored.sort((a,b)=>a.score-b.score || a.it.name.localeCompare(b.it.name,"nl"));
+  return scored.slice(0,9).map(s=>s.it);
+}
+function renderSuggestions(items){
+  sgItems=items; sgIndex=-1;
+  if(!items.length){ suggestEl.innerHTML='<div class="sg-empty">Geen resultaten - druk op Enter om de lijst te filteren.</div>'; suggestEl.classList.add("open"); return; }
+  const groups={};
+  items.forEach(it=>{ (groups[it.type]=groups[it.type]||[]).push(it); });
+  let html="";
+  Object.keys(TYPE_META).forEach(t=>{
+    if(!groups[t]) return;
+    html+='<div class="sg-group">'+TYPE_META[t].label+'</div>';
+    groups[t].forEach(it=>{
+      const size=it.type==="hotel"?20:14;
+      html+='<button class="sg-item" data-id="'+it.id+'">'+dotBadge(it,size)+
+        '<span class="nm">'+esc(dispName(it))+'</span><span class="pl">'+esc(it.plaats)+'</span>'+
+        (dispCode(it)?'<span class="cd">'+esc(dispCode(it))+'</span>':"")+'</button>';
+    });
+  });
+  suggestEl.innerHTML=html;
+  suggestEl.classList.add("open");
+  suggestEl.querySelectorAll("[data-id]").forEach(b=>b.addEventListener("click",()=>{
+    hideSuggest(); openDetail(b.dataset.id,{fly:true});
+  }));
+}
+function hideSuggest(){ suggestEl.classList.remove("open"); sgIndex=-1; }
+searchInput.addEventListener("input",()=>{
+  const q=searchInput.value.trim();
+  searchWrap.classList.toggle("has-q",q.length>0);
+  filterState.search=q.toLowerCase(); applyFilters();
+  if(q.length>=2) renderSuggestions(buildSuggestions(q)); else hideSuggest();
+});
+searchInput.addEventListener("keydown",e=>{
+  const open=suggestEl.classList.contains("open");
+  if(e.key==="Escape"){ hideSuggest(); return; }
+  if(!open) return;
+  const btns=[...suggestEl.querySelectorAll(".sg-item")];
+  if(e.key==="ArrowDown"||e.key==="ArrowUp"){
+    e.preventDefault();
+    sgIndex=e.key==="ArrowDown" ? Math.min(sgIndex+1,btns.length-1) : Math.max(sgIndex-1,0);
+    btns.forEach((b,i)=>b.classList.toggle("hl",i===sgIndex));
+    if(btns[sgIndex]) btns[sgIndex].scrollIntoView({block:"nearest"});
+  } else if(e.key==="Enter" && sgIndex>=0 && btns[sgIndex]){
+    e.preventDefault(); hideSuggest(); openDetail(btns[sgIndex].dataset.id,{fly:true});
+  } else if(e.key==="Enter"){ hideSuggest(); }
+});
+document.addEventListener("click",e=>{ if(!searchWrap.contains(e.target)) hideSuggest(); });
+document.getElementById("searchClear").addEventListener("click",()=>{
+  searchInput.value=""; filterState.search=""; searchWrap.classList.remove("has-q"); hideSuggest(); applyFilters(); searchInput.focus();
+});
+
+function setSelected(id){
+  if(selectedId && markerById[selectedId]) markerById[selectedId].setIcon(dotIcon(itemById[selectedId],false));
+  selectedId=id;
+  if(id && markerById[id]) markerById[id].setIcon(dotIcon(itemById[id],true));
+  document.querySelectorAll("#list .card").forEach(c=>c.classList.toggle("sel",c.dataset.id===id));
+}
+function openDetail(id,opts){
+  const it=itemById[id]; if(!it) return;
+  clearAlternatives(); clearRadius();
+  setSelected(id);
+  renderDetail(it);
+  document.getElementById("sidebar").classList.add("show-detail");
+  try{ history.replaceState(null,"","#item="+id); }catch(e){}
+  if(!typeVisible[it.type]){ typeVisible[it.type]=true; buildLegend(); applyFilters(); }
+  const m=markerById[id];
+  if(!clusterGroup.hasLayer(m)) clusterGroup.addLayer(m);
+  if(opts&&opts.fly) map.flyTo(m.getLatLng(),Math.max(map.getZoom(),11),{duration:.7});
+  clusterGroup.zoomToShowLayer(m,()=>{});
+}
+function closeDetail(){
+  document.getElementById("sidebar").classList.remove("show-detail");
+  clearAlternatives(); clearRadius();
+  setSelected(null);
+  try{ history.replaceState(null,"",location.pathname); }catch(e){}
+}
+document.getElementById("btnBack").addEventListener("click",closeDetail);
+document.getElementById("dtClose").addEventListener("click",closeDetail);
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ if(repoItem){ stopReposition(); return; } if(document.getElementById("sidebar").classList.contains("show-detail")) closeDetail(); } });
+
+let repoItem=null, repoHandler=null;
+function startReposition(it){
+  repoItem=it;
+  const m=markerById[it.id]; if(!m) return;
+  if(!clusterGroup.hasLayer(m)) clusterGroup.addLayer(m);
+  map.setView(cco(it), Math.max(map.getZoom(),12));
+  clusterGroup.zoomToShowLayer(m,()=>{
+    try{ m.dragging.enable(); }catch(e){}
+    const el=m._icon&&m._icon.querySelector(".mk-dot"); if(el) el.classList.add("moving");
+    if(repoHandler) m.off("dragend",repoHandler);
+    repoHandler=function(){
+      const ll=m.getLatLng();
+      setOverride(it.id,{coords:[+ll.lat.toFixed(5),+ll.lng.toFixed(5)]});
+      document.getElementById("repoText").textContent="Positie opgeslagen - sleep gerust verder";
+      if(radiusLayer&&radiusLayer.getLayers().length) drawRadiusCircle(it,detailRadiusKm);
+      drawTripLine();
+    };
+    m.on("dragend",repoHandler);
+  });
+  document.getElementById("repoBar").classList.add("show");
+  document.getElementById("repoText").textContent="Sleep de stip naar de juiste plek";
+}
+function stopReposition(){
+  const it=repoItem; repoItem=null;
+  document.getElementById("repoBar").classList.remove("show");
+  if(it&&markerById[it.id]){
+    const m=markerById[it.id];
+    try{ m.dragging.disable(); }catch(e){}
+    const el=m._icon&&m._icon.querySelector(".mk-dot"); if(el) el.classList.remove("moving");
+    if(repoHandler){ m.off("dragend",repoHandler); repoHandler=null; }
+    if(selectedId===it.id) renderDetail(it);
+  }
+}
+document.getElementById("repoDone").addEventListener("click",stopReposition);
+document.getElementById("repoReset").addEventListener("click",()=>{
+  const it=repoItem; if(!it) return;
+  setOverride(it.id,{coords:null});
+  const m=markerById[it.id]; if(m) m.setLatLng(it.coords);
+  document.getElementById("repoText").textContent="Teruggezet op registerlocatie";
+  if(radiusLayer&&radiusLayer.getLayers().length) drawRadiusCircle(it,detailRadiusKm);
+  drawTripLine();
+});
+
+function renderDetail(it){
+  const d=disp(it), o=ov(it.id);
+  document.getElementById("dtCrumb").textContent=it.region+"  "+it.plaats;
+  const email=firstEmail(it.email);
+  const kvRow=(k,v)=>v?'<span class="k">'+k+'</span><span class="v">'+v+'</span>':"";
+  const inkoop=kvRow("Leverancier",esc(it.leverancier))+kvRow("Boekwijze",esc(it.boekwijze))+kvRow("Systeem",esc(it.systeem));
+  const contact=kvRow("Contactpersoon",esc(it.contact))+
+    kvRow("E-mail",it.email?(email?'<a href="mailto:'+email+'">'+esc(it.email)+'</a>':esc(it.email)):"");
+  const chips=(d.kamertypes||[]).map(k=>'<span class="dt-chip">'+esc(k)+'</span>').join("");
+  const dRey=map.distance(cco(it),REF_REYKJAVIK), dKef=map.distance(cco(it),REF_KEFLAVIK);
+  const ligging=kvRow("Regio",esc(it.region))+kvRow("Plaats",esc(it.plaats))+
+    kvRow("Tot Reykjavik",kmTxt(dRey))+kvRow("Tot luchthaven KEF",kmTxt(dKef));
+
+  const badges=[];
+  if(o.aanrader) badges.push('<span class="badge-rec">Doets-aanrader</span>');
+  if(o.prijsklasse) badges.push('<span class="badge-price">'+esc(o.prijsklasse)+'</span>');
+  const badgesHtml=(badges.length?'<div class="dt-badges">'+badges.join("")+'</div>':"");
+
+  const facil=o.faciliteiten||[], inbeg=o.inbegrepen||[];
+  let curated="";
+  if(o.usps) curated+='<div class="dt-sec"><h4>Bijzonderheden</h4><div class="dt-note">'+esc(o.usps)+'</div></div>';
+  if(it.type==="hotel"){
+    let vf="";
+    if(o.verzorging) vf+='<div class="kv">'+kvRow("Verzorging",esc(o.verzorging))+'</div>';
+    if(facil.length) vf+='<div class="dt-chips">'+facil.map(f=>'<span class="dt-chip">'+esc(f)+'</span>').join("")+'</div>';
+    if(vf) curated+='<div class="dt-sec"><h4>Verzorging &amp; faciliteiten</h4>'+vf+'</div>';
+  } else {
+    let pr=kvRow("Duur",esc(o.duur))+kvRow("Vertrek / ophaalpunt",esc(o.vertrek))+kvRow("Geschikt voor",esc(o.geschiktVoor));
+    let block=pr?'<div class="kv">'+pr+'</div>':"";
+    if(inbeg.length) block+='<div class="dt-chips">'+inbeg.map(f=>'<span class="dt-chip">'+esc(f)+'</span>').join("")+'</div>';
+    if(block) curated+='<div class="dt-sec"><h4>Praktisch</h4>'+block+'</div>';
+  }
+  if(o.notitie) curated+='<div class="dt-sec"><h4>Interne notitie</h4><div class="dt-note team">'+esc(o.notitie)+'</div></div>';
+
+  let nearHtml="";
+  if(it.type==="hotel"){
+    nearHtml='<div class="dt-sec"><h4 class="with-ctrl">Excursies in de buurt'+
+      '<button class="rijbtn" id="dtDriveBtn" title="Toon werkelijke rijtijden">Rijtijd</button>'+
+      '<span class="radius-tabs">'+[15,25,50].map(k=>'<button data-km="'+k+'"'+(k===detailRadiusKm?' class="on"':'')+'>'+k+' km</button>').join("")+'</span></h4>'+
+      '<div class="nearby" id="dtNearby"></div></div>';
+  } else {
+    const hot=nearestOfType(it,"hotel",4,60000);
+    if(hot.length) nearHtml='<div class="dt-sec"><h4 class="with-ctrl">Hotels in de buurt'+
+      '<button class="rijbtn" id="dtDriveBtn" title="Toon werkelijke rijtijden">Rijtijd</button></h4>'+
+      '<div class="nearby" id="dtNearby">'+hot.map(nbRow).join("")+'</div></div>';
+  }
+
+  document.getElementById("dtScroll").innerHTML=
+    (o.foto?'<div class="dt-photo"><img src="'+esc(o.foto)+'" alt="" onerror="this.parentNode.style.display=\'none\'"/></div>':"")+
+    (isHidden(it)?'<div class="dt-hidden-note">Dit item is verborgen voor het team.</div>':"")+
+    '<div class="dt-hero">'+
+      '<div class="dt-hero-actions">'+
+        '<button class="dt-icon'+(inTrip(it.id)?" on":"")+'" id="dtTrip" title="'+(inTrip(it.id)?"Uit reis halen":"Aan reis toevoegen")+'">'+(inTrip(it.id)?"OK":"+")+'</button>'+
+        (it.type==="hotel"?'<button class="dt-icon'+(inCompare(it.id)?" on":"")+'" id="dtCmp" title="Vergelijk dit hotel">V</button>':"")+
+        '<button class="dt-icon'+(isFav(it.id)?" on":"")+'" id="dtFav" title="Favoriet">'+(isFav(it.id)?"&#9733;":"&#9734;")+'</button>'+
+        '<button class="dt-icon" id="dtEdit" title="Productinfo bewerken">Edit</button>'+
+        '<button class="dt-icon" id="dtMove" title="Verplaats op de kaart">Move</button>'+
+        '<button class="dt-icon'+(isHidden(it)?" on":"")+'" id="dtHide" title="'+(isHidden(it)?"Weer tonen":"Verbergen voor team")+'">&#8856;</button>'+
+        '<button class="dt-icon" id="dtShare" title="Kopieer link naar dit item">Link</button>'+
+      '</div>'+
+      '<span class="dt-type"><span class="pd" style="background:'+colorFor(it)+'"></span>'+typeLabelFor(it)+'</span>'+
+      '<h2>'+esc(dispName(it))+'</h2>'+
+      '<div class="loc">'+esc(it.plaats)+' &middot; '+esc(it.region)+'</div>'+
+      '<div class="dt-codes">'+
+        (dispCode(it)?'<span class="dt-code">'+esc(dispCode(it))+'</span>':"")+
+        (dispTravia(it)?'<span class="dt-code tr">Travia: '+esc(dispTravia(it))+'</span>':"")+
+      '</div>'+
+      (nameChanged(it)?'<div class="loc" style="font-size:10.5px;margin-top:7px;color:var(--ink-4)">Register: '+esc(it.name)+(it.code?' &middot; '+esc(it.code):'')+'</div>':"")+
+      badgesHtml+
+    '</div>'+
+    '<div class="dt-actions">'+
+      (email?'<a class="dt-btn" href="mailto:'+email+'">Mail leverancier</a>':'<button class="dt-btn" disabled>Geen e-mail</button>')+
+      (it.type==="hotel"?'<button class="dt-btn primary" id="dtAlt">Toon alternatieven</button><button class="dt-btn" id="dtNearExc">Omringende excursies</button>':'<button class="dt-btn primary" id="dtZoom">Zoom naar locatie</button><button class="dt-btn" id="dtNearHot">Nabije hotels</button>')+
+    '</div>'+
+    curated+
+    (chips?'<div class="dt-sec"><h4>'+(it.type==="hotel"?"Kamertypes":"Opties")+'</h4><div class="dt-chips">'+chips+'</div></div>':"")+
+    (inkoop?'<div class="dt-sec"><h4>Inkoop</h4><div class="kv">'+inkoop+'</div></div>':"")+
+    (contact?'<div class="dt-sec"><h4>Contact</h4><div class="kv">'+contact+'</div></div>':"")+
+    '<div class="dt-sec"><h4>Ligging</h4><div class="kv">'+ligging+'</div></div>'+
+    seasonHtml(it)+
+    (it.opmerking?'<div class="dt-sec"><h4>Opmerkingen (register)</h4><div class="dt-note">'+esc(it.opmerking)+'</div></div>':"")+
+    '<div id="dtAltResults"></div>'+
+    nearHtml+
+    '<div class="dt-bottom-pad"></div>';
+
+  const scroll=document.getElementById("dtScroll");
+  scroll.scrollTop=0;
+  scroll.querySelectorAll("[data-goto]").forEach(b=>b.addEventListener("click",()=>openDetail(b.dataset.goto,{fly:true})));
+  const altBtn=document.getElementById("dtAlt");
+  if(altBtn) altBtn.addEventListener("click",()=>showAlternatives(it.id));
+  const zoomBtn=document.getElementById("dtZoom");
+  if(zoomBtn) zoomBtn.addEventListener("click",()=>map.flyTo(markerById[it.id].getLatLng(),13,{duration:.8}));
+  const nearExcBtn=document.getElementById("dtNearExc");
+  if(nearExcBtn) nearExcBtn.addEventListener("click",()=>showNearby(it.id,"excursie"));
+  const nearHotBtn=document.getElementById("dtNearHot");
+  if(nearHotBtn) nearHotBtn.addEventListener("click",()=>showNearby(it.id,"hotel"));
+  document.getElementById("dtFav").addEventListener("click",()=>{ toggleFav(it.id); refreshDetailStar(); if(filterState.onlyFav) applyFilters(); else updateCardStar(it.id); updateFavToggle(); });
+  document.getElementById("dtShare").addEventListener("click",()=>copyItemLink(it.id));
+  document.getElementById("dtEdit").addEventListener("click",()=>renderEditForm(it));
+  document.getElementById("dtMove").addEventListener("click",()=>startReposition(it));
+  document.getElementById("dtHide").addEventListener("click",()=>{
+    const nowHidden=!isHidden(it);
+    setOverride(it.id,{hidden:nowHidden});
+    showToast(nowHidden?"Item verborgen":"Item weer zichtbaar");
+    renderDetail(it); applyFilters();
+  });
+  document.getElementById("dtTrip").addEventListener("click",()=>{ toggleTrip(it.id); refreshDetailButtons(); });
+  const cmpBtn=document.getElementById("dtCmp");
+  if(cmpBtn) cmpBtn.addEventListener("click",()=>{ toggleCompare(it.id); });
+
+  if(it.type==="hotel"){
+    setDetailRadius(it,detailRadiusKm);
+    scroll.querySelectorAll(".radius-tabs button").forEach(b=>b.addEventListener("click",()=>setDetailRadius(it,+b.dataset.km)));
+  } else { clearRadius(); }
+  const driveBtn=document.getElementById("dtDriveBtn");
+  if(driveBtn) driveBtn.addEventListener("click",()=>annotateDrive(document.getElementById("dtNearby"),it));
+}
+
+function renderEditForm(it){
+  clearRadius();
+  const o=ov(it.id);
+  const txt=(id,label,val,ph)=>'<div class="ef-row"><label>'+label+'</label><input type="text" id="'+id+'" value="'+esc(val||"")+'" placeholder="'+(ph||"")+'" /></div>';
+  const area=(id,label,val,ph)=>'<div class="ef-row"><label>'+label+'</label><textarea id="'+id+'" placeholder="'+(ph||"")+'">'+esc(val||"")+'</textarea></div>';
+  const priceSel='<div class="ef-row"><label>Prijsklasse</label><select id="efPrijs">'+
+    PRIJS_OPTS.map(p=>'<option value="'+p+'"'+(p===(o.prijsklasse||"")?' selected':'')+'>'+(p||"- geen -")+'</option>').join("")+'</select></div>';
+  const recCheck='<div class="ef-row"><label class="ef-check"><input type="checkbox" id="efRec"'+(o.aanrader?' checked':'')+'/> Markeer als Doets-aanrader</label></div>';
+
+  let typeFields="";
+  if(it.type==="hotel"){
+    typeFields=
+      txt("efVerzorging","Verzorging / inbegrepen",o.verzorging,"bijv. Logies & ontbijt; halfpension mogelijk")+
+      '<div class="ef-row"><label>Faciliteiten (komma-gescheiden)</label><input type="text" id="efFacil" value="'+esc((o.faciliteiten||[]).join(", "))+'" placeholder="Zwembad, Spa, Restaurant, Wifi..." />'+
+        '<div class="ef-suggest">'+FACIL_SUGGEST.map(f=>'<button type="button" class="ef-sg" data-facil="'+esc(f)+'">+ '+esc(f)+'</button>').join("")+'</div></div>'+
+      txt("efKamers","Kamertypes (komma-gescheiden)",(o.kamertypes&&o.kamertypes.length?o.kamertypes:(it.kamertypes||[])).join(", "),"bijv. Tweepersoons, Superior, Suite");
+  } else {
+    typeFields=
+      txt("efDuur","Duur",o.duur,"bijv. Halve dag (4 uur)")+
+      txt("efVertrek","Vertrek / ophaalpunt",o.vertrek,"bijv. Ophalen bij hotel, 08:30")+
+      '<div class="ef-row"><label>Inbegrepen (komma-gescheiden)</label><input type="text" id="efInbegrepen" value="'+esc((o.inbegrepen||[]).join(", "))+'" placeholder="Gids, vervoer, toegang..." /></div>'+
+      txt("efGeschikt","Geschikt voor",o.geschiktVoor,"bijv. Gezinnen, actieve reizigers");
+  }
+
+  document.getElementById("dtScroll").innerHTML=
+    '<div class="edit-bar"><span class="lbl">Eigen info bewerken</span>'+
+      '<button class="ef-btn" id="efCancel">Annuleren</button>'+
+      '<button class="ef-btn save" id="efSave">Opslaan</button></div>'+
+    '<div class="edit-form">'+
+      '<div class="ef-row" style="margin-top:6px"><label>'+esc(it.name)+'</label>'+
+        '<div class="hint">Vul hier info aan of corrigeer registerdata. Leeg laten = registerwaarde gebruiken.</div></div>'+
+      txt("efNaam","Productnaam (overschrijft register)",o.naam,it.name)+
+      txt("efCode","C3-code"+((!it.code||it.code.toUpperCase()==="NIEUW")?" (register heeft er nog geen)":""),o.code,it.code||"bijv. FOSSRE")+
+      txt("efTravia","Travia-code",o.travia,it.traviaCode||"alleen indien van toepassing")+
+      '<div class="ef-row"><label>Foto (URL van een afbeelding)</label><input type="text" id="efFoto" value="'+esc(o.foto||"")+'" placeholder="https://.../foto.jpg" />'+
+        '<div class="hint">Plak een https-link naar een afbeelding. Verschijnt bovenaan de productpagina.</div></div>'+
+      recCheck+priceSel+
+      area("efUsps","Bijzonderheden / verkoopargumenten",o.usps,"Wat maakt dit bijzonder? USP\'s voor de klant.")+
+      typeFields+
+      area("efNotitie","Interne notitie (alleen team)",o.notitie,"bijv. goed alternatief voor X bij volle boeking")+
+    '</div>';
+
+  const scroll=document.getElementById("dtScroll"); scroll.scrollTop=0;
+  scroll.querySelectorAll("[data-facil]").forEach(b=>b.addEventListener("click",()=>{
+    const inp=document.getElementById("efFacil");
+    const cur=inp.value.split(",").map(s=>s.trim()).filter(Boolean);
+    if(!cur.includes(b.dataset.facil)){ cur.push(b.dataset.facil); inp.value=cur.join(", "); }
+  }));
+  document.getElementById("efCancel").addEventListener("click",()=>renderDetail(it));
+  document.getElementById("efSave").addEventListener("click",()=>{
+    const v=id=>{ const e=document.getElementById(id); return e?e.value.trim():""; };
+    const list=id=>v(id).split(",").map(s=>s.trim()).filter(Boolean);
+    const obj={ aanrader:document.getElementById("efRec").checked, prijsklasse:v("efPrijs"), usps:v("efUsps"), notitie:v("efNotitie"),
+      naam:v("efNaam"), code:v("efCode").toUpperCase(), travia:v("efTravia").toUpperCase(), foto:v("efFoto") };
+    if(obj.naam===it.name) obj.naam="";
+    if(obj.code===(it.code||"")) obj.code="";
+    if(obj.travia===(it.traviaCode||"")) obj.travia="";
+    if(it.type==="hotel"){ obj.verzorging=v("efVerzorging"); obj.faciliteiten=list("efFacil"); obj.kamertypes=list("efKamers"); }
+    else { obj.duur=v("efDuur"); obj.vertrek=v("efVertrek"); obj.inbegrepen=list("efInbegrepen"); obj.geschiktVoor=v("efGeschikt"); }
+    setOverride(it.id,obj);
+    showToast("Productinfo opgeslagen");
+    renderDetail(it);
+    applyFilters();
+  });
+}
+function refreshDetailStar(){
+  const b=document.getElementById("dtFav"); if(!b||!selectedId) return;
+  const on=isFav(selectedId); b.classList.toggle("on",on); b.innerHTML=on?"&#9733;":"&#9734;";
+}
+function updateCardStar(id){
+  const b=document.querySelector('#list [data-fav="'+id+'"]'); if(!b) return;
+  b.classList.toggle("on",isFav(id)); b.innerHTML=isFav(id)?"&#9733;":"&#9734;";
+}
+function excursionsWithin(it,km){
+  const dest=getDest();
+  return dest.items.filter(i=>i.type==="excursie")
+    .map(i=>({i,d:map.distance(cco(it),cco(i))}))
+    .filter(o=>o.d<=km*1000).sort((a,b)=>a.d-b.d).slice(0,16);
+}
+function drawRadiusCircle(it,km){
+  if(!radiusLayer) return;
+  radiusLayer.clearLayers();
+  L.circle(cco(it),{radius:km*1000,color:"#B8962E",weight:1.4,opacity:.8,fillColor:"#B8962E",fillOpacity:.05,dashArray:"5 6",interactive:false}).addTo(radiusLayer);
+}
+function clearRadius(){ if(radiusLayer) radiusLayer.clearLayers(); }
+function setDetailRadius(it,km){
+  detailRadiusKm=km;
+  drawRadiusCircle(it,km);
+  const box=document.getElementById("dtNearby"); if(!box) return;
+  const list=excursionsWithin(it,km);
+  box.innerHTML=list.length ? list.map(nbRow).join("")
+    : '<div class="dt-note">Geen excursies binnen '+km+' km.</div>';
+  box.querySelectorAll("[data-goto]").forEach(b=>b.addEventListener("click",()=>openDetail(b.dataset.goto,{fly:true})));
+  document.querySelectorAll(".radius-tabs button").forEach(b=>b.classList.toggle("on",+b.dataset.km===km));
+}
+function copyItemLink(id){
+  const url=location.origin+location.pathname+"#item="+id;
+  const done=()=>showToast("Link gekopieerd - plakken om te delen");
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done,()=>prompt("Kopieer de link:",url));
+  else prompt("Kopieer de link:",url);
+}
+function openFromHash(){
+  const m=(location.hash||"").match(/item=([^&]+)/);
+  if(m&&itemById[m[1]]) openDetail(m[1],{fly:true});
+}
+window.addEventListener("hashchange",()=>{ if((location.hash||"").indexOf("item=")>=0) openFromHash(); });
+function nbRow(o){
+  const size=o.i.type==="hotel"?22:16;
+  const inner=o.i.type==="hotel"?'<span style="font-size:10px">'+(o.i.cat||"")+'</span>':"";
+  return '<button class="nb" data-goto="'+o.i.id+'">'+
+    '<span class="pd" style="width:'+size+'px;height:'+size+'px;background:'+colorFor(o.i)+'">'+inner+'</span>'+
+    '<span class="nm">'+esc(dispName(o.i))+'<span class="sub">'+esc(o.i.plaats)+(dispCode(o.i)?' &middot; '+esc(dispCode(o.i)):'')+'</span></span>'+
+    '<span class="km">'+kmTxt(o.d)+'</span></button>';
+}
+
+function showAlternatives(hotelId){
+  const base=itemById[hotelId]; if(!base) return;
+  altLayer.clearLayers(); altForId=hotelId;
+  const CAT_PENALTY=40000;
+  const dest=getDest();
+  const alts=dest.items.filter(i=>i.type==="hotel"&&i.id!==hotelId)
+    .map(i=>{ const d=map.distance(cco(base),cco(i)); const cd=Math.abs((i.cat||0)-(base.cat||0)); return {i,d,score:d+cd*CAT_PENALTY}; })
+    .filter(o=>o.d<=150000).sort((a,b)=>a.score-b.score).slice(0,6);
+  const box=document.getElementById("dtAltResults");
+  if(!alts.length){ if(box) box.innerHTML='<div class="dt-sec"><h4>Alternatieven</h4><div class="dt-note">Geen vergelijkbare hotels binnen 150 km gevonden.</div></div>'; return; }
+  alts.forEach(o=>L.marker(cco(o.i),{icon:L.divIcon({className:"alt-ring",iconSize:[42,42],iconAnchor:[21,21]}),interactive:false,zIndexOffset:-500}).addTo(altLayer));
+  const grp=L.featureGroup(alts.map(o=>L.marker(cco(o.i))).concat([L.marker(cco(base))]));
+  map.fitBounds(grp.getBounds().pad(0.3));
+  if(box){
+    box.innerHTML='<div class="dt-sec"><h4>Alternatieve hotels</h4>'+
+      '<div class="nearby">'+alts.map(nbRow).join("")+'</div>'+
+      '<button class="alt-clear-link" id="altClearLink">Markeringen op kaart wissen</button>'+
+      '<div style="height:10px"></div></div>';
+    box.querySelectorAll("[data-goto]").forEach(b=>b.addEventListener("click",()=>openDetail(b.dataset.goto,{fly:true})));
+    const cl=document.getElementById("altClearLink");
+    if(cl) cl.addEventListener("click",()=>{ clearAlternatives(); });
+  }
+}
+function showNearby(baseId, targetType){
+  const base=itemById[baseId]; if(!base) return;
+  altLayer.clearLayers(); altForId=baseId;
+  const label=TYPE_META[targetType]?TYPE_META[targetType].label:targetType;
+  const dest=getDest();
+  const nearby=dest.items
+    .filter(i=>i.type===targetType&&!isHidden(i))
+    .map(i=>{ const d=map.distance(cco(base),cco(i)); return {i,d}; })
+    .filter(o=>o.d<=100000)
+    .sort((a,b)=>a.d-b.d).slice(0,10);
+  const box=document.getElementById("dtAltResults");
+  if(!nearby.length){ if(box) box.innerHTML='<div class="dt-sec"><h4>'+label+' in de buurt</h4><div class="dt-note">Geen '+label.toLowerCase()+' binnen 100 km gevonden.</div></div>'; return; }
+  nearby.forEach(o=>L.marker(cco(o.i),{icon:L.divIcon({className:"alt-ring",iconSize:[42,42],iconAnchor:[21,21]}),interactive:false,zIndexOffset:-500}).addTo(altLayer));
+  typeVisible[targetType]=true; applyFilters();
+  const grp=L.featureGroup(nearby.map(o=>L.marker(cco(o.i))).concat([L.marker(cco(base))]));
+  map.fitBounds(grp.getBounds().pad(0.3));
+  if(box){
+    box.innerHTML='<div class="dt-sec"><h4>'+label+' in de buurt</h4><div class="nearby">'+
+      nearby.map(nbRow).join("")+
+      '</div><div style="margin-top:6px"><button class="alt-clear-link" id="clearNearby">Markeringen op kaart wissen</button></div></div>';
+    box.querySelectorAll("[data-goto]").forEach(el=>el.addEventListener("click",()=>openDetail(el.dataset.goto,{fly:true})));
+    const cl=document.getElementById("clearNearby");
+    if(cl) cl.addEventListener("click",(e)=>{ e.preventDefault(); clearAlternatives(); });
+  }
+}
+function clearAlternatives(){
+  if(altLayer) altLayer.clearLayers();
+  altForId=null;
+  const box=document.getElementById("dtAltResults"); if(box) box.innerHTML="";
+}
+
+function buildLegend(){
+  const body=document.getElementById("legendBody");
+  body.innerHTML=
+    legendRow("hotel",HOTEL_CAT_COLORS[2],"Hotels (cijfer = categorie)",16)+
+    legendRow("excursie",TYPE_META.excursie.color,"Excursies",14)+
+    legendRow("transfer",TYPE_META.transfer.color,"Transfers",12)+
+    legendRow("tour",TYPE_META.tour.color,"Tours & rondreizen",14)+
+    '<div class="lg-sep"></div>'+
+    '<div class="lg-static"><span class="ring"></span> Alternatief hotel</div>';
+  body.querySelectorAll("[data-type]").forEach(b=>b.addEventListener("click",()=>{
+    const t=b.dataset.type; typeVisible[t]=!typeVisible[t]; buildLegend(); applyFilters();
+  }));
+}
+function legendRow(type,color,label,sz){
+  return '<button class="lg-row toggle'+(typeVisible[type]?"":" off")+'" data-type="'+type+'">'+
+    '<span class="sw" style="width:'+sz+'px;height:'+sz+'px;background:'+color+'"></span><span class="lbl">'+label+'</span></button>';
+}
+document.getElementById("legendHead").addEventListener("click",()=>{
+  const lg=document.getElementById("legend"); lg.classList.toggle("closed");
+  document.getElementById("legendChevron").textContent=lg.classList.contains("closed")?"&#9656;":"&#9662;";
+});
+
+function buildDestinationSwitcher(){
+  const wrap=document.getElementById("destSwitcher"); wrap.innerHTML="";
+  Object.values(DESTINATIONS).forEach(d=>{
+    const b=document.createElement("button");
+    b.className="dest-btn active";
+    b.textContent=d.name;
+    wrap.appendChild(b);
+  });
+}
+function resetFilters(){
+  Object.assign(filterState,{search:"",region:"",leverancier:"",cat:"",month:"",tab:"hotel",onlyFav:false});
+  searchInput.value=""; searchWrap.classList.remove("has-q"); hideSuggest();
+  ["fRegion","fLeverancier","fCat","fMonth"].forEach(id=>document.getElementById(id).value="");
+}
+
+document.getElementById("fRegion").addEventListener("change",e=>{ filterState.region=e.target.value; applyFilters(); });
+document.getElementById("fLeverancier").addEventListener("change",e=>{ filterState.leverancier=e.target.value; applyFilters(); });
+document.getElementById("fCat").addEventListener("change",e=>{ filterState.cat=e.target.value; applyFilters(); });
+document.getElementById("fMonth").addEventListener("change",e=>{ filterState.month=e.target.value; applyFilters(); });
+function buildMonthFilter(){
+  const sel=document.getElementById("fMonth");
+  sel.innerHTML='<option value="">Open in elke maand</option>'+
+    MONTHS_FULL.map((m,i)=>'<option value="'+(i+1)+'">Open in '+m+'</option>').join("");
+}
+document.getElementById("favToggle").addEventListener("click",()=>{
+  filterState.onlyFav=!filterState.onlyFav;
+  if(filterState.onlyFav && favs.size===0) showToast("Nog geen favorieten - klik op het sterretje bij een item");
+  applyFilters();
+});
+document.getElementById("hidToggle").addEventListener("click",()=>{
+  filterState.showHidden=!filterState.showHidden;
+  document.getElementById("hidToggle").classList.toggle("on",filterState.showHidden);
+  showToast(filterState.showHidden?"Verborgen items worden nu getoond":"Verborgen items verborgen");
+  applyFilters();
+});
+const sidebar=document.getElementById("sidebar"), sbToggle=document.getElementById("sbToggle");
+sbToggle.addEventListener("click",()=>{ const c=sidebar.classList.toggle("collapsed"); sbToggle.innerHTML=c?"&rsaquo;":"&lsaquo;"; setTimeout(()=>map&&map.invalidateSize(),300); });
+let toastTimer;
+function showToast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),3400); }
+
+const beheerModal=document.getElementById("beheerModal");
+function openBeheer(){
+  const n=Object.keys(overrides).length;
+  document.getElementById("beheerText").value=n?JSON.stringify(overrides,null,2):"";
+  document.getElementById("beheerNote").textContent=n+" item(s) - alleen deze browser";
+  beheerModal.classList.add("open");
+}
+function closeBeheer(){ beheerModal.classList.remove("open"); }
+document.getElementById("beheerLink").addEventListener("click",openBeheer);
+document.getElementById("beheerClose").addEventListener("click",closeBeheer);
+beheerModal.addEventListener("click",e=>{ if(e.target===beheerModal) closeBeheer(); });
+document.getElementById("beheerCopy").addEventListener("click",()=>{
+  const t=document.getElementById("beheerText"); t.select();
+  const txt=t.value||"{}";
+  const done=()=>showToast("Gekopieerd naar klembord");
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done,done); else { try{document.execCommand("copy");}catch(e){} done(); }
+});
+document.getElementById("beheerImport").addEventListener("click",()=>{
+  const raw=document.getElementById("beheerText").value.trim();
+  if(!raw){ showToast("Plak eerst een export-tekst"); return; }
+  let parsed; try{ parsed=JSON.parse(raw); }catch(e){ showToast("Ongeldige tekst - kon niet importeren"); return; }
+  if(typeof parsed!=="object"||Array.isArray(parsed)){ showToast("Ongeldig formaat"); return; }
+  Object.keys(parsed).forEach(id=>{ overrides[id]=parsed[id]; });
+  saveOverrides();
+  const note=document.getElementById("beheerNote"); if(note) note.textContent=Object.keys(overrides).length+" item(s) met eigen info";
+  applyFilters();
+  if(selectedId && itemById[selectedId]) renderDetail(itemById[selectedId]);
+  showToast("Eigen info geimporteerd");
+});
+
+document.getElementById("tripBtn").addEventListener("click",()=>{
+  const d=document.getElementById("tripDrawer");
+  if(d.classList.contains("open")) closeTrip(); else openTrip();
+});
+document.getElementById("tripClose").addEventListener("click",closeTrip);
+document.getElementById("tripClear").addEventListener("click",()=>{ if(trip.length){ clearTrip(); refreshDetailButtons(); } });
+document.getElementById("tripCopy").addEventListener("click",copyTrip);
+document.getElementById("cmpGo").addEventListener("click",openCompare);
+document.getElementById("cmpClear").addEventListener("click",clearCompare);
+document.getElementById("cmpModalClose").addEventListener("click",closeCmpModal);
+document.getElementById("cmpModal").addEventListener("click",e=>{ if(e.target.id==="cmpModal") closeCmpModal(); });
+
+let dqFilter="code";
+function dqMissing(it){
+  const o=ov(it.id);
+  const miss=[];
+  const code=dispCode(it);
+  if(!code || String(code).toUpperCase()==="NIEUW") miss.push("code");
+  if(!firstEmail(it.email)) miss.push("email");
+  if(!o.foto) miss.push("foto");
+  return miss;
+}
+function renderDQ(){
+  const dest=getDest();
+  const items=dest.items.filter(it=>!isHidden(it));
+  const groups={ code:[], email:[], foto:[] };
+  items.forEach(it=>{ const m=dqMissing(it); m.forEach(k=>groups[k].push(it)); });
+  const labels={ code:"Zonder code", email:"Zonder e-mail", foto:"Zonder foto" };
+  let html='<p>Klik op een item om het te openen en aan te vullen. Verborgen items zijn niet meegeteld.</p>';
+  html+='<div class="dq-tabs">'+Object.keys(groups).map(k=>'<button class="dq-tab'+(k===dqFilter?" on":"")+'" data-dq="'+k+'">'+labels[k]+' ('+groups[k].length+')</button>').join("")+'</div>';
+  const arr=groups[dqFilter]||[];
+  if(!arr.length){ html+='<div class="dq-empty">Niets ontbreekt hier - top!</div>'; }
+  else {
+    html+='<div class="dq-list">'+arr.map(it=>{
+      const inner=it.type==="hotel"?(it.cat||""):"";
+      return '<button class="dq-row" data-id="'+it.id+'"><span class="pd" style="background:'+colorFor(it)+'">'+inner+'</span>'+
+        '<span class="nm">'+esc(dispName(it))+'</span><span class="miss">'+esc(it.plaats)+'</span></button>';
+    }).join("")+'</div>';
+  }
+  const body=document.getElementById("dqBody"); body.innerHTML=html;
+  body.querySelectorAll("[data-dq]").forEach(b=>b.addEventListener("click",()=>{ dqFilter=b.dataset.dq; renderDQ(); }));
+  body.querySelectorAll("[data-id]").forEach(b=>b.addEventListener("click",()=>{ document.getElementById("dqModal").classList.remove("open"); openDetail(b.dataset.id,{fly:true}); }));
+}
+document.getElementById("dqLink").addEventListener("click",()=>{ renderDQ(); document.getElementById("dqModal").classList.add("open"); });
+document.getElementById("dqClose").addEventListener("click",()=>document.getElementById("dqModal").classList.remove("open"));
+document.getElementById("dqModal").addEventListener("click",e=>{ if(e.target.id==="dqModal") document.getElementById("dqModal").classList.remove("open"); });
+
+startApp();
+</script>
+</body>
+</html>

@@ -3,179 +3,212 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Doets Kennisdatabank — Admin Panel</title>
+  <title>Doets Reizen — Kennisdatabank</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Inter', -apple-system, sans-serif;
-      background: linear-gradient(135deg, #0D1F3C 0%, #1a3a5c 100%);
-      min-height: 100vh;
-      padding: 2rem;
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --navy: #0D1F3C;
+      --navy-soft: #1a3556;
+      --navy-deep: #06122a;
+      --gold: #C9A84C;
+      --gold-soft: #E2C875;
+      --gold-pale: #F4EBD0;
+      --gold-faint: #FAF5E5;
+      --cream: #FAF7F2;
+      --cream-dark: #F2EDE3;
+      --ink: #1A1A1A;
+      --ink-soft: #4A4A4A;
+      --ink-muted: #8B8B8B;
+      --line: #E8E2D5;
     }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Manrope', -apple-system, sans-serif;
+      background: var(--cream);
+      min-height: 100vh;
+      color: var(--ink);
+      font-weight: 400;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 15% 10%, rgba(201, 168, 76, 0.08) 0%, transparent 35%),
+        radial-gradient(circle at 85% 90%, rgba(13, 31, 60, 0.04) 0%, transparent 40%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(45deg, transparent 0, transparent 60px, rgba(201, 168, 76, 0.015) 60px, rgba(201, 168, 76, 0.015) 61px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrap { position: relative; z-index: 1; }
+
+    .topbar {
+      background: var(--navy);
+      color: #fff;
+      padding: 1.25rem 0;
+      position: relative;
       overflow: hidden;
     }
-    .header {
-      background: linear-gradient(135deg, #C9A84C 0%, #d4b55e 100%);
-      padding: 2rem;
-      color: white;
+
+    .topbar::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent 0%, var(--gold) 30%, var(--gold-soft) 50%, var(--gold) 70%, transparent 100%);
     }
-    .header h1 {
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
-    }
-    .header p {
-      opacity: 0.9;
-    }
-    .content {
-      padding: 2rem;
-    }
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-    .stat-card {
-      background: #f8f9fa;
-      padding: 1.5rem;
-      border-radius: 8px;
-      border-left: 4px solid #C9A84C;
-    }
-    .stat-label {
-      font-size: 0.875rem;
-      color: #6c757d;
-      margin-bottom: 0.5rem;
-    }
-    .stat-value {
-      font-size: 2rem;
-      font-weight: bold;
-      color: #0D1F3C;
-    }
-    .section {
-      margin-bottom: 2rem;
-    }
-    .section-title {
-      font-size: 1.25rem;
-      color: #0D1F3C;
-      margin-bottom: 1rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 2px solid #C9A84C;
-    }
-    .upload-area {
-      border: 2px dashed #C9A84C;
-      border-radius: 8px;
-      padding: 2rem;
-      text-align: center;
-      background: #fffbf0;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .upload-area:hover {
-      background: #fff4d6;
-      border-color: #b89638;
-    }
-    .upload-area.dragging {
-      background: #fff4d6;
-      border-color: #b89638;
-      transform: scale(1.02);
-    }
-    .upload-icon {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-    }
-    input[type="file"] {
-      display: none;
-    }
-    .btn {
-      background: #C9A84C;
-      color: white;
-      border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 6px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .btn:hover {
-      background: #b89638;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(201, 168, 76, 0.3);
-    }
-    .btn:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-      transform: none;
-    }
-    .log {
-      background: #f8f9fa;
-      border-radius: 8px;
-      padding: 1rem;
-      max-height: 400px;
-      overflow-y: auto;
-      font-family: 'Courier New', monospace;
-      font-size: 0.875rem;
-    }
-    .log-entry {
-      padding: 0.5rem;
-      border-bottom: 1px solid #e9ecef;
-    }
-    .log-entry:last-child {
-      border-bottom: none;
-    }
-    .log-entry.success {
-      color: #28a745;
-    }
-    .log-entry.error {
-      color: #dc3545;
-    }
-    .log-entry.info {
-      color: #17a2b8;
-    }
-    .test-search {
+
+    .topbar-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2.5rem;
       display: flex;
-      gap: 1rem;
-      margin-bottom: 1rem;
+      align-items: center;
+      justify-content: space-between;
     }
-    .test-search input {
-      flex: 1;
-      padding: 0.75rem;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 1rem;
+
+    .brand { display: flex; flex-direction: column; gap: 2px; }
+    .brand-mark { font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 500; letter-spacing: -0.01em; color: #fff; }
+    .brand-mark .accent { color: var(--gold); font-style: italic; }
+    .brand-tag { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+
+    .topbar-right { display: flex; align-items: center; gap: 1.5rem; }
+
+    .health { display: flex; align-items: center; gap: 0.5rem; font-size: 0.78rem; color: rgba(255,255,255,0.7); }
+    .health-dot { width: 8px; height: 8px; border-radius: 50%; background: #6FCF97; box-shadow: 0 0 0 0 rgba(111, 207, 151, 0.7); animation: glow 2.5s infinite; }
+
+    @keyframes glow {
+      0% { box-shadow: 0 0 0 0 rgba(111, 207, 151, 0.6); }
+      70% { box-shadow: 0 0 0 8px rgba(111, 207, 151, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(111, 207, 151, 0); }
     }
-    .search-results {
-      background: #f8f9fa;
-      border-radius: 8px;
-      padding: 1rem;
-      max-height: 300px;
-      overflow-y: auto;
+
+    .hero { max-width: 1200px; margin: 0 auto; padding: 4rem 2.5rem 2.5rem; }
+    .hero-eyebrow { display: inline-flex; align-items: center; gap: 0.6rem; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.25rem; animation: slideIn 0.6s ease both; }
+    .hero-eyebrow::before { content: ''; width: 28px; height: 1px; background: var(--gold); }
+    .hero h1 { font-family: 'Fraunces', serif; font-size: clamp(2.2rem, 4vw, 3.4rem); font-weight: 400; line-height: 1.1; color: var(--navy); letter-spacing: -0.02em; margin-bottom: 1rem; animation: slideIn 0.7s ease 0.1s both; }
+    .hero h1 em { font-style: italic; color: var(--gold); font-weight: 500; }
+    .hero p { font-size: 1rem; color: var(--ink-soft); max-width: 540px; animation: slideIn 0.7s ease 0.2s both; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 2.5rem 5rem; }
+
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; margin-bottom: 3rem; animation: fadeUp 0.7s ease 0.3s both; }
+    .stat { background: #fff; padding: 2rem; transition: background 0.3s; }
+    .stat:hover { background: var(--gold-faint); }
+    .stat-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 1rem; }
+    .stat-value { font-family: 'Fraunces', serif; font-size: 2.6rem; font-weight: 400; color: var(--navy); line-height: 1; letter-spacing: -0.02em; }
+    .stat-value.gold { color: var(--gold); font-style: italic; }
+    .stat-meta { font-size: 0.78rem; color: var(--ink-muted); margin-top: 0.5rem; }
+
+    .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+    .section-title { font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 500; color: var(--navy); letter-spacing: -0.01em; }
+    .section-line { flex: 1; height: 1px; background: var(--line); margin-left: 1.5rem; }
+    .section-line::after { content: ''; display: block; width: 12px; height: 12px; border: 1px solid var(--gold); transform: rotate(45deg); margin-top: -6px; margin-left: auto; background: var(--cream); }
+
+    .section { margin-bottom: 4rem; animation: fadeUp 0.6s ease both; }
+
+    .upload { background: #fff; border-radius: 16px; padding: 2.5rem; border: 1px solid var(--line); }
+    .upload-zone { border: 1.5px dashed var(--line); border-radius: 12px; padding: 3.5rem 2rem; text-align: center; cursor: pointer; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); background: var(--cream); position: relative; overflow: hidden; }
+    .upload-zone::before { content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0; border-radius: 50%; background: radial-gradient(circle, rgba(201, 168, 76, 0.15) 0%, transparent 70%); transform: translate(-50%, -50%); transition: all 0.5s; }
+    .upload-zone:hover::before, .upload-zone.dragging::before { width: 600px; height: 600px; }
+    .upload-zone:hover, .upload-zone.dragging { border-color: var(--gold); transform: translateY(-3px); }
+    .upload-icon-wrap { width: 72px; height: 72px; border-radius: 50%; background: #fff; border: 1.5px solid var(--gold); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; position: relative; z-index: 1; transition: all 0.4s; }
+    .upload-zone:hover .upload-icon-wrap { transform: translateY(-4px) scale(1.05); box-shadow: 0 12px 30px rgba(201, 168, 76, 0.25); }
+    .upload-icon { width: 26px; height: 26px; stroke: var(--navy); stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.3s; }
+    .upload-zone:hover .upload-icon { stroke: var(--gold); }
+    .upload-title { font-family: 'Fraunces', serif; font-size: 1.15rem; font-weight: 500; color: var(--navy); margin-bottom: 0.4rem; position: relative; z-index: 1; }
+    .upload-sub { font-size: 0.85rem; color: var(--ink-muted); position: relative; z-index: 1; }
+    input[type="file"] { display: none; }
+
+    .progress-wrap { display: none; margin-top: 1.5rem; padding: 1rem 1.25rem; background: var(--gold-faint); border-radius: 10px; border: 1px solid var(--gold-pale); }
+    .progress-wrap.visible { display: block; animation: fadeIn 0.3s ease; }
+    .progress-label { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 0.6rem; font-weight: 500; }
+    .progress-bar { height: 3px; background: var(--cream-dark); border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold) 0%, var(--gold-soft) 50%, var(--gold) 100%); background-size: 200% 100%; border-radius: 2px; width: 0%; transition: width 0.4s ease; animation: shimmer 1.5s linear infinite; }
+
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    .search-card { background: #fff; border-radius: 16px; padding: 2.5rem; border: 1px solid var(--line); }
+    .search-row { display: flex; gap: 0.75rem; }
+    .input { flex: 1; padding: 1rem 1.25rem; border: 1.5px solid var(--line); border-radius: 10px; font-size: 0.95rem; font-family: 'Manrope', sans-serif; color: var(--ink); background: var(--cream); transition: all 0.25s; outline: none; }
+    .input:focus { border-color: var(--gold); background: #fff; box-shadow: 0 0 0 4px rgba(201, 168, 76, 0.12); }
+    .input::placeholder { color: var(--ink-muted); }
+
+    .btn { padding: 0 1.75rem; border-radius: 10px; font-size: 0.9rem; font-weight: 600; font-family: 'Manrope', sans-serif; cursor: pointer; border: none; transition: all 0.25s; letter-spacing: 0.02em; display: inline-flex; align-items: center; gap: 0.5rem; height: 52px; }
+    .btn-primary { background: var(--navy); color: #fff; position: relative; overflow: hidden; }
+    .btn-primary::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(201, 168, 76, 0.3), transparent); transition: left 0.6s; }
+    .btn-primary:hover { background: var(--navy-soft); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(13, 31, 60, 0.25); }
+    .btn-primary:hover::before { left: 100%; }
+    .btn-danger { background: #B23A48; color: #fff; }
+    .btn-danger:hover { background: #8f2d39; transform: translateY(-1px); }
+
+    .results-wrap { display: none; margin-top: 1.5rem; }
+    .results-wrap.visible { display: block; animation: fadeIn 0.3s ease; }
+    .result-item { padding: 1.25rem; border-radius: 10px; border: 1px solid var(--line); margin-bottom: 0.75rem; transition: all 0.25s; background: var(--cream); }
+    .result-item:hover { border-color: var(--gold); transform: translateX(4px); background: #fff; }
+    .result-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+    .result-source { font-family: 'Fraunces', serif; font-size: 0.95rem; font-weight: 500; color: var(--navy); }
+    .result-score { font-size: 0.7rem; padding: 0.3rem 0.7rem; background: var(--navy); color: var(--gold); border-radius: 4px; font-weight: 600; letter-spacing: 0.05em; }
+    .result-text { font-size: 0.88rem; color: var(--ink-soft); line-height: 1.65; }
+
+    .log-card { background: #fff; border-radius: 16px; padding: 2rem 2.5rem; border: 1px solid var(--line); }
+    .log { max-height: 280px; overflow-y: auto; font-size: 0.82rem; }
+    .log::-webkit-scrollbar { width: 4px; }
+    .log::-webkit-scrollbar-track { background: var(--cream); }
+    .log::-webkit-scrollbar-thumb { background: var(--gold-pale); border-radius: 2px; }
+    .log-entry { padding: 0.55rem 0; border-bottom: 1px solid var(--line); display: flex; gap: 1rem; align-items: baseline; }
+    .log-entry:last-child { border-bottom: none; }
+    .log-time { color: var(--ink-muted); font-size: 0.72rem; white-space: nowrap; flex-shrink: 0; letter-spacing: 0.02em; }
+    .log-msg { color: var(--ink-soft); }
+    .log-msg.success { color: #2D6A4F; }
+    .log-msg.error { color: #B23A48; }
+    .log-msg.info { color: var(--navy); }
+    .log-msg::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 0.6rem; vertical-align: middle; background: currentColor; }
+
+    .footer { max-width: 1200px; margin: 0 auto; padding: 2rem 2.5rem; border-top: 1px solid var(--line); display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--ink-muted); }
+    .footer .ornament { color: var(--gold); font-style: italic; font-family: 'Fraunces', serif; }
+
+    .back-link {
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      color: rgba(255,255,255,0.6); text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.15); padding: 0.38rem 0.8rem; border-radius: 4px;
+      transition: all 0.2s;
     }
-    .search-result {
-      background: white;
-      padding: 1rem;
-      border-radius: 6px;
-      margin-bottom: 0.5rem;
-      border-left: 3px solid #C9A84C;
-    }
-    .result-score {
-      font-size: 0.75rem;
-      color: #6c757d;
-      margin-bottom: 0.5rem;
-    }
-    .result-source {
-      font-weight: bold;
-      color: #0D1F3C;
-      margin-bottom: 0.5rem;
-    }
-    .result-text {
-      font-size: 0.875rem;
-      color: #495057;
+    .back-link:hover { color: #fff; border-color: rgba(201,168,76,0.6); background: rgba(201,168,76,0.1); }
+
+    @keyframes slideIn { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .section:nth-of-type(1) { animation-delay: 0.4s; }
+    .section:nth-of-type(2) { animation-delay: 0.5s; }
+    .section:nth-of-type(3) { animation-delay: 0.6s; }
+
+    @media (max-width: 768px) {
+      .stats { grid-template-columns: 1fr; }
+      .topbar-inner, .hero, .container, .footer { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .upload, .search-card, .log-card { padding: 1.5rem; }
+      .upload-zone { padding: 2.5rem 1rem; }
     }
   </style>
 </head>
@@ -190,184 +223,516 @@
     </div>
     
     <div class="content">
+  <div class="wrap">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <div class="brand-mark">Doets <span class="accent">Reizen</span></div>
+          <div class="brand-tag">Kennisdatabank</div>
+        </div>
+        <div class="topbar-right">
+          <div class="health">
+            <span class="health-dot" id="health-dot"></span>
+            <span id="health-text">Verbinding actief</span>
+          </div>
+          <a href="/index.html" class="back-link">&#8592; Kennisdatabank</a>
+        </div>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-eyebrow">Beheerportaal</div>
+      <h1>Bouw aan de <em>kennis</em><br>van Doets Reizen</h1>
+      <p>Voeg documenten toe aan de databank en zorg dat de AI altijd antwoordt op basis van actuele, interne informatie.</p>
+    </section>
+
+    <main class="container">
       <div class="stats">
-        <div class="stat-card">
-          <div class="stat-label">Totaal Vectors</div>
-          <div class="stat-value" id="stat-vectors">-</div>
+        <div class="stat">
+          <div class="stat-label">Documenten</div>
+          <div class="stat-value gold" id="stat-vectors">—</div>
+          <div class="stat-meta">opgeslagen vectors</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Database Status</div>
-          <div class="stat-value" id="stat-status">-</div>
+        <div class="stat">
+          <div class="stat-label">Status</div>
+          <div class="stat-value" id="stat-status" style="font-size:1.5rem;padding-top:0.7rem;">—</div>
+          <div class="stat-meta">database verbinding</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Dimensies</div>
-          <div class="stat-value" id="stat-dimension">-</div>
-        </div>
-      </div>
-      
-      <div class="section">
-        <h2 class="section-title">📤 Document Uploaden</h2>
-        <div class="upload-area" id="upload-area" onclick="document.getElementById('file-input').click()">
-          <div class="upload-icon">📄</div>
-          <p><strong>Klik om een bestand te selecteren</strong></p>
-          <p style="font-size: 0.875rem; color: #6c757d; margin-top: 0.5rem;">
-            Of sleep een bestand hierheen<br>
-            Ondersteund: PDF, DOCX, TXT (max 10MB)
-          </p>
-          <input type="file" id="file-input" accept=".pdf,.docx,.txt" onchange="handleFileSelect(event)">
+        <div class="stat">
+          <div class="stat-label">Precisie</div>
+          <div class="stat-value" id="stat-dimension">—</div>
+          <div class="stat-meta">embedding dimensies</div>
         </div>
       </div>
-      
-      <div class="section">
-        <h2 class="section-title">🔍 Test Zoekfunctie</h2>
-        <div class="test-search">
-          <input type="text" id="search-query" placeholder="Zoek in de kennisdatabank..." onkeypress="if(event.key==='Enter') testSearch()">
-          <button class="btn" onclick="testSearch()">Zoeken</button>
+
+      <section class="section">
+        <div class="section-head">
+          <h2 class="section-title">Webpagina scrapen</h2>
+          <div class="section-line"></div>
         </div>
-        <div class="search-results" id="search-results" style="display: none;"></div>
-      </div>
-      
-      <div class="section">
-        <h2 class="section-title">📋 Activiteit Log</h2>
-        <div class="log" id="activity-log">
-          <div class="log-entry info">Wachten op activiteit...</div>
+        <div class="search-card">
+          <div class="search-row">
+            <input class="input" type="url" id="scrape-url" placeholder="https://www.doetsreizen.nl/reisblog/...">
+            <button class="btn btn-primary" id="scrape-btn" onclick="scrapeUrl()">Scrapen</button>
+          </div>
+          <div id="scrape-feedback" style="display:none;margin-top:1rem;padding:1rem;border-radius:8px;font-size:0.85rem;line-height:1.6;"></div>
+          <div style="margin-top:0.75rem;font-size:0.78rem;color:var(--ink-muted);">
+            Plak een URL van doetsreizen.nl. De tekst wordt automatisch opgehaald en opgeslagen in de kennisdatabank.
+          </div>
         </div>
-      </div>
-    </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <h2 class="section-title">Bulk scrapen via sitemap</h2>
+          <div class="section-line"></div>
+        </div>
+        <div class="search-card">
+          <div style="margin-bottom:1rem;font-size:0.82rem;color:var(--ink-muted);line-height:1.6;">
+            Upload een sitemap.xml om alle pagina's van doetsreizen.nl in één keer te importeren. Onnodige pagina's (team, blog, legal) worden automatisch overgeslagen.
+          </div>
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap;">
+            <label style="display:inline-flex;align-items:center;gap:0.5rem;background:var(--cream-dark);border:1.5px dashed var(--gold);border-radius:8px;padding:0.65rem 1.1rem;cursor:pointer;font-size:0.82rem;color:var(--navy);font-weight:600;transition:all .2s;" onmouseover="this.style.background='rgba(201,168,76,0.12)'" onmouseout="this.style.background='var(--cream-dark)'">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Kies sitemap.xml
+              <input type="file" id="sitemap-input" accept=".xml" onchange="loadSitemap(this)">
+            </label>
+            <span id="sitemap-preview" style="font-size:0.82rem;color:var(--ink-muted);"></span>
+          </div>
+          <div id="bulk-url-list" style="display:none;max-height:150px;overflow-y:auto;background:var(--cream);border:1px solid var(--line);border-radius:8px;padding:0.6rem 0.8rem;margin-bottom:1rem;font-size:0.72rem;font-family:monospace;color:#555;line-height:1.8;"></div>
+          <div style="display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap;">
+            <button class="btn btn-primary" id="bulk-start-btn" onclick="startBulkScrape()" style="display:none;">Start bulk scrapen</button>
+            <button class="btn btn-danger" id="bulk-stop-btn" onclick="stopBulkScrape()" style="display:none;">Stop</button>
+          </div>
+          <div id="bulk-progress-wrap" style="display:none;margin-top:1.25rem;padding:1rem 1.25rem;background:var(--gold-faint);border:1px solid var(--gold-pale);border-radius:10px;">
+            <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:var(--ink-soft);font-weight:500;margin-bottom:0.5rem;">
+              <span id="bulk-progress-label">Bezig...</span>
+              <span id="bulk-progress-pct">0%</span>
+            </div>
+            <div style="height:4px;background:var(--cream-dark);border-radius:2px;overflow:hidden;">
+              <div id="bulk-progress-bar" style="height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-soft));border-radius:2px;width:0%;transition:width .3s ease;"></div>
+            </div>
+            <div style="display:flex;gap:1.2rem;margin-top:0.65rem;font-size:0.75rem;">
+              <span style="color:#2D6A4F;">✓ <span id="bulk-ok">0</span> geslaagd</span>
+              <span style="color:#B23A48;">✗ <span id="bulk-err">0</span> mislukt</span>
+              <span style="color:var(--ink-muted);">van <span id="bulk-total">0</span> URLs</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <h2 class="section-title">Document toevoegen</h2>
+          <div class="section-line"></div>
+        </div>
+        <div class="upload">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-bottom:1rem;">
+            <div>
+              <label style="display:block;font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--navy);margin-bottom:0.35rem;">Document type *</label>
+              <select id="doc-type" style="width:100%;padding:0.55rem 0.7rem;border:1.5px solid var(--line);border-radius:3px;background:#fff;font-family:'Manrope',sans-serif;font-size:0.85rem;color:var(--ink);outline:none;">
+                <option value="">— Kies type —</option>
+                <option value="reis">Reis</option>
+                <option value="excursie">Excursie</option>
+                <option value="contract">Contract</option>
+                <option value="algemeen">Algemeen</option>
+              </select>
+            </div>
+            <div>
+              <label style="display:block;font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--navy);margin-bottom:0.35rem;">Bestemming (optioneel)</label>
+              <input id="doc-dest" type="text" placeholder="Bijv. Japan, Canada..." style="width:100%;padding:0.55rem 0.7rem;border:1.5px solid var(--line);border-radius:3px;background:#fff;font-family:'Manrope',sans-serif;font-size:0.85rem;color:var(--ink);outline:none;">
+            </div>
+          </div>
+          <div class="upload-zone" id="upload-area" onclick="document.getElementById('file-input').click()">
+            <div class="upload-icon-wrap">
+              <svg class="upload-icon" viewBox="0 0 24 24">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </div>
+            <div class="upload-title">Sleep een bestand hierheen</div>
+            <div class="upload-sub">of klik om te bladeren — PDF, DOCX of TXT — maximaal 10 MB</div>
+            <input type="file" id="file-input" accept=".pdf,.docx,.txt" onchange="handleFileSelect(event)">
+          </div>
+          <div class="progress-wrap" id="progress-wrap">
+            <div class="progress-label">
+              <span id="progress-text">Verwerken...</span>
+              <span id="progress-pct"></span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+          </div>
+          <div id="upload-feedback" style="display:none;margin-top:1.1rem;padding:1rem;border:1px solid var(--line);border-radius:3px;background:var(--cream-dark);font-size:0.82rem;line-height:1.6;"></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <h2 class="section-title">Zoekfunctie testen</h2>
+          <div class="section-line"></div>
+        </div>
+        <div class="search-card">
+          <div class="search-row">
+            <input class="input" type="text" id="search-query" placeholder="Stel een vraag aan de kennisdatabank..." onkeypress="if(event.key==='Enter') testSearch()">
+            <button class="btn btn-primary" onclick="testSearch()">Zoeken</button>
+          </div>
+          <div class="results-wrap" id="results-wrap"></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <h2 class="section-title">Activiteit</h2>
+          <div class="section-line"></div>
+        </div>
+        <div class="log-card">
+          <div class="log" id="activity-log">
+            <div class="log-entry"><span class="log-time">—</span><span class="log-msg info">Systeem gereed</span></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div>Doets Reizen <span class="ornament">·</span> Intern beheer</div>
+      <div>Versie 2.0</div>
+    </footer>
   </div>
-  
+
   <script>
-    const API_URL = window.location.origin;
-    
+    const API = window.location.origin;
     loadStats();
-    
+
     async function loadStats() {
       try {
-        const response = await fetch(`${API_URL}/api/stats`);
-        const data = await response.json();
-        
-        document.getElementById('stat-vectors').textContent = data.totalVectors || 0;
-        document.getElementById('stat-status').textContent = data.status || 'unknown';
-        document.getElementById('stat-dimension').textContent = data.dimension || '-';
-        
-        addLog('info', `Stats geladen: ${data.totalVectors} vectors`);
-      } catch (error) {
-        addLog('error', `Fout bij laden stats: ${error.message}`);
+        const res = await fetch(API + '/api/stats');
+        const data = await res.json();
+        document.getElementById('stat-vectors').textContent = data.totalVectors != null ? data.totalVectors : 0;
+        document.getElementById('stat-status').textContent = data.status === 'healthy' ? 'Gezond' : (data.status || '—');
+        document.getElementById('stat-dimension').textContent = data.dimension || '—';
+        document.getElementById('health-text').textContent = 'Verbinding actief';
+        log('info', 'Database geladen — ' + (data.totalVectors || 0) + ' vectors');
+      } catch (e) {
+        document.getElementById('health-text').textContent = 'Offline';
+        document.getElementById('health-dot').style.background = '#B23A48';
+        log('error', 'Verbindingsfout: ' + e.message);
       }
     }
-    
-    const uploadArea = document.getElementById('upload-area');
-    
-    uploadArea.addEventListener('dragover', (e) => {
+
+    var zone = document.getElementById('upload-area');
+    zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('dragging'); });
+    zone.addEventListener('dragleave', function() { zone.classList.remove('dragging'); });
+    zone.addEventListener('drop', function(e) {
       e.preventDefault();
-      uploadArea.classList.add('dragging');
+      zone.classList.remove('dragging');
+      if (e.dataTransfer.files[0]) uploadFile(e.dataTransfer.files[0]);
     });
-    
-    uploadArea.addEventListener('dragleave', () => {
-      uploadArea.classList.remove('dragging');
-    });
-    
-    uploadArea.addEventListener('drop', (e) => {
-      e.preventDefault();
-      uploadArea.classList.remove('dragging');
-      
-      const files = e.dataTransfer.files;
-      if (files.length > 0) {
-        uploadFile(files[0]);
-      }
-    });
-    
-    function handleFileSelect(event) {
-      const file = event.target.files[0];
-      if (file) {
-        uploadFile(file);
-      }
+
+    function handleFileSelect(e) {
+      if (e.target.files[0]) uploadFile(e.target.files[0]);
     }
-    
-    async function uploadFile(file) {
-      addLog('info', `Uploaden: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`);
-      
-      const formData = new FormData();
-      formData.append('file', file);
-      
-      try {
-        const response = await fetch(`${API_URL}/api/upload`, {
-          method: 'POST',
-          body: formData
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-          addLog('success', `✓ ${file.name} succesvol geüpload: ${data.chunks} chunks, ${data.vectors} vectors`);
-          loadStats();
-        } else {
-          addLog('error', `✗ Upload mislukt: ${data.error}`);
-        }
-      } catch (error) {
-        addLog('error', `✗ Upload fout: ${error.message}`);
-      }
-      
-      document.getElementById('file-input').value = '';
-    }
-    
-    async function testSearch() {
-      const query = document.getElementById('search-query').value.trim();
-      if (!query) return;
-      
-      addLog('info', `Zoeken naar: "${query}"`);
-      
-      try {
-        const response = await fetch(`${API_URL}/api/search`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query, topK: 5 })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-          displaySearchResults(data.results);
-          addLog('success', `✓ ${data.count} resultaten gevonden`);
-        } else {
-          addLog('error', `✗ Zoeken mislukt: ${data.error}`);
-        }
-      } catch (error) {
-        addLog('error', `✗ Zoek fout: ${error.message}`);
-      }
-    }
-    
-    function displaySearchResults(results) {
-      const container = document.getElementById('search-results');
-      
-      if (results.length === 0) {
-        container.innerHTML = '<p style="padding: 1rem; text-align: center; color: #6c757d;">Geen resultaten gevonden</p>';
-        container.style.display = 'block';
+
+    async function uploadFile(file, force) {
+      var docType = document.getElementById('doc-type').value;
+      var docDest = document.getElementById('doc-dest').value.trim();
+      if (!docType) {
+        alert('Kies eerst een document type.');
+        document.getElementById('doc-type').focus();
+        document.getElementById('file-input').value = '';
         return;
       }
-      
-      container.innerHTML = results.map(r => `
-        <div class="search-result">
-          <div class="result-score">Score: ${r.score.toFixed(4)}</div>
-          <div class="result-source">📄 ${r.documentName}</div>
-          <div class="result-text">${r.text}</div>
-        </div>
-      `).join('');
-      
-      container.style.display = 'block';
-    }
-    
-    function addLog(type, message) {
-      const log = document.getElementById('activity-log');
-      const timestamp = new Date().toLocaleTimeString('nl-NL');
-      const entry = document.createElement('div');
-      entry.className = `log-entry ${type}`;
-      entry.textContent = `[${timestamp}] ${message}`;
-      log.insertBefore(entry, log.firstChild);
-      
-      while (log.children.length > 50) {
-        log.removeChild(log.lastChild);
+
+      hideFeedback();
+      log('info', 'Uploaden: ' + file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB) — type: ' + docType);
+      showProgress('Bestand verwerken...');
+
+      var fd = new FormData();
+      fd.append('file', file);
+      fd.append('document_type', docType);
+      if (docDest) fd.append('bestemming', docDest);
+      if (force)   fd.append('force', 'true');
+
+      try {
+        animateProgress();
+        var res  = await fetch(API + '/api/upload', { method: 'POST', body: fd });
+        var data = await res.json();
+
+        if (res.status === 409 && data.similarTo) {
+          hideProgress();
+          log('error', 'Mogelijke duplicaat van "' + data.similarTo + '" (' + (data.score * 100).toFixed(1) + '%)');
+          if (confirm('Dit document lijkt sterk op "' + data.similarTo + '" (' + (data.score * 100).toFixed(1) + '% overeenkomst).\n\nToch uploaden?')) {
+            return uploadFile(file, true);
+          }
+          document.getElementById('file-input').value = '';
+          return;
+        }
+
+        if (!res.ok) {
+          hideProgress();
+          showFeedback({ error: data.error || 'Upload mislukt' });
+          log('error', 'Upload mislukt: ' + data.error);
+          document.getElementById('file-input').value = '';
+          return;
+        }
+
+        setProgress(100, 'Voltooid');
+        log('success', file.name + ' v' + data.version + ' — ' + data.chunks + ' chunks, ' + data.vectors + ' vectors');
+        showFeedback(data);
+        setTimeout(function() { hideProgress(); loadStats(); }, 1200);
+      } catch (e) {
+        hideProgress();
+        log('error', 'Fout: ' + e.message);
+        showFeedback({ error: e.message });
       }
+      document.getElementById('file-input').value = '';
+    }
+
+    function showFeedback(data) {
+      var box = document.getElementById('upload-feedback');
+      if (data.error) {
+        box.style.borderColor = '#B23A48';
+        box.style.background  = '#fff5f5';
+        box.innerHTML = '<strong style="color:#B23A48;">Fout:</strong> ' + escapeHtml(data.error);
+        box.style.display = 'block';
+        return;
+      }
+
+      var sf     = data.structuredFields || {};
+      var sfList = Object.keys(sf).length
+        ? Object.entries(sf).map(function(e) { return '<div><strong>' + e[0] + ':</strong> ' + escapeHtml(String(e[1]).slice(0, 120)) + (String(e[1]).length > 120 ? '…' : '') + '</div>'; }).join('')
+        : '<em style="color:var(--ink-muted);">Geen structuurvelden</em>';
+
+      var missingHtml  = (data.missingFields || []).length
+        ? '<div style="margin-top:0.4rem;color:#B2863A;"><strong>Ontbrekend:</strong> ' + data.missingFields.join(', ') + '</div>'
+        : '';
+
+      var warningsHtml = (data.warnings || []).length
+        ? '<div style="margin-top:0.6rem;"><strong style="color:#B2863A;">Waarschuwingen:</strong><ul style="margin:0.3rem 0 0 1.2rem;">' + data.warnings.map(function(w) { return '<li>' + escapeHtml(w) + '</li>'; }).join('') + '</ul></div>'
+        : '';
+
+      var priorityLabel = { 1: 'LAAG', 2: 'MEDIUM', 3: 'HOOG' }[data.priority] || '—';
+
+      box.style.borderColor = 'var(--gold)';
+      box.style.background  = 'var(--gold-faint)';
+      box.innerHTML =
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem 1.4rem;">' +
+          '<div><strong>Bestand:</strong> ' + escapeHtml(data.filename) + '</div>' +
+          '<div><strong>Type:</strong> ' + escapeHtml(data.documentType) + '</div>' +
+          '<div><strong>Versie:</strong> v' + data.version + (data.previousVersionsDeactivated ? ' (' + data.previousVersionsDeactivated + ' oude vectors gedeactiveerd)' : '') + '</div>' +
+          '<div><strong>Prioriteit:</strong> ' + priorityLabel + '</div>' +
+          '<div><strong>Bestemming:</strong> ' + escapeHtml(data.bestemming || '—') + '</div>' +
+          '<div><strong>Chunks / vectors:</strong> ' + data.chunks + ' / ' + data.vectors + '</div>' +
+        '</div>' +
+        '<div style="margin-top:0.9rem;"><strong>Structuurvelden:</strong><div style="margin-top:0.3rem;padding-left:0.4rem;border-left:2px solid var(--gold);">' + sfList + '</div></div>' +
+        missingHtml + warningsHtml;
+      box.style.display = 'block';
+    }
+
+    function hideFeedback() {
+      var box = document.getElementById('upload-feedback');
+      if (box) box.style.display = 'none';
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    var progressInterval;
+    function showProgress(text) {
+      document.getElementById('progress-wrap').classList.add('visible');
+      document.getElementById('progress-text').textContent = text;
+      document.getElementById('progress-pct').textContent = '0%';
+      setProgress(0);
+    }
+
+    function animateProgress() {
+      var pct = 0;
+      progressInterval = setInterval(function() {
+        pct = Math.min(pct + Math.random() * 6, 85);
+        setProgress(pct);
+      }, 350);
+    }
+
+    function setProgress(pct, label) {
+      clearInterval(progressInterval);
+      document.getElementById('progress-fill').style.width = pct + '%';
+      document.getElementById('progress-pct').textContent = Math.round(pct) + '%';
+      if (label) document.getElementById('progress-text').textContent = label;
+    }
+
+    function hideProgress() {
+      clearInterval(progressInterval);
+      document.getElementById('progress-wrap').classList.remove('visible');
+      setProgress(0);
+    }
+
+    async function testSearch() {
+      var q = document.getElementById('search-query').value.trim();
+      if (!q) return;
+      log('info', 'Zoeken: "' + q + '"');
+      try {
+        var res  = await fetch(API + '/api/search', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: q, topK: 5 }) });
+        var data = await res.json();
+        var wrap = document.getElementById('results-wrap');
+        wrap.classList.add('visible');
+        if (!data.results || data.results.length === 0) {
+          wrap.innerHTML = '<p style="text-align:center;color:var(--ink-muted);padding:1.5rem;font-size:0.9rem;">Geen resultaten gevonden</p>';
+          return;
+        }
+        wrap.innerHTML = data.results.map(function(r) {
+          return '<div class="result-item"><div class="result-meta"><span class="result-source">' + escapeHtml(r.documentName) + '</span><span class="result-score">' + (r.score * 100).toFixed(1) + '% MATCH</span></div><div class="result-text">' + escapeHtml(r.text) + '</div></div>';
+        }).join('');
+        log('success', data.count + ' resultaten gevonden voor "' + q + '"');
+      } catch (e) {
+        log('error', 'Zoekfout: ' + e.message);
+      }
+    }
+
+    async function scrapeUrl() {
+      var url = document.getElementById('scrape-url').value.trim();
+      if (!url) return;
+      var btn = document.getElementById('scrape-btn');
+      var fb  = document.getElementById('scrape-feedback');
+
+      btn.disabled = true;
+      btn.textContent = 'Bezig...';
+      fb.style.display = 'none';
+      log('info', 'Scrapen: ' + url);
+
+      try {
+        var res  = await fetch(API + '/api/scrape-url', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: url })
+        });
+        var data = await res.json();
+
+        if (!res.ok) {
+          fb.style.cssText = 'display:block;margin-top:1rem;padding:1rem;border-radius:8px;font-size:0.85rem;line-height:1.6;background:#fff5f5;border:1px solid #B23A48;color:#B23A48;';
+          fb.innerHTML = '<strong>Fout:</strong> ' + escapeHtml(data.error || 'Onbekende fout');
+          log('error', 'Scrapen mislukt: ' + data.error);
+        } else {
+          fb.style.cssText = 'display:block;margin-top:1rem;padding:1rem;border-radius:8px;font-size:0.85rem;line-height:1.6;background:var(--gold-faint);border:1px solid var(--gold-pale);';
+          fb.innerHTML =
+            '<strong>Geslaagd!</strong><br>' +
+            'Titel: ' + escapeHtml(data.title || '') + '<br>' +
+            'Type: ' + escapeHtml(data.documentType || '') + ' &nbsp;|&nbsp; Versie: v' + data.version + '<br>' +
+            'Chunks: ' + data.chunks + ' &nbsp;|&nbsp; Vectors: ' + data.vectors + ' &nbsp;|&nbsp; Tekens: ' + data.textLength + '<br>' +
+            'Methode: ' + escapeHtml(data.extractSource || '-');
+          log('success', 'Gescrapet: ' + data.title + ' — ' + data.chunks + ' chunks');
+          loadStats();
+          document.getElementById('scrape-url').value = '';
+        }
+      } catch (e) {
+        fb.style.cssText = 'display:block;margin-top:1rem;padding:1rem;border-radius:8px;font-size:0.85rem;background:#fff5f5;border:1px solid #B23A48;color:#B23A48;';
+        fb.innerHTML = '<strong>Fout:</strong> ' + escapeHtml(e.message);
+        log('error', 'Scrapen fout: ' + e.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Scrapen';
+      }
+    }
+
+    // BULK SCRAPE
+    var EXCLUDE_PATTERNS = [
+      '/team/', '/reisblog/', '/vacature', '/stage-bij',
+      '/cookiebeleid', '/privacy-policy', '/disclaimer', '/copyright',
+      '/campertool/', '/doets-digi-date', '/plan-een-afspraak', '/afspraak-maken',
+      '/reisalert', '/co2-meter', '/maak-kennis-met-bob', '/pacific-wild',
+      '/samenwerking-met-milieu', '/wk-experience', '/offerte-op-maat',
+      '/geef-een-cadeaubon', '/reisoverzicht/', '/boek-go-doets-deals',
+      '/vacature-reisspecialist', '/doets-digi-date'
+    ];
+
+    var bulkUrls = [];
+    var bulkRunning = false;
+    var bulkStop = false;
+
+    function loadSitemap(input) {
+      var file = input.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var parser = new DOMParser();
+        var xml = parser.parseFromString(e.target.result, 'text/xml');
+        var locs = Array.from(xml.querySelectorAll('loc')).map(function(el) { return el.textContent.trim(); });
+        bulkUrls = locs.filter(function(url) {
+          return !EXCLUDE_PATTERNS.some(function(p) { return url.includes(p); });
+        });
+        var skipped = locs.length - bulkUrls.length;
+        document.getElementById('sitemap-preview').textContent =
+          locs.length + ' URLs gevonden — ' + bulkUrls.length + ' nuttig, ' + skipped + ' overgeslagen';
+        var listEl = document.getElementById('bulk-url-list');
+        listEl.innerHTML = bulkUrls.map(function(u) { return '<div>' + escapeHtml(u) + '</div>'; }).join('');
+        listEl.style.display = 'block';
+        document.getElementById('bulk-total').textContent = bulkUrls.length;
+        document.getElementById('bulk-start-btn').style.display = 'inline-flex';
+      };
+      reader.readAsText(file);
+    }
+
+    async function startBulkScrape() {
+      if (bulkRunning || !bulkUrls.length) return;
+      bulkRunning = true;
+      bulkStop = false;
+      document.getElementById('bulk-start-btn').style.display = 'none';
+      document.getElementById('bulk-stop-btn').style.display = 'inline-flex';
+      document.getElementById('bulk-progress-wrap').style.display = 'block';
+      var ok = 0, err = 0;
+      var token = localStorage.getItem('doets_token') || '';
+      for (var i = 0; i < bulkUrls.length; i++) {
+        if (bulkStop) break;
+        var url = bulkUrls[i];
+        var pct = Math.round((i / bulkUrls.length) * 100);
+        document.getElementById('bulk-progress-bar').style.width = pct + '%';
+        document.getElementById('bulk-progress-pct').textContent = pct + '%';
+        document.getElementById('bulk-progress-label').textContent = (i + 1) + '/' + bulkUrls.length + ' — ' + url.replace('https://www.doetsreizen.nl', '');
+        try {
+          var res = await fetch(API + '/api/scrape-url', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body: JSON.stringify({ url: url })
+          });
+          var data = await res.json();
+          if (res.ok) {
+            ok++;
+            log('success', url.replace('https://www.doetsreizen.nl', '') + ' — ' + data.chunks + ' chunks');
+          } else {
+            err++;
+            log('error', url.replace('https://www.doetsreizen.nl', '') + ' mislukt: ' + (data.error || res.status));
+          }
+        } catch(e) {
+          err++;
+          log('error', url.replace('https://www.doetsreizen.nl', '') + ' fout: ' + e.message);
+        }
+        document.getElementById('bulk-ok').textContent = ok;
+        document.getElementById('bulk-err').textContent = err;
+        await new Promise(function(r) { setTimeout(r, 400); });
+      }
+      bulkRunning = false;
+      document.getElementById('bulk-progress-bar').style.width = '100%';
+      document.getElementById('bulk-progress-pct').textContent = '100%';
+      document.getElementById('bulk-stop-btn').style.display = 'none';
+      document.getElementById('bulk-start-btn').style.display = 'inline-flex';
+      document.getElementById('bulk-start-btn').textContent = 'Opnieuw scrapen';
+      document.getElementById('bulk-progress-label').textContent = (bulkStop ? 'Gestopt. ' : 'Klaar! ') + ok + ' geslaagd, ' + err + ' mislukt.';
+      log('info', 'Bulk scrape klaar: ' + ok + ' geslaagd, ' + err + ' mislukt van ' + bulkUrls.length + ' URLs.');
+      loadStats();
+    }
+
+    function stopBulkScrape() {
+      bulkStop = true;
+      document.getElementById('bulk-progress-label').textContent = 'Stoppen na huidige URL...';
+    }
+
+    function log(type, msg) {
+      var container = document.getElementById('activity-log');
+      var time = new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      var entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.innerHTML = '<span class="log-time">' + time + '</span><span class="log-msg ' + type + '">' + escapeHtml(msg) + '</span>';
+      container.insertBefore(entry, container.firstChild);
+      while (container.children.length > 60) container.removeChild(container.lastChild);
     }
   </script>
 </body>

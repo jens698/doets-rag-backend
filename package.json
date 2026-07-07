@@ -8,6 +8,7 @@
     "mammoth": "^1.6.0",
     "openai": "^4.0.0",
     "pdf-parse": "^1.1.1",
-    "formidable": "^3.5.1"
+    "formidable": "^3.5.1",
+    "cheerio": "^1.0.0"
   }
 }

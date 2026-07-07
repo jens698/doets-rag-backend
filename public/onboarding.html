@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Onboarding — Doets AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    :root {
+      --bg:         #F7F4EE;
+      --panel:      #FFFFFF;
+      --sidebar-bg: #0A1628;
+      --sidebar-2:  #0F1F38;
+      --ink:        #111827;
+      --ink-soft:   #4B5563;
+      --ink-mute:   #9CA3AF;
+      --navy:       #0A1628;
+      --gold:       #B8962E;
+      --gold-soft:  #D4B44A;
+      --gold-pale:  #FBF5E6;
+      --rule:       #E5E1D8;
+      --danger:     #B91C1C;
+      --warn:       #C2410C;
+      --warn-bg:    #FEF3E7;
+      --admin:      #7C3AED;
+      --admin-bg:   #F3EDFF;
+    }
+
+    html, body { height:100%; }
+    body {
+      font-family:'Manrope', sans-serif;
+      background:var(--bg);
+      color:var(--ink);
+      display:flex;
+      min-height:100vh;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width:280px;
+      background:var(--sidebar-bg);
+      color:#E6E9EF;
+      display:flex;
+      flex-direction:column;
+      padding:32px 24px;
+      border-right:1px solid rgba(255,255,255,0.06);
+      position:sticky;
+      top:0;
+      max-height:100vh;
+      overflow-y:auto;
+    }
+    .brand {
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      padding-bottom:20px;
+      border-bottom:1px solid rgba(255,255,255,0.08);
+      margin-bottom:20px;
+    }
+    .brand-name {
+      font-family:'Fraunces', serif;
+      font-size:22px;
+      font-weight:500;
+      color:#fff;
+    }
+    .brand-tag {
+      font-size:11px;
+      letter-spacing:0.2em;
+      text-transform:uppercase;
+      color:var(--gold-soft);
+    }
+    .back-link {
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:12px;
+      color:rgba(255,255,255,0.55);
+      text-decoration:none;
+      margin-bottom:24px;
+      padding:8px 0;
+      border-bottom:1px solid rgba(255,255,255,0.08);
+      transition:color 0.15s;
+    }
+    .back-link:hover { color:#fff; }
+
+    .nav-label {
+      font-size:11px;
+      letter-spacing:0.18em;
+      text-transform:uppercase;
+      color:rgba(255,255,255,0.4);
+      margin-bottom:12px;
+    }
+    .nav {
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      margin-bottom:24px;
+    }
+    .nav a {
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:9px 12px;
+      color:rgba(255,255,255,0.85);
+      text-decoration:none;
+      font-size:13px;
+      border-left:2px solid transparent;
+      cursor:pointer;
+    }
+    .nav a:hover { background:rgba(255,255,255,0.04); }
+    .nav a.active {
+      background:rgba(184,150,46,0.1);
+      border-left-color:var(--gold);
+      color:#fff;
+    }
+
+    .progress-block {
+      margin-top:auto;
+      padding-top:20px;
+      border-top:1px solid rgba(255,255,255,0.08);
+    }
+    .progress-label {
+      font-size:11px;
+      letter-spacing:0.18em;
+      text-transform:uppercase;
+      color:rgba(255,255,255,0.4);
+      margin-bottom:10px;
+      display:flex;
+      justify-content:space-between;
+    }
+    .progress-bar {
+      height:6px;
+      background:rgba(255,255,255,0.08);
+      overflow:hidden;
+    }
+    .progress-fill {
+      height:100%;
+      background:var(--gold);
+      transition:width 0.4s;
+    }
+
+    /* ── MAIN ── */
+    .main {
+      flex:1;
+      overflow-y:auto;
+    }
+
+    /* Topbar */
+    .topbar {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:16px 40px;
+      background:var(--sidebar-bg);
+      color:#fff;
+      border-bottom:2px solid var(--gold);
+    }
+    .topbar-title {
+      font-family:'Fraunces', serif;
+      font-size:18px;
+      font-weight:500;
+    }
+    .topbar-btn {
+      background:transparent;
+      color:rgba(255,255,255,0.75);
+      border:1px solid rgba(255,255,255,0.15);
+      padding:8px 14px;
+      font:inherit;
+      font-size:12px;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      cursor:pointer;
+    }
+    .topbar-btn:hover { color:#fff; border-color:rgba(255,255,255,0.3); }
+    .topbar-btn.admin-on {
+      background:var(--admin);
+      border-color:var(--admin);
+      color:#fff;
+    }
+
+    .content { padding:48px 56px; max-width:1100px; margin:0 auto; }
+
+    /* Home view */
+    .home-eyebrow { font-size:12px; letter-spacing:0.22em; text-transform:uppercase; color:var(--gold); margin-bottom:10px; }
+    .home-title { font-family:'Fraunces', serif; font-size:38px; font-weight:400; line-height:1.15; margin-bottom:12px; }
+    .home-sub { font-size:15px; color:var(--ink-soft); max-width:640px; line-height:1.6; margin-bottom:36px; }
+
+    .dept-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));
+      gap:20px;
+    }
+    .dept-card {
+      background:var(--panel);
+      border:1px solid var(--rule);
+      padding:26px;
+      cursor:pointer;
+      transition:border-color 0.15s, transform 0.15s;
+      position:relative;
+    }
+    .dept-card:hover { border-color:var(--navy); transform:translateY(-2px); }
+    .dept-name {
+      font-family:'Fraunces', serif;
+      font-size:22px;
+      font-weight:500;
+      color:var(--navy);
+      margin-bottom:8px;
+    }
+    .dept-desc { font-size:13px; color:var(--ink-soft); line-height:1.55; margin-bottom:18px; }
+    .dept-meta { display:flex; justify-content:space-between; align-items:center; }
+    .dept-count { font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-mute); }
+    .dept-progress-wrap { flex:1; height:4px; background:var(--rule); margin:0 12px; overflow:hidden; }
+    .dept-progress-fill { height:100%; background:var(--gold); transition:width 0.4s; }
+    .dept-progress-pct { font-size:12px; color:var(--navy); font-weight:600; min-width:36px; text-align:right; }
+
+    /* Department view */
+    .breadcrumb { font-size:12px; letter-spacing:0.16em; text-transform:uppercase; color:var(--ink-mute); margin-bottom:14px; }
+    .breadcrumb a { color:var(--gold); text-decoration:none; cursor:pointer; }
+    .dept-header { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; margin-bottom:36px; }
+    .mod-list { display:flex; flex-direction:column; gap:14px; }
+    .mod-card {
+      background:var(--panel);
+      border:1px solid var(--rule);
+      padding:22px 24px;
+      display:flex;
+      gap:20px;
+      align-items:flex-start;
+      cursor:pointer;
+      transition:border-color 0.15s;
+    }
+    .mod-card:hover { border-color:var(--navy); }
+    .mod-num {
+      width:44px; height:44px;
+      background:var(--sidebar-bg);
+      color:var(--gold-soft);
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Fraunces', serif; font-size:18px; font-weight:500;
+      flex-shrink:0;
+    }
+    .mod-info { flex:1; }
+    .mod-badge { font-size:10px; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold); font-weight:600; margin-bottom:6px; }
+    .mod-title { font-family:'Fraunces', serif; font-size:20px; font-weight:500; color:var(--navy); margin-bottom:4px; }
+    .mod-desc { font-size:13px; color:var(--ink-soft); line-height:1.5; }
+    .mod-meta { display:flex; align-items:center; gap:16px; margin-top:12px; font-size:12px; color:var(--ink-mute); }
+    .mod-done {
+      background:var(--gold);
+      color:#fff;
+      font-size:10px; letter-spacing:0.14em; text-transform:uppercase;
+      padding:3px 8px; font-weight:600;
+    }
+
+    /* Module view */
+    .mod-intro { background:var(--panel); border:1px solid var(--rule); padding:32px 36px; margin-bottom:28px; }
+    .mod-intro .mod-badge { color:var(--gold); }
+    .mod-intro h1 { font-family:'Fraunces', serif; font-size:32px; font-weight:400; margin-bottom:10px; line-height:1.15; color:var(--navy); }
+    .mod-intro p { font-size:15px; color:var(--ink-soft); line-height:1.65; margin-bottom:16px; }
+    .mod-intro-meta { display:flex; gap:22px; font-size:12px; color:var(--ink-mute); text-transform:uppercase; letter-spacing:0.14em; }
+
+    /* Steps */
+    .step {
+      display:flex;
+      background:var(--panel);
+      border:1px solid var(--rule);
+      margin-bottom:16px;
+    }
+    .step-num-col {
+      width:70px;
+      background:var(--sidebar-bg);
+      color:var(--gold-soft);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      padding:24px 8px;
+      font-family:'Fraunces', serif;
+      font-size:22px;
+      font-weight:500;
+      flex-shrink:0;
+    }
+    .step-num-col .check {
+      margin-top:16px;
+      width:22px; height:22px;
+      border:1px solid rgba(255,255,255,0.3);
+      cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      color:transparent;
+      font-weight:700;
+      font-family:'Manrope', sans-serif;
+      font-size:14px;
+    }
+    .step-num-col .check.on { background:var(--gold); border-color:var(--gold); color:#0A1628; }
+    .step-body { flex:1; padding:26px 32px; }
+    .step-title { font-family:'Fraunces', serif; font-size:22px; color:var(--navy); font-weight:500; }
+    .step-subtitle { font-size:13px; color:var(--ink-mute); margin-bottom:14px; letter-spacing:0.06em; }
+    .step-explanation { font-size:14px; color:var(--ink-soft); line-height:1.65; margin-bottom:18px; }
+
+    .substeps { display:flex; flex-direction:column; gap:12px; margin-bottom:18px; }
+    .substep {
+      display:flex; gap:14px;
+      padding:12px 14px;
+      background:#FBFAF6;
+      border-left:2px solid var(--gold);
+    }
+    .substep-num {
+      font-family:'Fraunces', serif; color:var(--gold); font-weight:500;
+      font-size:16px; min-width:20px;
+    }
+    .substep-body { font-size:13px; color:var(--ink); line-height:1.55; }
+    .substep-action { font-weight:600; color:var(--navy); }
+    .substep-detail { color:var(--ink-soft); margin-top:2px; }
+    .substep-tip { color:var(--ink-mute); font-style:italic; margin-top:4px; font-size:12px; }
+
+    .box-tip, .box-warn {
+      padding:12px 16px;
+      margin-bottom:16px;
+      font-size:13px;
+      line-height:1.55;
+    }
+    .box-tip { background:var(--gold-pale); border-left:3px solid var(--gold); color:#5a4610; }
+    .box-warn { background:var(--warn-bg); border-left:3px solid var(--warn); color:#8a2e0a; }
+    .box-tip b, .box-warn b { display:block; font-size:11px; letter-spacing:0.16em; text-transform:uppercase; margin-bottom:4px; }
+
+    .shot-block { border:1px dashed var(--rule); padding:16px; margin-bottom:16px; background:#FCFBF7; }
+    .shot-label { font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:var(--ink-mute); margin-bottom:8px; }
+    .shot-upload {
+      display:inline-block;
+      padding:8px 12px;
+      background:var(--navy);
+      color:#fff;
+      font-size:12px;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+      cursor:pointer;
+    }
+    .shot-upload input { display:none; }
+    .shot-img { display:block; width:100%; margin-top:12px; cursor:zoom-in; }
+
+    .video-block { border:1px solid var(--rule); margin-bottom:16px; }
+    .video-toggle {
+      padding:12px 16px; cursor:pointer;
+      display:flex; justify-content:space-between; align-items:center;
+      font-size:13px; color:var(--ink); font-weight:500;
+      background:#FCFBF7;
+    }
+    .video-content { padding:14px 16px; display:none; }
+    .video-content.open { display:block; }
+    .video-content input {
+      width:100%; padding:8px 10px; font:inherit; font-size:13px;
+      border:1px solid var(--rule); background:#fff;
+    }
+    .video-embed { margin-top:12px; }
+    .video-embed iframe { width:100%; height:320px; border:none; }
+
+    /* Quiz */
+    .quiz {
+      background:var(--panel);
+      border:1px solid var(--rule);
+      padding:32px;
+      margin-bottom:16px;
+      border-top:3px solid var(--gold);
+    }
+    .quiz-label { font-size:11px; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold); margin-bottom:10px; }
+    .quiz-q { font-family:'Fraunces', serif; font-size:22px; color:var(--navy); font-weight:500; margin-bottom:20px; line-height:1.3; }
+    .quiz-opts { display:flex; flex-direction:column; gap:10px; }
+    .quiz-opt {
+      padding:12px 16px;
+      border:1px solid var(--rule);
+      background:#FBFAF6;
+      cursor:pointer;
+      font-size:14px;
+    }
+    .quiz-opt:hover { border-color:var(--navy); }
+    .quiz-opt.correct { background:#E7F6EC; border-color:#2E7D32; color:#1B5E20; }
+    .quiz-opt.wrong { background:#FBE9EA; border-color:#C62828; color:#7F1D1D; }
+    .quiz-feedback { margin-top:14px; padding:12px 16px; background:var(--gold-pale); font-size:13px; color:#5a4610; display:none; }
+    .quiz-feedback.show { display:block; }
+
+    /* Module footer */
+    .mod-footer {
+      background:var(--panel);
+      border:1px solid var(--rule);
+      padding:24px 32px;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:20px;
+    }
+    .mod-footer-prog { flex:1; }
+    .mod-footer-label { font-size:12px; color:var(--ink-mute); margin-bottom:6px; }
+    .mod-footer-bar { height:6px; background:var(--rule); overflow:hidden; max-width:400px; }
+    .mod-footer-fill { height:100%; background:var(--gold); transition:width 0.4s; }
+    .btn-done {
+      background:var(--navy); color:#fff;
+      padding:12px 22px;
+      font:inherit; font-size:12px; letter-spacing:0.14em; text-transform:uppercase;
+      border:none; cursor:pointer; font-weight:600;
+    }
+    .btn-done:hover { background:#0F1F38; }
+    .btn-done.done { background:var(--gold); color:#0A1628; }
+
+    /* Admin mode */
+    .admin-badge {
+      position:fixed;
+      top:12px; right:16px;
+      background:var(--admin);
+      color:#fff;
+      padding:6px 12px;
+      font-size:11px; letter-spacing:0.14em; text-transform:uppercase; font-weight:600;
+      z-index:50;
+      display:none;
+    }
+    body.admin .admin-badge { display:block; }
+    .admin-only { display:none; }
+    body.admin .admin-only { display:block; }
+    body.admin .admin-only-inline { display:inline-block; }
+    .btn-admin {
+      background:var(--admin); color:#fff;
+      padding:8px 14px;
+      font:inherit; font-size:12px; letter-spacing:0.1em; text-transform:uppercase;
+      border:none; cursor:pointer; font-weight:600;
+    }
+    .btn-admin.outline { background:transparent; color:var(--admin); border:1px solid var(--admin); }
+    .btn-admin.danger { background:var(--danger); }
+    .admin-tools { display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
+
+    .editable {
+      cursor:text;
+    }
+    body.admin .editable:hover {
+      outline:1px dashed var(--admin);
+      background:var(--admin-bg);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position:fixed; inset:0;
+      background:rgba(10,22,40,0.6);
+      display:none; align-items:center; justify-content:center;
+      z-index:200; padding:24px;
+    }
+    .modal-overlay.show { display:flex; }
+    .modal {
+      background:var(--panel);
+      max-width:640px; width:100%;
+      max-height:90vh; overflow-y:auto;
+      border-top:4px solid var(--gold);
+      padding:32px;
+    }
+    .modal h3 { font-family:'Fraunces', serif; font-size:22px; color:var(--navy); margin-bottom:12px; font-weight:500; }
+    .modal p { font-size:14px; color:var(--ink-soft); margin-bottom:16px; line-height:1.5; }
+    .modal input, .modal textarea, .modal select {
+      width:100%; padding:10px 12px;
+      border:1px solid var(--rule); background:#FBFAF6;
+      font:inherit; font-size:14px; margin-bottom:12px;
+    }
+    .modal textarea { min-height:120px; resize:vertical; }
+    .modal-actions { display:flex; gap:10px; justify-content:flex-end; }
+    .modal-actions button {
+      padding:10px 18px;
+      font:inherit; font-size:12px; letter-spacing:0.1em; text-transform:uppercase;
+      cursor:pointer; border:none; font-weight:600;
+    }
+    .modal-cancel { background:transparent; color:var(--ink-soft); border:1px solid var(--rule) !important; }
+    .modal-submit { background:var(--navy); color:#fff; }
+    .modal-submit.admin { background:var(--admin); }
+
+    /* Zoom overlay */
+    .zoom-overlay {
+      position:fixed; inset:0;
+      background:rgba(0,0,0,0.9);
+      display:none; align-items:center; justify-content:center;
+      z-index:300; cursor:zoom-out;
+    }
+    .zoom-overlay.show { display:flex; }
+    .zoom-overlay img { max-width:95vw; max-height:95vh; }
+
+    /* AI generator button */
+    .ai-gen-wrap { margin-bottom:24px; }
+    .ai-gen-btn {
+      background:var(--admin);
+      color:#fff;
+      padding:14px 24px;
+      font:inherit; font-size:13px; letter-spacing:0.1em; text-transform:uppercase; font-weight:600;
+      border:none; cursor:pointer;
+    }
+
+    /* Notification */
+    .notif {
+      position:fixed;
+      bottom:20px; left:50%;
+      transform:translateX(-50%) translateY(200%);
+      background:var(--navy); color:#fff;
+      padding:14px 22px;
+      font-size:13px;
+      z-index:250;
+      transition:transform 0.3s;
+      max-width:90vw;
+    }
+    .notif.show { transform:translateX(-50%) translateY(0); }
+
+    @media (max-width: 900px) {
+      body { flex-direction:column; }
+      .sidebar { width:100%; position:relative; max-height:none; }
+      .content { padding:32px 24px; }
+      .step { flex-direction:column; }
+      .step-num-col { width:100%; flex-direction:row; padding:14px; justify-content:space-between; }
+      .step-num-col .check { margin-top:0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="admin-badge">Beheermodus actief</div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-name">Doets AI</div>
+      <div class="brand-tag">Onboarding</div>
+    </div>
+    <a class="back-link" href="/dashboard.html">← Terug naar dashboard</a>
+
+    <div class="nav-label">Afdelingen</div>
+    <nav class="nav" id="deptNav"></nav>
+
+    <div class="progress-block">
+      <div class="progress-label"><span>Voortgang</span><span id="totalPct">0%</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="totalFill" style="width:0%"></div></div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbarTitle">Doets Reizen — Onboarding Portaal</div>
+      <button class="topbar-btn" id="adminBtn" onclick="toggleAdmin()">Beheermodus</button>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modalBox"></div>
+  </div>
+
+  <!-- Zoom -->
+  <div class="zoom-overlay" id="zoomOverlay" onclick="this.classList.remove('show')">
+    <img id="zoomImg" src="">
+  </div>
+
+  <!-- Notification -->
+  <div class="notif" id="notif"></div>
+
+  <script>
+    var API_URL = window.location.origin;
+    var ADMIN_PW = 'doets2025';
+    var STORAGE_DATA = 'doets_ob_data_v5';
+    var STORAGE_PROG = 'doets_ob_prog_v5';
+
+    /* ── DEFAULT DATA ─────────────────────────────── */
+    var DEFAULT_DATA = {
+      departments: [
+        {
+          id: 'verkoop',
+          name: 'Verkoop',
+          desc: 'Klantcontact, adviesgesprekken, offertes en boekingen bij Doets Reizen.',
+          modules: [
+            {
+              id: 'v1',
+              title: 'Klantgesprek voeren',
+              badge: 'Sales',
+              desc: 'De basis van een goed adviesgesprek met een klant.',
+              intro: 'In deze module leer je hoe je een klant het beste kunt adviseren. Je oefent met vragen stellen, luisteren en de klantwens vertalen naar een reisvoorstel.',
+              duration: '20 minuten',
+              steps: [
+                { title:'Voorbereiding', subtitle:'Voor het gesprek', explanation:'Voordat je het gesprek voert, kijk je in het klantprofiel en de eerdere reizen.', substeps:[
+                  { action:'Open het klantprofiel', detail:'Check naam, reisgeschiedenis en voorkeuren.' },
+                  { action:'Bekijk eerdere offertes', detail:'Weet wat er eerder aangeboden is.' }
+                ], tip:'Klanten voelen zich gehoord als je hun geschiedenis kent.', warning:'', screenshot_label:'Klantprofiel in het systeem' },
+                { title:'Vragen stellen', subtitle:'Tijdens het gesprek', explanation:'Stel open vragen om de wens helder te krijgen.', substeps:[
+                  { action:'Vraag naar het doel van de reis', detail:'Ontspannen, avontuur, cultuur?' },
+                  { action:'Peil budget en periode', detail:'Wees hier concreet in.' },
+                  { action:'Vraag naar eerdere ervaringen', detail:'Wat vonden ze goed of juist niet?' }
+                ], tip:'', warning:'', screenshot_label:'' },
+                { title:'Voorstel maken', subtitle:'Direct of later', explanation:'Op basis van de wens maak je een passend voorstel.', substeps:[
+                  { action:'Kies een passende bestemming', detail:'Gebruik de kennisdatabank en klantprofiel-tool voor inspiratie.' },
+                  { action:'Stel accommodaties voor', detail:'Combineer prijs, ligging en sfeer.' }
+                ], tip:'Wees eerlijk over wat wel/niet kan binnen het budget.', warning:'', screenshot_label:'' }
+              ],
+              quiz: { question:'Wat is de belangrijkste eerste stap voor een klantgesprek?', options:['Meteen bestemmingen voorstellen','Klantprofiel en historie doornemen','Prijzen opzoeken'], correct:1, explanation:'Door eerst het profiel en de historie te bekijken, kun je gerichter adviseren.' }
+            },
+            {
+              id: 'v2',
+              title: 'Offerte maken en verzenden',
+              badge: 'Sales',
+              desc: 'Een offerte opstellen en professioneel versturen naar de klant.',
+              intro: 'Deze module behandelt het maken van een reisvoorstel, het genereren van een offerte in het systeem en het verzenden ervan.',
+              duration: '15 minuten',
+              steps: [
+                { title:'Voorstel samenstellen', subtitle:'', explanation:'Kies bestemming, hotels en excursies die passen bij de klantwens.', substeps:[
+                  { action:'Open de reistool', detail:'Kies een sjabloon dat aansluit bij de duur en het type reis.' },
+                  { action:'Voeg de accommodaties toe', detail:'Let op de juiste kamerindeling.' }
+                ], tip:'', warning:'', screenshot_label:'' },
+                { title:'Prijs controleren', subtitle:'', explanation:'Loop de prijs na en check op fouten voor je verstuurt.', substeps:[
+                  { action:'Vergelijk met de calculatie', detail:'Sluit aan bij de correcte marges.' }
+                ], tip:'', warning:'Bij twijfel altijd overleggen voor verzenden.', screenshot_label:'' },
+                { title:'Versturen', subtitle:'', explanation:'Verstuur de offerte via e-mail met een korte persoonlijke boodschap.', substeps:[
+                  { action:'Genereer de PDF', detail:'Controleer dat foto\'s en tekst kloppen.' },
+                  { action:'Schrijf een korte begeleidende e-mail', detail:'Verwijs naar het gesprek.' }
+                ], tip:'', warning:'', screenshot_label:'' }
+              ],
+              quiz: { question:'Wat doe je vóór je een offerte verstuurt?', options:['Meteen versturen','De prijs en calculatie controleren','Alleen de PDF checken'], correct:1, explanation:'Prijs controleren voorkomt fouten die je later moet corrigeren.' }
+            }
+          ]
+        },
+        {
+          id: 'productie',
+          name: 'Productie',
+          desc: 'Aanmaken van producten in C3 en CMS: hotels, excursies en calculaties.',
+          modules: [
+            {
+              id: 'p1',
+              title: 'Nieuw hotel toevoegen in C3',
+              badge: 'Systeem',
+              desc: 'Een hotel aanmaken in C3 met alle basisgegevens en foto\'s.',
+              intro: 'In deze module leer je stap voor stap hoe je een nieuw hotel toevoegt in C3. Denk aan zoeken op duplicaten, basisgegevens invoeren en foto\'s uploaden.',
+              duration: '15 minuten',
+              steps: [
+                { title:'Zoek op duplicaten', subtitle:'Voorkom dubbele records', explanation:'Voordat je een nieuw hotel aanmaakt, controleer je of het hotel al bestaat.', substeps:[
+                  { action:'Open C3 → Hotels', detail:'Ga naar het hotels-overzicht.' },
+                  { action:'Zoek op hotelnaam', detail:'Probeer varianten (met/zonder "Hotel").' },
+                  { action:'Zoek op stad', detail:'Filter op stad om dubbele records op te sporen.' }
+                ], tip:'', warning:'Nooit een hotel dubbel aanmaken — dat verpest de calculaties.', screenshot_label:'C3 hotel zoekscherm' },
+                { title:'Basisgegevens invoeren', subtitle:'Naam, locatie, contact', explanation:'Vul alle basisgegevens in van het hotel.', substeps:[
+                  { action:'Nieuw hotel → aanmaken', detail:'Klik op "Nieuw" rechtsboven.' },
+                  { action:'Vul naam, adres, land en stad in', detail:'Wees precies met de spelling — dit wordt zichtbaar in offertes.' },
+                  { action:'Voeg contactgegevens toe', detail:'E-mail en telefoon van de reservering.' }
+                ], tip:'Gebruik altijd de officiële naam van het hotel.', warning:'', screenshot_label:'Basisgegevens invoerscherm' },
+                { title:'Foto\'s uploaden', subtitle:'Beeldmateriaal', explanation:'Upload foto\'s zodat ze in offertes en op de site getoond kunnen worden.', substeps:[
+                  { action:'Tab "Foto\'s" → uploaden', detail:'Kies duidelijke, scherpe beelden.' },
+                  { action:'Kies een hoofdfoto', detail:'Deze wordt als eerste getoond.' }
+                ], tip:'Ideale afmeting: 1920×1080.', warning:'', screenshot_label:'Foto-tab in C3' }
+              ],
+              quiz: { question:'Wat doe je voor je een nieuw hotel aanmaakt in C3?', options:['Meteen aanmaken','Eerst zoeken op duplicaten','Foto\'s uploaden'], correct:1, explanation:'Duplicaten voorkomen is essentieel voor kloppende calculaties en offertes.' }
+            },
+            {
+              id: 'p2',
+              title: 'Excursies toevoegen in C3 en CMS',
+              badge: 'Systeem',
+              desc: 'Excursies aanmaken, inbegrepen aanvinken en optioneel publiceren via jandoets.nl.',
+              intro: 'Deze module laat zien hoe je een excursie toevoegt in C3 en optioneel publiceert op jandoets.nl. Je leert ook hoe je "inbegrepen" instelt.',
+              duration: '15 minuten',
+              steps: [
+                { title:'Excursie aanmaken in C3', subtitle:'', explanation:'Maak de excursie aan met alle relevante informatie.', substeps:[
+                  { action:'Open C3 → Excursies', detail:'Ga naar het excursie-overzicht.' },
+                  { action:'Klik op "Nieuw"', detail:'Nieuw excursie-record aanmaken.' },
+                  { action:'Vul naam, locatie, duur, prijs in', detail:'Wees nauwkeurig met de prijs.' }
+                ], tip:'', warning:'', screenshot_label:'Excursie invoerscherm' },
+                { title:'Inbegrepen aanvinken', subtitle:'', explanation:'Als de excursie standaard bij een reispakket hoort, vink je "inbegrepen" aan.', substeps:[
+                  { action:'Ga naar tab "Standaard inbegrepen"', detail:'Zie welke pakketten deze excursie krijgen.' },
+                  { action:'Vink de gewenste pakketten aan', detail:'Alleen aanvinken als het écht standaard hoort.' }
+                ], tip:'', warning:'Bij verkeerd aanvinken komt de excursie in offertes waar hij niet hoort.', screenshot_label:'Inbegrepen tab' },
+                { title:'Optioneel: publiceren via jandoets.nl', subtitle:'CMS', explanation:'Excursies kunnen ook op de klantwebsite komen via het CMS.', substeps:[
+                  { action:'Open het CMS', detail:'Log in op jandoets.nl.' },
+                  { action:'Maak een nieuwe excursie-pagina', detail:'Sync met C3 excursie-ID.' }
+                ], tip:'', warning:'', screenshot_label:'CMS excursie-editor' }
+              ],
+              quiz: { question:'Waar vink je aan of een excursie inbegrepen is?', options:['Op tab Basisgegevens','Op tab Standaard inbegrepen','In het CMS'], correct:1, explanation:'Op de tab "Standaard inbegrepen" bepaal je bij welke reispakketten de excursie automatisch hoort.' }
+            },
+            {
+              id: 'p3',
+              title: 'Het calculatieproces (stap 1 t/m 9)',
+              badge: 'Proces',
+              desc: 'Volledige calculatie van reis: koerscode, gids, productgroepen, prijzen en publicatie.',
+              intro: 'Dit is het complete calculatieproces: van voorbereiding (koerscode + gids), via opbouw (productgroepen + codes), naar calculatie (prijstabel + calculeren) en publicatie (prijstabel in CMS).',
+              duration: '40 minuten',
+              steps: [
+                { title:'Fase 1 — Koerscode aanmaken', subtitle:'Menu 7204', explanation:'Elke calculatie begint bij de juiste koerscode voor de bestemming en periode.', substeps:[
+                  { action:'Open menu 7204', detail:'Koerscodebeheer.' },
+                  { action:'Maak nieuwe koerscode aan', detail:'Bestemming + jaar + seizoen.' }
+                ], tip:'Gebruik consistente naamgeving.', warning:'', screenshot_label:'Menu 7204 - Koerscode' },
+                { title:'Fase 1 — Gids aanmaken', subtitle:'Menu 3702', explanation:'Maak de gids (reisdocument) aan waar de calculatie in valt.', substeps:[
+                  { action:'Open menu 3702', detail:'Gids-beheer.' },
+                  { action:'Nieuwe gids aanmaken', detail:'Koppel aan koerscode.' }
+                ], tip:'', warning:'', screenshot_label:'Menu 3702 - Gids' },
+                { title:'Fase 2 — Productgroepen', subtitle:'Menu 3701', explanation:'Bouw de productgroepen op die in de reis zitten.', substeps:[
+                  { action:'Open menu 3701', detail:'Productgroepbeheer.' },
+                  { action:'Voeg groepen toe', detail:'Bv. accommodaties, transfers, excursies.' }
+                ], tip:'', warning:'Zonder productgroepen kun je niet calculeren.', screenshot_label:'Menu 3701 - Productgroepen' },
+                { title:'Fase 2 — Productcodes', subtitle:'Menu 3103 / 3104', explanation:'Voeg de individuele productcodes toe binnen de groepen.', substeps:[
+                  { action:'Open menu 3103 of 3104', detail:'Afhankelijk van type.' },
+                  { action:'Voeg codes toe', detail:'Koppel aan groep en gids.' }
+                ], tip:'', warning:'', screenshot_label:'Menu 3103/3104 - Codes' },
+                { title:'Fase 3 — Prijstabel opzetten', subtitle:'Menu 3702', explanation:'Maak de prijstabel aan waar de calculaties in landen.', substeps:[
+                  { action:'Open menu 3702', detail:'Kies je gids.' },
+                  { action:'Ga naar prijstabel', detail:'Nieuwe tabel aanmaken.' }
+                ], tip:'', warning:'', screenshot_label:'Prijstabel scherm' },
+                { title:'Fase 3 — Calculeren', subtitle:'Menu 9030 / 9011 / 10008', explanation:'Voer de daadwerkelijke calculatie uit.', substeps:[
+                  { action:'Open menu 9030 (of 9011/10008)', detail:'Afhankelijk van reistype.' },
+                  { action:'Draai de calculatie', detail:'Controleer de output.' },
+                  { action:'Corrigeer waar nodig', detail:'Kijk naar afwijkende prijzen.' }
+                ], tip:'', warning:'Als er iets afwijkt: nooit blind doorzetten.', screenshot_label:'Calculatie output' },
+                { title:'Fase 4 — Prijstabel in CMS', subtitle:'Bestaande of nieuwe reis', explanation:'Laad de prijstabel in het CMS zodat de prijzen op de site komen.', substeps:[
+                  { action:'Open CMS → reis', detail:'Bestaand of nieuw.' },
+                  { action:'Koppel de prijstabel', detail:'Selecteer de zojuist aangemaakte tabel.' },
+                  { action:'Controleer op de site', detail:'Kijk of de prijs juist verschijnt.' }
+                ], tip:'', warning:'Publiceer nooit zonder controle op de site.', screenshot_label:'CMS prijstabel koppeling' }
+              ],
+              quiz: { question:'Wat is de eerste fase van het calculatieproces?', options:['Prijstabel opzetten','Koerscode + gids aanmaken','Publicatie in CMS'], correct:1, explanation:'Zonder koerscode en gids kan er niets gecalculeerd worden — dit is de voorbereiding.' }
+            }
+          ]
+        },
+        {
+          id: 'traffic',
+          name: 'Traffic',
+          desc: 'Boekingen doorzetten, vluchten en transfers regelen, communicatie met partners.',
+          modules: [
+            {
+              id: 't1',
+              title: 'Boeking verwerken en doorzetten',
+              badge: 'Proces',
+              desc: 'Van bevestigde boeking naar bevestigde vluchten en transfers.',
+              intro: 'In deze module leer je hoe je een boeking van Verkoop overneemt en doorzet naar de leveranciers.',
+              duration: '15 minuten',
+              steps: [
+                { title:'Boeking controleren', subtitle:'', explanation:'Controleer of alle gegevens compleet zijn voor je doorzet.', substeps:[
+                  { action:'Open de boeking', detail:'In het reserveringssysteem.' },
+                  { action:'Check namen en paspoortgegevens', detail:'Deze moeten kloppen voor de vluchten.' }
+                ], tip:'', warning:'Verkeerde naam op ticket = kosten voor rebooking.', screenshot_label:'Boeking overzicht' },
+                { title:'Vluchten reserveren', subtitle:'', explanation:'Boek de vluchten via de juiste leverancier of GDS.', substeps:[
+                  { action:'Zoek beschikbaarheid', detail:'Filter op klasse en tijden.' },
+                  { action:'Bevestig de reservering', detail:'Noteer PNR-nummer bij de boeking.' }
+                ], tip:'', warning:'', screenshot_label:'Vlucht boekingsscherm' },
+                { title:'Transfers en overige diensten', subtitle:'', explanation:'Regel transfers, autohuur en overige diensten.', substeps:[
+                  { action:'Stuur transferverzoek naar DMC', detail:'Wees precies met tijden en aantallen.' },
+                  { action:'Bevestig autohuur', detail:'Voeg voucher toe aan boeking.' }
+                ], tip:'', warning:'', screenshot_label:'Transfer verzoek' }
+              ],
+              quiz: { question:'Wat controleer je altijd voor je vluchten boekt?', options:['Alleen de datum','Naam en paspoortgegevens','Prijsklasse'], correct:1, explanation:'Verkeerde namen op tickets kosten geld en gedoe voor de klant.' }
+            }
+          ]
+        }
+      ]
+    };
+
+    /* ── STATE ─────────────────────────────── */
+    var data = loadData();
+    var progress = loadProgress();
+    var adminMode = false;
+    var currentView = 'home';
+    var currentDeptId = null;
+    var currentModId = null;
+
+    function loadData(){
+      try {
+        var raw = localStorage.getItem(STORAGE_DATA);
+        if(raw) return JSON.parse(raw);
+      } catch(e){}
+      return JSON.parse(JSON.stringify(DEFAULT_DATA));
+    }
+    function saveData(){ localStorage.setItem(STORAGE_DATA, JSON.stringify(data)); }
+    function loadProgress(){
+      try {
+        var raw = localStorage.getItem(STORAGE_PROG);
+        if(raw) return JSON.parse(raw);
+      } catch(e){}
+      return { steps:{}, completed:{} };
+    }
+    function saveProgress(){ localStorage.setItem(STORAGE_PROG, JSON.stringify(progress)); }
+
+    /* ── AUTH ─────────────────────────────── */
+    function checkAuth(){
+      if(!localStorage.getItem('doets_token')){
+        window.location.href = '/dashboard.html';
+      }
+    }
+
+    /* ── STATS ─────────────────────────────── */
+    function moduleProgressPct(mod){
+      var total = mod.steps.length + 1; // steps + completion
+      var done = 0;
+      mod.steps.forEach(function(_, i){
+        if(progress.steps[mod.id + '_' + i]) done++;
+      });
+      if(progress.completed[mod.id]) done++;
+      return Math.round((done/total)*100);
+    }
+    function deptProgressPct(dept){
+      if(!dept.modules.length) return 0;
+      var sum = 0;
+      dept.modules.forEach(function(m){ sum += moduleProgressPct(m); });
+      return Math.round(sum / dept.modules.length);
+    }
+    function totalProgressPct(){
+      var all = [];
+      data.departments.forEach(function(d){ d.modules.forEach(function(m){ all.push(moduleProgressPct(m)); }); });
+      if(!all.length) return 0;
+      var sum = 0; all.forEach(function(p){ sum += p; });
+      return Math.round(sum / all.length);
+    }
+
+    /* ── RENDER ─────────────────────────────── */
+    function renderSidebar(){
+      var nav = document.getElementById('deptNav');
+      nav.innerHTML = '';
+      var homeLink = document.createElement('a');
+      homeLink.innerHTML = '<span>◆</span> Home';
+      homeLink.onclick = function(){ goHome(); };
+      if(currentView === 'home') homeLink.className = 'active';
+      nav.appendChild(homeLink);
+      data.departments.forEach(function(dept){
+        var a = document.createElement('a');
+        a.innerHTML = '<span>▸</span> ' + escapeHTML(dept.name);
+        a.onclick = function(){ goDept(dept.id); };
+        if(currentDeptId === dept.id) a.className = 'active';
+        nav.appendChild(a);
+      });
+      var tot = totalProgressPct();
+      document.getElementById('totalPct').textContent = tot + '%';
+      document.getElementById('totalFill').style.width = tot + '%';
+    }
+
+    function renderHome(){
+      currentView = 'home';
+      currentDeptId = null;
+      currentModId = null;
+      document.getElementById('topbarTitle').textContent = 'Doets Reizen — Onboarding Portaal';
+      var html = '';
+      html += '<div class="home-eyebrow">Onboarding</div>';
+      html += '<h1 class="home-title">Welkom bij Doets Reizen</h1>';
+      html += '<p class="home-sub">Kies hieronder de afdeling waarin je aan de slag gaat. Elke afdeling bevat modules met stappen, tips en een korte kennischeck.</p>';
+      html += '<div class="dept-grid">';
+      data.departments.forEach(function(dept){
+        var pct = deptProgressPct(dept);
+        html += '<div class="dept-card" onclick="goDept(\'' + dept.id + '\')">';
+        html += '  <div class="dept-name">' + escapeHTML(dept.name) + '</div>';
+        html += '  <div class="dept-desc">' + escapeHTML(dept.desc) + '</div>';
+        html += '  <div class="dept-meta">';
+        html += '    <span class="dept-count">' + dept.modules.length + ' modules</span>';
+        html += '    <div class="dept-progress-wrap"><div class="dept-progress-fill" style="width:' + pct + '%"></div></div>';
+        html += '    <span class="dept-progress-pct">' + pct + '%</span>';
+        html += '  </div>';
+        html += '</div>';
+      });
+      html += '</div>';
+      html += '<div class="admin-only" style="margin-top:32px">';
+      html += '<button class="btn-admin outline" onclick="addDepartment()">+ Nieuwe afdeling</button>';
+      html += '</div>';
+      document.getElementById('content').innerHTML = html;
+      renderSidebar();
+    }
+
+    function goHome(){ renderHome(); window.scrollTo(0,0); }
+
+    function goDept(id){
+      currentView = 'dept';
+      currentDeptId = id;
+      currentModId = null;
+      var dept = data.departments.find(function(d){ return d.id === id; });
+      if(!dept) return goHome();
+      document.getElementById('topbarTitle').textContent = 'Afdeling — ' + dept.name;
+      var html = '';
+      html += '<div class="breadcrumb"><a onclick="goHome()">Home</a> ▸ ' + escapeHTML(dept.name) + '</div>';
+      html += '<div class="dept-header">';
+      html += '  <div><h1 class="home-title">' + escapeHTML(dept.name) + '</h1><p class="home-sub">' + escapeHTML(dept.desc) + '</p></div>';
+      html += '</div>';
+
+      html += '<div class="ai-gen-wrap admin-only">';
+      html += '  <button class="ai-gen-btn" onclick="openAIGen()">✨ AI-module genereren</button>';
+      html += '</div>';
+
+      html += '<div class="mod-list">';
+      dept.modules.forEach(function(mod, i){
+        var pct = moduleProgressPct(mod);
+        var done = progress.completed[mod.id];
+        html += '<div class="mod-card" onclick="goMod(\'' + mod.id + '\')">';
+        html += '  <div class="mod-num">' + (i+1) + '</div>';
+        html += '  <div class="mod-info">';
+        html += '    <div class="mod-badge">' + escapeHTML(mod.badge || '') + '</div>';
+        html += '    <div class="mod-title">' + escapeHTML(mod.title) + '</div>';
+        html += '    <div class="mod-desc">' + escapeHTML(mod.desc || '') + '</div>';
+        html += '    <div class="mod-meta"><span>⏱ ' + escapeHTML(mod.duration || '') + '</span><span>' + mod.steps.length + ' stappen</span><span>' + pct + '% voltooid</span>';
+        if(done) html += '  <span class="mod-done">Voltooid</span>';
+        html += '    </div>';
+        html += '  </div>';
+        html += '</div>';
+      });
+      html += '</div>';
+
+      html += '<div class="admin-only admin-tools">';
+      html += '  <button class="btn-admin outline" onclick="addModule(\'' + dept.id + '\')">+ Nieuwe module</button>';
+      html += '  <button class="btn-admin danger" onclick="removeDepartment(\'' + dept.id + '\')">Afdeling verwijderen</button>';
+      html += '</div>';
+
+      document.getElementById('content').innerHTML = html;
+      renderSidebar();
+      window.scrollTo(0,0);
+    }
+
+    function goMod(id){
+      currentView = 'mod';
+      currentModId = id;
+      var dept, mod;
+      for(var i=0; i<data.departments.length; i++){
+        var m = data.departments[i].modules.find(function(x){ return x.id === id; });
+        if(m){ dept = data.departments[i]; mod = m; currentDeptId = dept.id; break; }
+      }
+      if(!mod) return goHome();
+      document.getElementById('topbarTitle').textContent = mod.title;
+
+      var html = '';
+      html += '<div class="breadcrumb"><a onclick="goHome()">Home</a> ▸ <a onclick="goDept(\'' + dept.id + '\')">' + escapeHTML(dept.name) + '</a> ▸ ' + escapeHTML(mod.title) + '</div>';
+
+      html += '<div class="mod-intro">';
+      html += '  <div class="mod-badge">' + escapeHTML(mod.badge || '') + '</div>';
+      html += '  <h1>' + escapeHTML(mod.title) + '</h1>';
+      html += '  <p>' + escapeHTML(mod.intro || '') + '</p>';
+      html += '  <div class="mod-intro-meta"><span>⏱ ' + escapeHTML(mod.duration || '') + '</span><span>' + mod.steps.length + ' stappen</span></div>';
+      html += '</div>';
+
+      mod.steps.forEach(function(step, si){
+        var stepKey = mod.id + '_' + si;
+        var checked = !!progress.steps[stepKey];
+        html += '<div class="step">';
+        html += '  <div class="step-num-col">';
+        html += '    <div>' + (si+1) + '</div>';
+        html += '    <div class="check ' + (checked ? 'on' : '') + '" onclick="toggleStep(\'' + stepKey + '\')">' + (checked ? '✓' : '') + '</div>';
+        html += '  </div>';
+        html += '  <div class="step-body">';
+        html += '    <div class="step-title">' + escapeHTML(step.title || '') + '</div>';
+        if(step.subtitle) html += '<div class="step-subtitle">' + escapeHTML(step.subtitle) + '</div>';
+        if(step.explanation) html += '<div class="step-explanation">' + escapeHTML(step.explanation) + '</div>';
+
+        if(step.substeps && step.substeps.length){
+          html += '<div class="substeps">';
+          step.substeps.forEach(function(sub, i){
+            html += '<div class="substep">';
+            html += '  <div class="substep-num">' + (i+1) + '</div>';
+            html += '  <div class="substep-body">';
+            html += '    <div class="substep-action">' + escapeHTML(sub.action || '') + '</div>';
+            if(sub.detail) html += '<div class="substep-detail">' + escapeHTML(sub.detail) + '</div>';
+            if(sub.tip) html += '<div class="substep-tip">Tip: ' + escapeHTML(sub.tip) + '</div>';
+            html += '  </div>';
+            html += '</div>';
+          });
+          html += '</div>';
+        }
+
+        if(step.tip) html += '<div class="box-tip"><b>Tip</b>' + escapeHTML(step.tip) + '</div>';
+        if(step.warning) html += '<div class="box-warn"><b>Let op</b>' + escapeHTML(step.warning) + '</div>';
+
+        // Screenshot
+        var imgKey = 'doets_img_' + mod.id + '_' + si;
+        var img = localStorage.getItem(imgKey) || '';
+        html += '<div class="shot-block">';
+        html += '  <div class="shot-label">' + escapeHTML(step.screenshot_label || 'Screenshot') + '</div>';
+        html += '  <label class="shot-upload">Upload screenshot<input type="file" accept="image/*" onchange="uploadImg(this, \'' + imgKey + '\', \'' + mod.id + '_' + si + '\')"></label>';
+        if(img) html += '<img class="shot-img" id="img_' + mod.id + '_' + si + '" src="' + img + '" onclick="zoom(this.src)">';
+        else html += '<img class="shot-img" id="img_' + mod.id + '_' + si + '" style="display:none;" onclick="zoom(this.src)">';
+        html += '</div>';
+
+        // Video (optional)
+        html += '<div class="video-block">';
+        html += '  <div class="video-toggle" onclick="this.nextElementSibling.classList.toggle(\'open\')">▶ Video (optioneel) <span>▾</span></div>';
+        html += '  <div class="video-content">';
+        html += '    <input type="text" placeholder="YouTube/Loom URL" onchange="embedVideo(this)">';
+        html += '    <div class="video-embed"></div>';
+        html += '  </div>';
+        html += '</div>';
+
+        html += '  </div>';
+        html += '</div>';
+      });
+
+      // Quiz
+      if(mod.quiz && mod.quiz.question){
+        html += '<div class="quiz">';
+        html += '  <div class="quiz-label">Kennischeck</div>';
+        html += '  <div class="quiz-q">' + escapeHTML(mod.quiz.question) + '</div>';
+        html += '  <div class="quiz-opts">';
+        (mod.quiz.options || []).forEach(function(opt, i){
+          html += '<div class="quiz-opt" onclick="answerQuiz(this, ' + i + ', ' + mod.quiz.correct + ', \'' + mod.id + '\')">' + escapeHTML(opt) + '</div>';
+        });
+        html += '  </div>';
+        html += '  <div class="quiz-feedback" id="fb_' + mod.id + '">' + escapeHTML(mod.quiz.explanation || '') + '</div>';
+        html += '</div>';
+      }
+
+      // Footer
+      var pct = moduleProgressPct(mod);
+      var isDone = !!progress.completed[mod.id];
+      html += '<div class="mod-footer">';
+      html += '  <div class="mod-footer-prog">';
+      html += '    <div class="mod-footer-label">Voortgang: ' + pct + '%</div>';
+      html += '    <div class="mod-footer-bar"><div class="mod-footer-fill" style="width:' + pct + '%"></div></div>';
+      html += '  </div>';
+      html += '  <button class="btn-done ' + (isDone ? 'done' : '') + '" onclick="toggleComplete(\'' + mod.id + '\')">' + (isDone ? '✓ Voltooid' : 'Markeer als voltooid') + '</button>';
+      html += '</div>';
+
+      // Admin tools
+      html += '<div class="admin-only admin-tools" style="margin-top:24px">';
+      html += '  <button class="btn-admin outline" onclick="editModuleMeta(\'' + mod.id + '\')">Module bewerken</button>';
+      html += '  <button class="btn-admin outline" onclick="addStep(\'' + mod.id + '\')">+ Stap toevoegen</button>';
+      html += '  <button class="btn-admin danger" onclick="removeModule(\'' + mod.id + '\')">Module verwijderen</button>';
+      html += '</div>';
+
+      document.getElementById('content').innerHTML = html;
+      renderSidebar();
+      window.scrollTo(0,0);
+    }
+
+    /* ── INTERACTIONS ─────────────────────────────── */
+    function toggleStep(key){
+      progress.steps[key] = !progress.steps[key];
+      saveProgress();
+      if(currentModId) goMod(currentModId);
+    }
+
+    function toggleComplete(id){
+      progress.completed[id] = !progress.completed[id];
+      saveProgress();
+      goMod(id);
+    }
+
+    function answerQuiz(el, chosen, correct, modId){
+      var opts = el.parentElement.children;
+      for(var i=0; i<opts.length; i++){
+        opts[i].classList.remove('correct','wrong');
+      }
+      if(chosen === correct){
+        el.classList.add('correct');
+      } else {
+        el.classList.add('wrong');
+        opts[correct].classList.add('correct');
+      }
+      document.getElementById('fb_' + modId).classList.add('show');
+    }
+
+    function uploadImg(input, key, dispId){
+      var f = input.files[0];
+      if(!f) return;
+      var r = new FileReader();
+      r.onload = function(e){
+        try {
+          localStorage.setItem(key, e.target.result);
+          var img = document.getElementById('img_' + dispId);
+          if(img){ img.src = e.target.result; img.style.display = 'block'; }
+        } catch(err){
+          notif('Kon foto niet opslaan (te groot?)');
+        }
+      };
+      r.readAsDataURL(f);
+    }
+
+    function zoom(src){
+      if(!src) return;
+      document.getElementById('zoomImg').src = src;
+      document.getElementById('zoomOverlay').classList.add('show');
+    }
+
+    function embedVideo(input){
+      var url = input.value.trim();
+      var embed = input.parentElement.querySelector('.video-embed');
+      embed.innerHTML = '';
+      if(!url) return;
+      var m = url.match(/(?:youtu\.be\/|v=)([\w-]+)/);
+      if(m){ embed.innerHTML = '<iframe src="https://www.youtube.com/embed/' + m[1] + '" allowfullscreen></iframe>'; return; }
+      var lm = url.match(/loom\.com\/share\/([\w-]+)/);
+      if(lm){ embed.innerHTML = '<iframe src="https://www.loom.com/embed/' + lm[1] + '" allowfullscreen></iframe>'; return; }
+      embed.innerHTML = '<div style="font-size:12px;color:#8B8B8B">URL niet herkend (YouTube of Loom).</div>';
+    }
+
+    /* ── ADMIN ─────────────────────────────── */
+    function toggleAdmin(){
+      if(adminMode){
+        adminMode = false;
+        document.body.classList.remove('admin');
+        document.getElementById('adminBtn').classList.remove('admin-on');
+        document.getElementById('adminBtn').textContent = 'Beheermodus';
+        return;
+      }
+      openModal({
+        title:'Beheermodus',
+        html:'<p>Voer het beheerderwachtwoord in.</p><input type="password" id="admPw" placeholder="Wachtwoord">',
+        submit:'Ontgrendel',
+        onSubmit:function(){
+          var v = document.getElementById('admPw').value;
+          if(v === ADMIN_PW){
+            adminMode = true;
+            document.body.classList.add('admin');
+            document.getElementById('adminBtn').classList.add('admin-on');
+            document.getElementById('adminBtn').textContent = '✓ Beheer actief';
+            closeModal();
+            rerender();
+            notif('Beheermodus actief');
+          } else {
+            notif('Wachtwoord onjuist');
+          }
+        }
+      });
+    }
+
+    function rerender(){
+      if(currentView === 'home') renderHome();
+      else if(currentView === 'dept') goDept(currentDeptId);
+      else if(currentView === 'mod') goMod(currentModId);
+    }
+
+    function addDepartment(){
+      openModal({
+        title:'Nieuwe afdeling',
+        html:'<input id="fldName" placeholder="Naam"><textarea id="fldDesc" placeholder="Korte beschrijving"></textarea>',
+        submit:'Toevoegen',
+        onSubmit:function(){
+          var name = document.getElementById('fldName').value.trim();
+          var desc = document.getElementById('fldDesc').value.trim();
+          if(!name) return;
+          data.departments.push({ id:'dept_' + Date.now(), name:name, desc:desc, modules:[] });
+          saveData(); closeModal(); rerender();
+        }
+      });
+    }
+    function removeDepartment(id){
+      if(!confirm('Deze afdeling en alle modules verwijderen?')) return;
+      data.departments = data.departments.filter(function(d){ return d.id !== id; });
+      saveData(); goHome();
+    }
+
+    function addModule(deptId){
+      openModal({
+        title:'Nieuwe module',
+        html:'<input id="mTitle" placeholder="Titel"><input id="mBadge" placeholder="Badge (bv. Systeem)"><input id="mDur" placeholder="Duur (bv. 15 minuten)"><textarea id="mDesc" placeholder="Korte beschrijving"></textarea><textarea id="mIntro" placeholder="Uitgebreide intro"></textarea>',
+        submit:'Toevoegen',
+        onSubmit:function(){
+          var title = document.getElementById('mTitle').value.trim();
+          if(!title) return;
+          var dept = data.departments.find(function(d){ return d.id === deptId; });
+          if(!dept) return;
+          dept.modules.push({
+            id: 'mod_' + Date.now(),
+            title: title,
+            badge: document.getElementById('mBadge').value.trim(),
+            duration: document.getElementById('mDur').value.trim(),
+            desc: document.getElementById('mDesc').value.trim(),
+            intro: document.getElementById('mIntro').value.trim(),
+            steps: [],
+            quiz: { question:'', options:[], correct:0, explanation:'' }
+          });
+          saveData(); closeModal(); goDept(deptId);
+        }
+      });
+    }
+    function editModuleMeta(id){
+      var mod = findMod(id); if(!mod) return;
+      openModal({
+        title:'Module bewerken',
+        html:'<input id="mTitle" placeholder="Titel" value="' + escapeAttr(mod.title) + '"><input id="mBadge" placeholder="Badge" value="' + escapeAttr(mod.badge||'') + '"><input id="mDur" placeholder="Duur" value="' + escapeAttr(mod.duration||'') + '"><textarea id="mDesc" placeholder="Korte beschrijving">' + escapeAttr(mod.desc||'') + '</textarea><textarea id="mIntro" placeholder="Intro">' + escapeAttr(mod.intro||'') + '</textarea>',
+        submit:'Opslaan',
+        onSubmit:function(){
+          mod.title = document.getElementById('mTitle').value.trim() || mod.title;
+          mod.badge = document.getElementById('mBadge').value.trim();
+          mod.duration = document.getElementById('mDur').value.trim();
+          mod.desc = document.getElementById('mDesc').value.trim();
+          mod.intro = document.getElementById('mIntro').value.trim();
+          saveData(); closeModal(); goMod(id);
+        }
+      });
+    }
+    function removeModule(id){
+      if(!confirm('Deze module verwijderen?')) return;
+      data.departments.forEach(function(d){
+        d.modules = d.modules.filter(function(m){ return m.id !== id; });
+      });
+      saveData(); goDept(currentDeptId);
+    }
+    function addStep(modId){
+      var mod = findMod(modId); if(!mod) return;
+      openModal({
+        title:'Nieuwe stap',
+        html:'<input id="sTitle" placeholder="Titel"><input id="sSub" placeholder="Subtitel (optioneel)"><textarea id="sExpl" placeholder="Uitleg"></textarea><textarea id="sTip" placeholder="Tip (optioneel)"></textarea><textarea id="sWarn" placeholder="Waarschuwing (optioneel)"></textarea>',
+        submit:'Toevoegen',
+        onSubmit:function(){
+          var title = document.getElementById('sTitle').value.trim();
+          if(!title) return;
+          mod.steps.push({
+            title: title,
+            subtitle: document.getElementById('sSub').value.trim(),
+            explanation: document.getElementById('sExpl').value.trim(),
+            substeps: [],
+            tip: document.getElementById('sTip').value.trim(),
+            warning: document.getElementById('sWarn').value.trim(),
+            screenshot_label: 'Screenshot'
+          });
+          saveData(); closeModal(); goMod(modId);
+        }
+      });
+    }
+
+    function openAIGen(){
+      openModal({
+        title:'✨ AI-module genereren',
+        html:'<p>Plak hieronder de inhoud van een inwerkdocument. Claude maakt er automatisch een module van (titel, stappen, substappen, tips en een kennischeck).</p><textarea id="aiTxt" placeholder="Plak inwerktekst hier..." style="min-height:220px"></textarea>',
+        submit:'Genereren',
+        submitClass:'admin',
+        onSubmit:async function(){
+          var txt = document.getElementById('aiTxt').value.trim();
+          if(txt.length < 20){ notif('Geef minstens 20 tekens tekst'); return; }
+          var btn = document.querySelector('.modal-submit');
+          btn.disabled = true; btn.textContent = 'Bezig...';
+          try {
+            var res = await fetch(API_URL + '/api/generate-module', {
+              method:'POST',
+              headers:{'Content-Type':'application/json','Authorization':'Bearer ' + localStorage.getItem('doets_token')},
+              body: JSON.stringify({ tekst: txt })
+            });
+            var body = await res.json();
+            if(!res.ok){ notif(body.error || 'Fout'); btn.disabled=false; btn.textContent='Genereren'; return; }
+            var mod = body.module;
+            mod.id = 'mod_' + Date.now();
+            var dept = data.departments.find(function(d){ return d.id === currentDeptId; });
+            if(!dept){ notif('Geen afdeling actief'); return; }
+            dept.modules.push(mod);
+            saveData();
+            closeModal();
+            notif('Module toegevoegd: ' + mod.title);
+            goDept(currentDeptId);
+          } catch(e){
+            notif('Netwerkfout');
+            btn.disabled=false; btn.textContent='Genereren';
+          }
+        }
+      });
+    }
+
+    function findMod(id){
+      for(var i=0; i<data.departments.length; i++){
+        var m = data.departments[i].modules.find(function(x){ return x.id === id; });
+        if(m) return m;
+      }
+      return null;
+    }
+
+    /* ── MODAL ─────────────────────────────── */
+    function openModal(o){
+      var box = document.getElementById('modalBox');
+      box.innerHTML = '<h3>' + escapeHTML(o.title) + '</h3>' + (o.html || '') +
+        '<div class="modal-actions"><button class="modal-cancel" onclick="closeModal()">Annuleren</button>' +
+        '<button class="modal-submit ' + (o.submitClass||'') + '" onclick="__modalSubmit()">' + escapeHTML(o.submit || 'OK') + '</button></div>';
+      window.__modalSubmit = o.onSubmit;
+      document.getElementById('modalOverlay').classList.add('show');
+    }
+    function closeModal(){
+      document.getElementById('modalOverlay').classList.remove('show');
+      document.getElementById('modalBox').innerHTML = '';
+    }
+    document.getElementById('modalOverlay').addEventListener('click', function(e){
+      if(e.target === this) closeModal();
+    });
+
+    /* ── NOTIF ─────────────────────────────── */
+    function notif(msg){
+      var n = document.getElementById('notif');
+      n.textContent = msg;
+      n.classList.add('show');
+      setTimeout(function(){ n.classList.remove('show'); }, 2600);
+    }
+
+    /* ── HELPERS ─────────────────────────────── */
+    function escapeHTML(s){
+      if(s == null) return '';
+      return String(s).replace(/[&<>"']/g, function(c){
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+      });
+    }
+    function escapeAttr(s){ return escapeHTML(s); }
+
+    /* ── INIT ─────────────────────────────── */
+    checkAuth();
+    renderHome();
+  </script>
+</body>
+</html>

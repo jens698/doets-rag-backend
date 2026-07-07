@@ -519,14 +519,7 @@
       <div class="brand-name">Doets AI</div>
       <div class="brand-tag">Onboarding</div>
     </div>
-    <div class="nav-label">Doets AI</div>
-    <nav class="nav">
-      <a href="/dashboard.html"><span class="ico">◆</span> Dashboard</a>
-      <a href="/index.html"><span class="ico">💬</span> Kennisdatabank</a>
-      <a href="/klantprofiel.html"><span class="ico">👤</span> Klantprofiel</a>
-      <a class="active" href="/onboarding.html"><span class="ico">📚</span> Onboarding</a>
-      <a href="/admin.html"><span class="ico">⚙</span> Admin</a>
-    </nav>
+    <a href="/dashboard.html" class="back-link">&larr; Terug naar portaal</a>
 
     <div class="nav-label">Afdelingen</div>
     <nav class="nav" id="deptNav"></nav>
@@ -812,13 +805,13 @@
       var nav = document.getElementById('deptNav');
       nav.innerHTML = '';
       var homeLink = document.createElement('a');
-      homeLink.innerHTML = '<span>◆</span> Home';
+      homeLink.innerHTML = 'Home';
       homeLink.onclick = function(){ goHome(); };
       if(currentView === 'home') homeLink.className = 'active';
       nav.appendChild(homeLink);
       data.departments.forEach(function(dept){
         var a = document.createElement('a');
-        a.innerHTML = '<span>▸</span> ' + escapeHTML(dept.name);
+        a.innerHTML = escapeHTML(dept.name);
         a.onclick = function(){ goDept(dept.id); };
         if(currentDeptId === dept.id) a.className = 'active';
         nav.appendChild(a);
@@ -868,13 +861,13 @@
       if(!dept) return goHome();
       document.getElementById('topbarTitle').textContent = 'Afdeling — ' + dept.name;
       var html = '';
-      html += '<div class="breadcrumb"><a onclick="goHome()">Home</a> ▸ ' + escapeHTML(dept.name) + '</div>';
+      html += '<div class="breadcrumb"><a onclick="goHome()">Home</a> /' + escapeHTML(dept.name) + '</div>';
       html += '<div class="dept-header">';
       html += '  <div><h1 class="home-title">' + escapeHTML(dept.name) + '</h1><p class="home-sub">' + escapeHTML(dept.desc) + '</p></div>';
       html += '</div>';
 
       html += '<div class="ai-gen-wrap admin-only">';
-      html += '  <button class="ai-gen-btn" onclick="openAIGen()">✨ AI-module genereren</button>';
+      html += '  <button class="ai-gen-btn" onclick="openAIGen()">AI-module genereren</button>';
       html += '</div>';
 
       html += '<div class="mod-list">';
@@ -887,7 +880,7 @@
         html += '    <div class="mod-badge">' + escapeHTML(mod.badge || '') + '</div>';
         html += '    <div class="mod-title">' + escapeHTML(mod.title) + '</div>';
         html += '    <div class="mod-desc">' + escapeHTML(mod.desc || '') + '</div>';
-        html += '    <div class="mod-meta"><span>⏱ ' + escapeHTML(mod.duration || '') + '</span><span>' + mod.steps.length + ' stappen</span><span>' + pct + '% voltooid</span>';
+        html += '    <div class="mod-meta"><span>' + escapeHTML(mod.duration || '') + '</span><span>' + mod.steps.length + ' stappen</span><span>' + pct + '% voltooid</span>';
         if(done) html += '  <span class="mod-done">Voltooid</span>';
         html += '    </div>';
         html += '  </div>';
@@ -917,13 +910,13 @@
       document.getElementById('topbarTitle').textContent = mod.title;
 
       var html = '';
-      html += '<div class="breadcrumb"><a onclick="goHome()">Home</a> ▸ <a onclick="goDept(\'' + dept.id + '\')">' + escapeHTML(dept.name) + '</a> ▸ ' + escapeHTML(mod.title) + '</div>';
+      html += '<div class="breadcrumb"><a onclick="goHome()">Home</a> / <a onclick="goDept(\'' + dept.id + '\')">' + escapeHTML(dept.name) + '</a> / ' + escapeHTML(mod.title) + '</div>';
 
       html += '<div class="mod-intro">';
       html += '  <div class="mod-badge">' + escapeHTML(mod.badge || '') + '</div>';
       html += '  <h1>' + escapeHTML(mod.title) + '</h1>';
       html += '  <p>' + escapeHTML(mod.intro || '') + '</p>';
-      html += '  <div class="mod-intro-meta"><span>⏱ ' + escapeHTML(mod.duration || '') + '</span><span>' + mod.steps.length + ' stappen</span></div>';
+      html += '  <div class="mod-intro-meta"><span>' + escapeHTML(mod.duration || '') + '</span><span>' + mod.steps.length + ' stappen</span></div>';
       html += '</div>';
 
       mod.steps.forEach(function(step, si){
@@ -969,7 +962,7 @@
 
         // Video (optional)
         html += '<div class="video-block">';
-        html += '  <div class="video-toggle" onclick="this.nextElementSibling.classList.toggle(\'open\')">▶ Video (optioneel) <span>▾</span></div>';
+        html += '  <div class="video-toggle" onclick="this.nextElementSibling.classList.toggle(\'open\')">Video (optioneel) <span>+</span></div>';
         html += '  <div class="video-content">';
         html += '    <input type="text" placeholder="YouTube/Loom URL" onchange="embedVideo(this)">';
         html += '    <div class="video-embed"></div>';
@@ -1206,7 +1199,7 @@
 
     function openAIGen(){
       openModal({
-        title:'✨ AI-module genereren',
+        title:'AI-module genereren',
         html:'<p>Plak hieronder de inhoud van een inwerkdocument. Claude maakt er automatisch een module van (titel, stappen, substappen, tips en een kennischeck).</p><textarea id="aiTxt" placeholder="Plak inwerktekst hier..." style="min-height:220px"></textarea>',
         submit:'Genereren',
         submitClass:'admin',

@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Klantprofiel — Doets AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --navy: #0D1F3C;
+      --navy-soft: #1a3556;
+      --navy-deep: #06122a;
+      --gold: #C9A84C;
+      --gold-soft: #E2C875;
+      --gold-pale: #F4EBD0;
+      --gold-faint: #FAF5E5;
+      --cream: #FAF7F2;
+      --cream-dark: #F2EDE3;
+      --ink: #1A1A1A;
+      --ink-soft: #4A4A4A;
+      --ink-muted: #8B8B8B;
+      --line: #E8E2D5;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Manrope', -apple-system, sans-serif;
+      background: var(--cream);
+      min-height: 100vh;
+      color: var(--ink);
+      font-weight: 400;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        radial-gradient(circle at 15% 10%, rgba(201, 168, 76, 0.08) 0%, transparent 35%),
+        radial-gradient(circle at 85% 90%, rgba(13, 31, 60, 0.04) 0%, transparent 40%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        repeating-linear-gradient(45deg, transparent 0, transparent 60px, rgba(201, 168, 76, 0.015) 60px, rgba(201, 168, 76, 0.015) 61px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrap { position: relative; z-index: 1; }
+
+    .topbar { background: var(--navy); color: #fff; padding: 1.25rem 0; position: relative; overflow: hidden; }
+    .topbar::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent 0%, var(--gold) 30%, var(--gold-soft) 50%, var(--gold) 70%, transparent 100%);
+    }
+    .topbar-inner {
+      max-width: 1200px; margin: 0 auto; padding: 0 2.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .brand { display: flex; flex-direction: column; gap: 2px; }
+    .brand-mark { font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 500; letter-spacing: -0.01em; color: #fff; }
+    .brand-mark .accent { color: var(--gold); font-style: italic; }
+    .brand-tag { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+    .back-link {
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      color: rgba(255,255,255,0.6); text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.15); padding: 0.38rem 0.8rem; border-radius: 4px;
+      transition: all 0.2s;
+    }
+    .back-link:hover { color: #fff; border-color: rgba(201,168,76,0.6); background: rgba(201,168,76,0.1); }
+
+    .hero { max-width: 1200px; margin: 0 auto; padding: 4rem 2.5rem 2.5rem; }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 1.25rem;
+    }
+    .hero-eyebrow::before { content: ''; width: 28px; height: 1px; background: var(--gold); }
+    .hero h1 {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(2.2rem, 4vw, 3.4rem);
+      font-weight: 400; line-height: 1.1;
+      color: var(--navy); letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+    }
+    .hero h1 em { font-style: italic; color: var(--gold); font-weight: 500; }
+    .hero p { font-size: 1rem; color: var(--ink-soft); max-width: 620px; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 2.5rem 5rem; }
+
+    .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+    .section-title { font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 500; color: var(--navy); letter-spacing: -0.01em; }
+    .section-line { flex: 1; height: 1px; background: var(--line); margin-left: 1.5rem; }
+    .section-line::after {
+      content: ''; display: block;
+      width: 12px; height: 12px;
+      border: 1px solid var(--gold);
+      transform: rotate(45deg);
+      margin-top: -6px; margin-left: auto;
+      background: var(--cream);
+    }
+
+    .section { margin-bottom: 3rem; }
+
+    .form-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 2.25rem 2.5rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.4rem 1.75rem;
+    }
+    .form-full { grid-column: 1 / -1; }
+
+    .field { display: flex; flex-direction: column; gap: 0.4rem; }
+    .field label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+    }
+    .field .hint { font-size: 0.75rem; color: var(--ink-muted); }
+    .field input, .field select, .field textarea {
+      padding: 0.85rem 1rem;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      background: var(--cream);
+      font: inherit;
+      font-size: 0.92rem;
+      color: var(--ink);
+      transition: all 0.2s;
+      width: 100%;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      outline: none;
+      border-color: var(--gold);
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(201, 168, 76, 0.12);
+    }
+    .field textarea { min-height: 90px; resize: vertical; font-family: inherit; }
+    .field select { cursor: pointer; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .chip {
+      padding: 0.55rem 0.95rem;
+      border: 1.5px solid var(--line);
+      background: var(--cream);
+      font-size: 0.82rem;
+      color: var(--ink-soft);
+      cursor: pointer;
+      border-radius: 999px;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .chip:hover { border-color: var(--gold-soft); }
+    .chip.on {
+      background: var(--gold-faint);
+      border-color: var(--gold);
+      color: var(--navy);
+      font-weight: 600;
+    }
+
+    .actions { display: flex; gap: 0.75rem; align-items: center; margin-top: 2rem; padding-top: 1.75rem; border-top: 1px solid var(--line); }
+
+    .btn {
+      padding: 0 1.75rem;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      font-family: 'Manrope', sans-serif;
+      cursor: pointer;
+      border: none;
+      transition: all 0.25s;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      height: 52px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .btn-primary { background: var(--navy); color: #fff; position: relative; overflow: hidden; }
+    .btn-primary::before {
+      content: '';
+      position: absolute; top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(201, 168, 76, 0.3), transparent);
+      transition: left 0.6s;
+    }
+    .btn-primary:hover { background: var(--navy-soft); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(13, 31, 60, 0.25); }
+    .btn-primary:hover::before { left: 100%; }
+    .btn-primary:disabled { opacity: 0.55; cursor: wait; transform: none; }
+    .btn-outline {
+      background: transparent;
+      color: var(--ink-soft);
+      border: 1.5px solid var(--line);
+    }
+    .btn-outline:hover { border-color: var(--navy); color: var(--navy); }
+
+    .status-msg {
+      margin-left: auto;
+      font-size: 0.85rem;
+      color: var(--ink-muted);
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid var(--line);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+    .spinner.on { display: block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Results */
+    .results { display: none; }
+    .results.on { display: block; animation: fadeUp 0.5s ease both; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    .summary-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 2rem 2.5rem;
+      margin-bottom: 2rem;
+      border-top: 3px solid var(--gold);
+    }
+    .summary-card h3 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.3rem;
+      color: var(--navy);
+      font-weight: 500;
+      margin-bottom: 0.65rem;
+    }
+    .summary-card p { font-size: 0.95rem; color: var(--ink-soft); line-height: 1.65; }
+
+    .recos { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
+    .reco {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 1.5rem 1.75rem;
+      transition: all 0.25s;
+    }
+    .reco:hover { border-color: var(--gold); transform: translateY(-2px); box-shadow: 0 10px 30px -14px rgba(13, 31, 60, 0.18); }
+    .reco-eyebrow {
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 0.6rem;
+    }
+    .reco-title {
+      font-family: 'Fraunces', serif;
+      font-size: 1.2rem;
+      color: var(--navy);
+      font-weight: 500;
+      margin-bottom: 0.4rem;
+      line-height: 1.25;
+    }
+    .reco-sub { font-size: 0.76rem; color: var(--ink-muted); margin-bottom: 0.8rem; letter-spacing: 0.06em; }
+    .reco-desc { font-size: 0.87rem; color: var(--ink-soft); line-height: 1.6; }
+
+    .letop {
+      background: var(--gold-faint);
+      border: 1px solid var(--gold-pale);
+      border-left: 3px solid var(--gold);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .letop-title {
+      font-family: 'Fraunces', serif;
+      font-size: 1rem;
+      color: var(--navy);
+      font-weight: 500;
+      margin-bottom: 0.4rem;
+    }
+    .letop-body { font-size: 0.87rem; color: #5a4610; line-height: 1.6; }
+
+    .err {
+      background: #FBE9EA;
+      border: 1px solid #E8C0C4;
+      border-left: 3px solid #B23A48;
+      color: #7f1d1d;
+      padding: 1rem 1.25rem;
+      font-size: 0.88rem;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+      display: none;
+    }
+    .err.on { display: block; }
+
+    .footer {
+      max-width: 1200px; margin: 0 auto;
+      padding: 2rem 2.5rem;
+      border-top: 1px solid var(--line);
+      display: flex; justify-content: space-between;
+      font-size: 0.8rem; color: var(--ink-muted);
+    }
+    .footer .ornament { color: var(--gold); font-style: italic; font-family: 'Fraunces', serif; }
+
+    @media (max-width: 800px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .topbar-inner, .hero, .container, .footer { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .hero { padding-top: 2.5rem; }
+      .form-card { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-mark">Doets <span class="accent">Reizen</span></div>
+        <div class="brand-tag">Klantprofiel</div>
+      </div>
+      <a href="/dashboard.html" class="back-link">&larr; Terug naar portaal</a>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-eyebrow">Klantprofiel</div>
+    <h1>Vind de perfecte <em>reis</em> voor je klant</h1>
+    <p>Vul het profiel van je klant in. De AI kijkt in de Doets kennisdatabank en stelt passende bestemmingen, hotels en excursies voor met uitleg waarom ze passen.</p>
+  </section>
+
+  <main class="container">
+
+    <div class="err" id="errBox"></div>
+
+    <section class="section" id="formSection">
+      <div class="section-head">
+        <h2 class="section-title">Profiel invullen</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-grid">
+
+          <div class="field">
+            <label for="type">Type reiziger</label>
+            <select id="type">
+              <option value="">Kies...</option>
+              <option>Koppel</option>
+              <option>Gezin met kinderen</option>
+              <option>Gezin met tieners</option>
+              <option>Solo reiziger</option>
+              <option>Senioren</option>
+              <option>Vriendengroep</option>
+              <option>Zakelijk / incentive</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="aantalPersonen">Aantal personen</label>
+            <input type="text" id="aantalPersonen" placeholder="Bijv. 2 volwassenen + 2 kinderen">
+          </div>
+
+          <div class="field">
+            <label for="leeftijden">Leeftijden</label>
+            <input type="text" id="leeftijden" placeholder="Bijv. 38, 40, 8, 12">
+          </div>
+
+          <div class="field">
+            <label for="budget">Budget per persoon</label>
+            <select id="budget">
+              <option value="">Kies...</option>
+              <option>Tot &euro; 2.000</option>
+              <option>&euro; 2.000 &ndash; &euro; 3.500</option>
+              <option>&euro; 3.500 &ndash; &euro; 5.000</option>
+              <option>&euro; 5.000 &ndash; &euro; 7.500</option>
+              <option>&euro; 7.500 &ndash; &euro; 10.000</option>
+              <option>Meer dan &euro; 10.000</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="duur">Reisduur</label>
+            <select id="duur">
+              <option value="">Kies...</option>
+              <option>Weekend (2-3 dagen)</option>
+              <option>Korte reis (4-7 dagen)</option>
+              <option>1 &ndash; 2 weken</option>
+              <option>2 &ndash; 3 weken</option>
+              <option>Meer dan 3 weken</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="periode">Voorkeur reisperiode</label>
+            <input type="text" id="periode" placeholder="Bijv. juli, herfstvakantie, flexibel">
+          </div>
+
+          <div class="field">
+            <label for="ervaring">Reiservaring</label>
+            <select id="ervaring">
+              <option value="">Kies...</option>
+              <option>Eerste keer buiten Europa</option>
+              <option>Enige ervaring</option>
+              <option>Ervaren reiziger</option>
+              <option>Zeer ervaren, zoekt uniek</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="stijl">Reisstijl</label>
+            <select id="stijl">
+              <option value="">Kies...</option>
+              <option>Luxe en comfort</option>
+              <option>Comfortabel middenklasse</option>
+              <option>Actief en avontuurlijk</option>
+              <option>Authentiek en lokaal</option>
+              <option>Rustig en ontspannen</option>
+            </select>
+          </div>
+
+          <div class="field form-full">
+            <label>Interesses</label>
+            <div class="chips" id="chipsInteresses">
+              <div class="chip" data-v="Natuur">Natuur</div>
+              <div class="chip" data-v="Cultuur">Cultuur</div>
+              <div class="chip" data-v="Avontuur">Avontuur</div>
+              <div class="chip" data-v="Wildlife">Wildlife</div>
+              <div class="chip" data-v="Culinair">Culinair</div>
+              <div class="chip" data-v="Strand en zee">Strand en zee</div>
+              <div class="chip" data-v="Wandelen en hiken">Wandelen en hiken</div>
+              <div class="chip" data-v="Fotografie">Fotografie</div>
+              <div class="chip" data-v="Geschiedenis">Geschiedenis</div>
+              <div class="chip" data-v="Wellness">Wellness</div>
+              <div class="chip" data-v="Stedelijk">Stedelijk</div>
+              <div class="chip" data-v="Wintersport">Wintersport</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="conditie">Fysieke conditie</label>
+            <select id="conditie">
+              <option value="">Kies...</option>
+              <option>Zeer goed &ndash; actief</option>
+              <option>Goed</option>
+              <option>Gemiddeld</option>
+              <option>Beperkt / mobiliteitshulp</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="bestemmingsvoorkeur">Bestemmingsvoorkeur (indien bekend)</label>
+            <input type="text" id="bestemmingsvoorkeur" placeholder="Bijv. Canada, Japan, of geen voorkeur">
+          </div>
+
+          <div class="field form-full">
+            <label for="wensen">Speciale wensen of aandachtspunten</label>
+            <textarea id="wensen" placeholder="Bijvoorbeeld: dieet, gezondheidsissues, viert huwelijksjubileum, allergie voor katten, wil zeker een keer een iglo, etc."></textarea>
+          </div>
+
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-primary" id="submitBtn" onclick="submit()">Genereer advies</button>
+          <button class="btn btn-outline" onclick="resetForm()">Wissen</button>
+          <div class="status-msg">
+            <div class="spinner" id="spinner"></div>
+            <span id="statusText"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="results" id="results">
+      <div class="section-head">
+        <h2 class="section-title">Advies</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="summary-card">
+        <h3>Samenvatting</h3>
+        <p id="rSummary">&mdash;</p>
+      </div>
+
+      <div class="section-head" style="margin-top:2rem">
+        <h2 class="section-title">Bestemmingen</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="recos" id="rBestemmingen"></div>
+
+      <div class="section-head" style="margin-top:2rem">
+        <h2 class="section-title">Hotels</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="recos" id="rHotels"></div>
+
+      <div class="section-head" style="margin-top:2rem">
+        <h2 class="section-title">Excursies</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="recos" id="rExcursies"></div>
+
+      <div class="letop" id="letopBox">
+        <div class="letop-title">Let op</div>
+        <div class="letop-body" id="rLetop">&mdash;</div>
+      </div>
+
+      <div class="actions" style="border-top:none; padding-top:0">
+        <button class="btn btn-outline" onclick="scrollToForm()">Aanpassen</button>
+        <button class="btn btn-outline" onclick="resetForm()">Nieuw klantprofiel</button>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div>Doets Reizen &copy; <span id="year"></span> &mdash; Interne omgeving</div>
+    <div class="ornament">Ontdek de wereld</div>
+  </footer>
+
+</div>
+
+<script>
+  var API_URL = window.location.origin;
+
+  function checkAuth(){
+    if(!localStorage.getItem('doets_token')){
+      window.location.href = '/dashboard.html';
+    }
+  }
+  checkAuth();
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  document.querySelectorAll('.chip').forEach(function(el){
+    el.addEventListener('click', function(){ this.classList.toggle('on'); });
+  });
+
+  function getProfile(){
+    var chips = Array.from(document.querySelectorAll('#chipsInteresses .chip.on')).map(function(c){ return c.dataset.v; });
+    return {
+      type: v('type'),
+      aantalPersonen: v('aantalPersonen'),
+      leeftijden: v('leeftijden'),
+      budget: v('budget'),
+      duur: v('duur'),
+      periode: v('periode'),
+      ervaring: v('ervaring'),
+      stijl: v('stijl'),
+      conditie: v('conditie'),
+      bestemmingsvoorkeur: v('bestemmingsvoorkeur'),
+      interesses: chips,
+      wensen: v('wensen')
+    };
+  }
+  function v(id){ var el = document.getElementById(id); return el ? el.value.trim() : ''; }
+
+  function resetForm(){
+    ['type','aantalPersonen','leeftijden','budget','duur','periode','ervaring','stijl','conditie','bestemmingsvoorkeur','wensen'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(el) el.value = '';
+    });
+    document.querySelectorAll('#chipsInteresses .chip').forEach(function(c){ c.classList.remove('on'); });
+    document.getElementById('results').classList.remove('on');
+    document.getElementById('errBox').classList.remove('on');
+    document.getElementById('statusText').textContent = '';
+    scrollToForm();
+  }
+
+  function scrollToForm(){
+    document.getElementById('formSection').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+  function scrollToResults(){
+    document.getElementById('results').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  function showErr(msg){
+    var e = document.getElementById('errBox');
+    e.textContent = msg;
+    e.classList.add('on');
+  }
+
+  async function submit(){
+    var profile = getProfile();
+    var essentials = [profile.type, profile.duur, (profile.interesses || []).length ? 'yes' : ''];
+    if(!essentials.every(Boolean)){
+      showErr('Vul minimaal type reiziger, reisduur en een paar interesses in.');
+      return;
+    }
+    document.getElementById('errBox').classList.remove('on');
+
+    var btn = document.getElementById('submitBtn');
+    var sp = document.getElementById('spinner');
+    var st = document.getElementById('statusText');
+    btn.disabled = true;
+    sp.classList.add('on');
+    st.textContent = 'AI stelt advies samen...';
+
+    try {
+      var res = await fetch(API_URL + '/api/recommend', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('doets_token')
+        },
+        body: JSON.stringify({ profile: profile })
+      });
+      var body = await res.json();
+      if(!res.ok){
+        showErr(body.error || 'Kon geen advies genereren.');
+        return;
+      }
+      renderAdvies(body.advies);
+    } catch(e){
+      showErr('Netwerkfout. Probeer opnieuw.');
+    } finally {
+      btn.disabled = false;
+      sp.classList.remove('on');
+      st.textContent = '';
+    }
+  }
+
+  function renderAdvies(a){
+    if(!a){ showErr('Leeg advies ontvangen.'); return; }
+    document.getElementById('rSummary').textContent = a.samenvatting || '';
+    renderList('rBestemmingen', a.bestemmingen || [], function(b){
+      return '<div class="reco">'
+        + '<div class="reco-eyebrow">Bestemming</div>'
+        + '<div class="reco-title">' + esc(b.naam) + '</div>'
+        + (b.beste_periode ? '<div class="reco-sub">Beste periode: ' + esc(b.beste_periode) + '</div>' : '')
+        + '<div class="reco-desc">' + esc(b.waarom || '') + '</div>'
+        + '</div>';
+    });
+    renderList('rHotels', a.hotels || [], function(h){
+      return '<div class="reco">'
+        + '<div class="reco-eyebrow">Hotel</div>'
+        + '<div class="reco-title">' + esc(h.naam) + '</div>'
+        + (h.bestemming ? '<div class="reco-sub">' + esc(h.bestemming) + '</div>' : '')
+        + '<div class="reco-desc">' + esc(h.waarom || '') + '</div>'
+        + '</div>';
+    });
+    renderList('rExcursies', a.excursies || [], function(e){
+      return '<div class="reco">'
+        + '<div class="reco-eyebrow">Excursie</div>'
+        + '<div class="reco-title">' + esc(e.naam) + '</div>'
+        + (e.bestemming ? '<div class="reco-sub">' + esc(e.bestemming) + '</div>' : '')
+        + '<div class="reco-desc">' + esc(e.waarom || '') + '</div>'
+        + '</div>';
+    });
+    document.getElementById('rLetop').textContent = a.let_op || '';
+    document.getElementById('letopBox').style.display = a.let_op ? 'block' : 'none';
+    document.getElementById('results').classList.add('on');
+    setTimeout(scrollToResults, 100);
+  }
+  function renderList(id, arr, tpl){
+    document.getElementById(id).innerHTML = arr.map(tpl).join('') || '<div style="color:var(--ink-muted);font-size:0.9rem;grid-column:1/-1">Geen aanbevelingen.</div>';
+  }
+  function esc(s){
+    if(s == null) return '';
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+</script>
+</body>
+</html>

@@ -195,6 +195,15 @@
       transition: all 0.2s;
     }
     .back-link:hover { color: #fff; border-color: rgba(201,168,76,0.6); background: rgba(201,168,76,0.1); }
+    .app-nav { display:inline-flex; gap:0.4rem; flex-wrap:wrap; }
+    .app-nav a {
+      font-size:0.68rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase;
+      color:rgba(255,255,255,0.55); text-decoration:none;
+      border:1px solid rgba(255,255,255,0.12); padding:0.32rem 0.7rem;
+      transition:all 0.15s;
+    }
+    .app-nav a:hover { color:#fff; border-color:rgba(201,168,76,0.6); background:rgba(201,168,76,0.08); }
+    .app-nav a.active { color:#fff; border-color:var(--gold); background:rgba(201,168,76,0.12); }
 
     @keyframes slideIn { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: translateX(0); } }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -225,7 +234,13 @@
             <span class="health-dot" id="health-dot"></span>
             <span id="health-text">Verbinding actief</span>
           </div>
-          <a href="/index.html" class="back-link">&#8592; Kennisdatabank</a>
+          <nav class="app-nav">
+            <a href="/dashboard.html">Dashboard</a>
+            <a href="/index.html">Kennisdatabank</a>
+            <a href="/klantprofiel.html">Klantprofiel</a>
+            <a href="/onboarding.html">Onboarding</a>
+            <a href="/admin.html" class="active">Admin</a>
+          </nav>
         </div>
       </div>
     </header>

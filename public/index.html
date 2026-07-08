@@ -359,6 +359,129 @@
       border-bottom: 2px solid transparent; transition: color .15s, border-color .15s;
     }
     .tab.active { color: var(--navy); border-bottom-color: var(--gold); }
+
+    /* Sidebar panels — J / L / S / T */
+    .sb-panel { padding: 0.4rem 1rem 0.6rem; }
+    .sb-empty { font-size: 0.65rem; color: rgba(255,255,255,0.4); font-style: italic; padding: 0.4rem 0; }
+    .sb-item {
+      display: block;
+      padding: 0.4rem 0.55rem;
+      margin-bottom: 0.35rem;
+      background: rgba(255,255,255,0.03);
+      border-left: 2px solid var(--gold);
+      color: rgba(255,255,255,0.82);
+      font-size: 0.7rem;
+      line-height: 1.4;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .sb-item:hover { background: rgba(201,168,76,0.08); color: #fff; }
+    .sb-item .sb-item-title { font-weight: 600; font-size: 0.7rem; margin-bottom: 0.15rem; }
+    .sb-item .sb-item-snip { font-size: 0.62rem; color: rgba(255,255,255,0.5); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+    .season-tile {
+      padding: 0.5rem 0.6rem;
+      background: rgba(201,168,76,0.07);
+      border-left: 2px solid var(--gold);
+      color: rgba(255,255,255,0.9);
+      font-size: 0.7rem;
+      line-height: 1.5;
+    }
+    .season-tile b { color: var(--gold); font-weight: 700; letter-spacing: 0.06em; display: block; margin-bottom: 0.25rem; font-size: 0.62rem; text-transform: uppercase; }
+    .season-tile p { margin: 0.3rem 0 0; color: rgba(255,255,255,0.7); font-size: 0.66rem; }
+
+    #tlText {
+      width: 100%;
+      min-height: 60px;
+      background: rgba(255,255,255,0.04);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 0.45rem 0.55rem;
+      font: inherit;
+      font-size: 0.7rem;
+      resize: vertical;
+      margin-bottom: 0.4rem;
+      font-family: inherit;
+    }
+    #tlText:focus { outline: none; border-color: var(--gold); background: rgba(201,168,76,0.05); }
+    .tl-row { display: flex; gap: 0.4rem; align-items: center; }
+    #tlLang {
+      flex: 1;
+      background: rgba(255,255,255,0.04);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 0.4rem 0.4rem;
+      font: inherit;
+      font-size: 0.68rem;
+    }
+    #tlBtn {
+      background: var(--gold);
+      color: var(--navy);
+      border: none;
+      padding: 0.4rem 0.7rem;
+      font: inherit;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    #tlBtn:hover { background: #d4b352; }
+    #tlBtn:disabled { opacity: 0.5; cursor: wait; }
+    .tl-out {
+      margin-top: 0.5rem;
+      padding: 0.4rem 0.55rem;
+      background: rgba(255,255,255,0.03);
+      color: rgba(255,255,255,0.85);
+      font-size: 0.68rem;
+      line-height: 1.5;
+      border-left: 2px solid var(--gold);
+      display: none;
+      cursor: pointer;
+    }
+    .tl-out.on { display: block; }
+    .tl-out:hover { background: rgba(201,168,76,0.06); }
+    .tl-out .tl-copy-hint { display: block; font-size: 0.55rem; color: rgba(201,168,76,0.7); margin-top: 0.3rem; letter-spacing: 0.06em; text-transform: uppercase; }
+
+    .usage-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.28rem 0;
+      font-size: 0.68rem;
+      color: rgba(255,255,255,0.7);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .usage-row:last-child { border-bottom: none; padding-top: 0.4rem; color: #fff; }
+    .usage-row b { color: var(--gold); font-weight: 700; }
+
+    /* Bron popup */
+    .src-modal {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(13,31,60,0.75);
+      display: none; align-items: center; justify-content: center;
+      padding: 1.5rem;
+    }
+    .src-modal.on { display: flex; }
+    .src-box {
+      background: #FBF9F4;
+      max-width: 560px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      padding: 1.8rem 2rem;
+      color: #1a1a1a;
+      font-size: 0.85rem;
+      line-height: 1.65;
+      border-top: 3px solid var(--gold);
+    }
+    .src-box h4 { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 500; margin-bottom: 0.8rem; color: var(--navy); }
+    .src-box .close {
+      display: block; margin-top: 1.5rem;
+      background: var(--navy); color: #fff;
+      border: none; padding: 0.6rem 1.2rem;
+      font: inherit; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -404,64 +527,61 @@
       </a>
     </div>
     <div class="sidebar-divider"></div>
+
     <div class="sidebar-section">
-      <div class="sidebar-lbl">Bestemmingen</div>
-      <div class="sidebar-item active" data-dest="" onclick="setDest(this,'')">
-        <span class="item-dot"></span>Alle bestemmingen
-      </div>
-      <div class="sidebar-item" data-dest="Verenigde Staten" onclick="setDest(this,'Verenigde Staten')">
-        <span class="item-code">US</span>Verenigde Staten
-      </div>
-      <div class="sidebar-item" data-dest="Canada" onclick="setDest(this,'Canada')">
-        <span class="item-code">CA</span>Canada
-      </div>
-      <div class="sidebar-item" data-dest="IJsland" onclick="setDest(this,'IJsland')">
-        <span class="item-code">IS</span>IJsland
-      </div>
-      <div class="sidebar-item" data-dest="Noorwegen" onclick="setDest(this,'Noorwegen')">
-        <span class="item-code">NO</span>Noorwegen
-      </div>
-      <div class="sidebar-item" data-dest="Zweden" onclick="setDest(this,'Zweden')">
-        <span class="item-code">SE</span>Zweden
-      </div>
-      <div class="sidebar-item" data-dest="Finland" onclick="setDest(this,'Finland')">
-        <span class="item-code">FI</span>Finland
-      </div>
-      <div class="sidebar-item" data-dest="Japan" onclick="setDest(this,'Japan')">
-        <span class="item-code">JP</span>Japan
-      </div>
-      <div class="sidebar-item" data-dest="China" onclick="setDest(this,'China')">
-        <span class="item-code">CN</span>China
-      </div>
+      <div class="sidebar-lbl">Vandaag actueel</div>
+      <div class="sb-panel" id="sbSeason"></div>
     </div>
+
     <div class="sidebar-divider"></div>
+
     <div class="sidebar-section">
-      <div class="sidebar-lbl">Reissoorten</div>
-      <div class="sidebar-item" data-dest="Camperreis" onclick="setDest(this,'Camperreis')">
-        <span class="item-dot"></span>Camperreis
-      </div>
-      <div class="sidebar-item" data-dest="Autorondreis" onclick="setDest(this,'Autorondreis')">
-        <span class="item-dot"></span>Autorondreis
-      </div>
-      <div class="sidebar-item" data-dest="Stedentrip" onclick="setDest(this,'Stedentrip')">
-        <span class="item-dot"></span>Stedentrip
-      </div>
-      <div class="sidebar-item" data-dest="Wintersport" onclick="setDest(this,'Wintersport')">
-        <span class="item-dot"></span>Wintersport
-      </div>
-      <div class="sidebar-item" data-dest="Safari &amp; Wildlife" onclick="setDest(this,'Safari &amp; Wildlife')">
-        <span class="item-dot"></span>Safari &amp; Wildlife
-      </div>
-      <div class="sidebar-item" data-dest="Deep Desires" onclick="setDest(this,'Deep Desires')">
-        <span class="item-dot"></span>Deep Desires
-      </div>
-      <div class="sidebar-item" data-dest="Familiereis" onclick="setDest(this,'Familiereis')">
-        <span class="item-dot"></span>Familiereis
-      </div>
-      <div class="sidebar-item" data-dest="Golfreis" onclick="setDest(this,'Golfreis')">
-        <span class="item-dot"></span>Golfreis
+      <div class="sidebar-lbl">Bronnen bij antwoord</div>
+      <div class="sb-panel" id="sbSources">
+        <div class="sb-empty">Stel een vraag om te zien welke bronnen de AI gebruikt.</div>
       </div>
     </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-lbl">Snelle vertaling</div>
+      <div class="sb-panel">
+        <textarea id="tlText" placeholder="Plak of typ tekst..."></textarea>
+        <div class="tl-row">
+          <select id="tlLang">
+            <option value="en">Engels</option>
+            <option value="de">Duits</option>
+            <option value="fr">Frans</option>
+            <option value="es">Spaans</option>
+            <option value="it">Italiaans</option>
+            <option value="is">IJslands</option>
+            <option value="no">Noors</option>
+            <option value="sv">Zweeds</option>
+            <option value="fi">Fins</option>
+            <option value="da">Deens</option>
+            <option value="ja">Japans</option>
+            <option value="zh">Chinees</option>
+            <option value="nl">Nederlands</option>
+          </select>
+          <button id="tlBtn" onclick="doTranslate()">Vertaal</button>
+        </div>
+        <div id="tlOut" class="tl-out"></div>
+      </div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-lbl">Deze maand</div>
+      <div class="sb-panel">
+        <div class="usage-row"><span>Vragen</span><b id="uCount">0</b></div>
+        <div class="usage-row"><span>Tokens in</span><b id="uIn">0</b></div>
+        <div class="usage-row"><span>Tokens uit</span><b id="uOut">0</b></div>
+        <div class="usage-row"><span>Geschatte kosten</span><b id="uCost">€ 0,00</b></div>
+      </div>
+    </div>
+
   </aside>
 
   <main class="main">
@@ -581,7 +701,148 @@ function init() {
   const userName = localStorage.getItem('doets_user') || '';
   const topbarUser = document.getElementById('topbarUser');
   if (topbarUser && userName) topbarUser.textContent = userName.split(' ')[0];
+  initSidebarPanels();
   initApp();
+}
+
+// === Sidebar panels: J (season) / L (sources) / S (translate) / T (usage) ===
+
+var SEASON_INFO = {
+  1:  { titel: 'Januari — Aurora & wintersport',
+        tekst: 'Piek aurora seizoen Finland en IJsland. Wintersport in de Alpen op volle sterkte. Sri Lanka droog seizoen — populair voor rondreis.' },
+  2:  { titel: 'Februari — IJsland stedentrip',
+        tekst: 'Nog steeds aurora seizoen in Scandinavië. Populaire tijd voor korte rondreizen door IJsland. Japan koud maar helder.' },
+  3:  { titel: 'Maart — Bloesem boekingen',
+        tekst: 'Japan bloesem-boekingsvenster (voor april-vertrek). Aurora seizoen loopt af. Voorseizoen Zuid-Europa opent.' },
+  4:  { titel: 'April — Voorjaar & wildlife',
+        tekst: 'Bloesem in Japan is nu. Wildlife seizoen Kenia/Tanzania begint. Rondreizen West-USA hoogseizoen komt eraan.' },
+  5:  { titel: 'Mei — Rondreis USA & Canada',
+        tekst: 'West-USA / Canada rondreis-seizoen opent. IJsland zomerseizoen begint. Middellandse Zee wordt geboekt.' },
+  6:  { titel: 'Juni — IJsland hoogseizoen',
+        tekst: 'Middernachtszon in Scandinavië en IJsland. Alaska cruises populair. Rondreis Zuid-Europa druk.' },
+  7:  { titel: 'Juli — Vakantiepiek',
+        tekst: 'Zomervakantie NL: gezinsreizen naar Scandinavië, USA en Canada. Australische winter — goed voor safari.' },
+  8:  { titel: 'Augustus — Late zomer',
+        tekst: 'Zomerpiek loopt af. Vroege boekers voor kerst/nieuwjaar (Lapland, tropen). Aurora seizoen begint eind aug.' },
+  9:  { titel: 'September — Aurora start',
+        tekst: 'Aurora seizoen opent in Scandinavië/IJsland. Nazomer Middellandse Zee. Rondreis Canada indian summer.' },
+  10: { titel: 'Oktober — Herfst & aurora',
+        tekst: 'Herfstkleuren Canada en New England. Aurora Finland/IJsland goed. Boekingsseizoen kerst tropen.' },
+  11: { titel: 'November — Kerst & winter',
+        tekst: 'Wintersport boekingen piek. Lapland/glasiglo boekingen. Tropen: kerstboekingen last-minute nog mogelijk.' },
+  12: { titel: 'December — Wintersport & kerstreizen',
+        tekst: 'Lapland huwelijksreizen en gezinsreizen. Tropen kerstpiek. Nieuwjaar Japan wintersport populair.' }
+};
+
+function initSidebarPanels() {
+  var m = new Date().getMonth() + 1;
+  var info = SEASON_INFO[m] || { titel: '—', tekst: '' };
+  var el = document.getElementById('sbSeason');
+  if (el) {
+    el.innerHTML = '<div class="season-tile"><b>' + escHtml(info.titel) + '</b><p>' + escHtml(info.tekst) + '</p></div>';
+  }
+  refreshUsageUi();
+}
+
+function renderSidebarSources(sources) {
+  var el = document.getElementById('sbSources');
+  if (!el) return;
+  if (!sources || !sources.length) {
+    el.innerHTML = '<div class="sb-empty">Stel een vraag om te zien welke bronnen de AI gebruikt.</div>';
+    return;
+  }
+  window.__lastSources = sources;
+  el.innerHTML = sources.map(function(s, i) {
+    return '<div class="sb-item" onclick="openSource(' + i + ')">'
+      + '<div class="sb-item-title">' + escHtml(s.name || 'Bron ' + (i+1)) + '</div>'
+      + '<div class="sb-item-snip">' + escHtml((s.snippet || '').replace(/\s+/g,' ').trim()) + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+function openSource(idx) {
+  var s = (window.__lastSources || [])[idx];
+  if (!s) return;
+  var overlay = document.getElementById('srcModal');
+  if (!overlay) return;
+  document.getElementById('srcTitle').textContent = s.name || 'Bron';
+  document.getElementById('srcBody').textContent = s.snippet || '';
+  overlay.classList.add('on');
+}
+
+function closeSource() {
+  var overlay = document.getElementById('srcModal');
+  if (overlay) overlay.classList.remove('on');
+}
+
+function usageKey() {
+  var user = (localStorage.getItem('doets_user') || 'unknown').toLowerCase().replace(/\s+/g,'_');
+  var d = new Date();
+  return 'doets_usage_' + user + '_' + d.getFullYear() + '_' + (d.getMonth()+1);
+}
+function loadUsage() {
+  try { return JSON.parse(localStorage.getItem(usageKey()) || '{"q":0,"in":0,"out":0}'); }
+  catch (e) { return { q:0, in:0, out:0 }; }
+}
+function saveUsage(u) { localStorage.setItem(usageKey(), JSON.stringify(u)); }
+function recordUsage(usage) {
+  var u = loadUsage();
+  u.q = (u.q || 0) + 1;
+  u.in  = (u.in  || 0) + (usage.input  || 0);
+  u.out = (u.out || 0) + (usage.output || 0);
+  saveUsage(u);
+  refreshUsageUi();
+}
+function refreshUsageUi() {
+  var u = loadUsage();
+  var cIn  = (u.in  || 0) / 1000000 * 3.0;   // $3 per M input tokens (Sonnet)
+  var cOut = (u.out || 0) / 1000000 * 15.0;  // $15 per M output tokens
+  var eur = (cIn + cOut) * 0.92;             // rough USD -> EUR
+  document.getElementById('uCount').textContent = (u.q || 0);
+  document.getElementById('uIn').textContent    = fmtNum(u.in || 0);
+  document.getElementById('uOut').textContent   = fmtNum(u.out || 0);
+  document.getElementById('uCost').textContent  = '€ ' + eur.toFixed(2).replace('.', ',');
+}
+function fmtNum(n) { return (n || 0).toLocaleString('nl-NL'); }
+
+async function doTranslate() {
+  var tekst = document.getElementById('tlText').value.trim();
+  var doeltaal = document.getElementById('tlLang').value;
+  var out = document.getElementById('tlOut');
+  var btn = document.getElementById('tlBtn');
+  if (!tekst) { out.textContent = 'Geef eerst tekst om te vertalen.'; out.classList.add('on'); return; }
+  btn.disabled = true; btn.textContent = '...';
+  out.classList.remove('on');
+  try {
+    var res = await fetch('/api/translate', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer ' + localStorage.getItem('doets_token')},
+      body: JSON.stringify({ tekst: tekst, doeltaal: doeltaal })
+    });
+    var data = await res.json();
+    if (!res.ok) { out.textContent = data.error || 'Vertaling mislukt.'; out.classList.add('on'); return; }
+    out.innerHTML = escHtml(data.vertaling || '') + '<span class="tl-copy-hint">Klik om te kopieren</span>';
+    out.classList.add('on');
+    out.onclick = function() {
+      var tx = data.vertaling || '';
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(tx).then(function(){
+          out.querySelector('.tl-copy-hint').textContent = 'Gekopieerd';
+          setTimeout(function(){ if(out.querySelector('.tl-copy-hint')) out.querySelector('.tl-copy-hint').textContent = 'Klik om te kopieren'; }, 1600);
+        });
+      }
+    };
+  } catch (e) {
+    out.textContent = 'Netwerkfout.'; out.classList.add('on');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Vertaal';
+  }
+}
+
+function escHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
 }
 
 function initApp() {
@@ -763,6 +1024,7 @@ async function sendMsg() {
     const decoder = new TextDecoder();
     let fullText = '';
     let buffer   = '';
+    let liveSources = [];
 
     while (true) {
       const { done, value } = await reader.read();
@@ -776,6 +1038,8 @@ async function sendMsg() {
           const data = JSON.parse(line.slice(6));
           if (data.error) throw new Error(data.error);
           if (data.t) fullText += data.t;
+          if (data.sources) { liveSources = data.sources; renderSidebarSources(liveSources); }
+          if (data.usage) recordUsage(data.usage);
         } catch (parseErr) {
           if (parseErr.message && !parseErr.message.includes('JSON')) throw parseErr;
         }
@@ -1087,5 +1351,13 @@ async function typewriterReveal(el, text, msPerWord = 28) {
 // BOOT
 init();
 </script>
+
+<div id="srcModal" class="src-modal" onclick="if(event.target===this) closeSource()">
+  <div class="src-box">
+    <h4 id="srcTitle">Bron</h4>
+    <div id="srcBody" style="white-space:pre-wrap"></div>
+    <button class="close" onclick="closeSource()">Sluiten</button>
+  </div>
+</div>
 </body>
 </html>

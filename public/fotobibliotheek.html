@@ -134,17 +134,20 @@
       font-weight: 600;
     }
     .folder svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; flex-shrink: 0; }
-    .folder .fchev {
-      width: 14px;
-      text-align: center;
-      font-size: 0.7rem;
-      color: var(--ink-muted);
-      flex-shrink: 0;
-      cursor: default;
-    }
-    .folder .fchev.on { cursor: pointer; color: var(--ink-soft); }
-    .folder .fchev.on:hover { color: var(--gold); }
     .folder .fname { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .folder .fmore { color: var(--gold); font-weight: 700; margin-left: 0.4rem; }
+    .folder-back {
+      padding: 0.55rem 1.25rem;
+      cursor: pointer;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border-left: 2px solid transparent;
+      transition: background 0.15s, color 0.15s;
+    }
+    .folder-back:hover { background: var(--gold-faint); color: var(--navy); }
     .folder .fdel {
       opacity: 0;
       color: var(--danger);
@@ -733,8 +736,11 @@ async function loadFolders() {
     renderFolders([]);
   }
 }
-var expanded = new Set();
-
+function parentOf(folder) {
+  var idx = folder.lastIndexOf('/');
+  if (idx < 0) return null;
+  return folder.substring(0, idx);
+}
 function hasChildren(folder, list) {
   var prefix = folder + '/';
   for (var i = 0; i < list.length; i++) {
@@ -742,61 +748,59 @@ function hasChildren(folder, list) {
   }
   return false;
 }
-function parentOf(folder) {
-  var idx = folder.lastIndexOf('/');
-  if (idx < 0) return null;
-  return folder.substring(0, idx);
-}
-function isVisible(folder, list) {
-  var p = parentOf(folder);
-  while (p && p !== ROOT) {
-    if (!expanded.has(p)) return false;
-    p = parentOf(p);
-  }
-  return true;
-}
-function expandAncestors(folder) {
-  var p = parentOf(folder);
-  while (p && p !== ROOT) {
-    expanded.add(p);
-    p = parentOf(p);
-  }
-}
-function toggleExpand(folder) {
-  if (expanded.has(folder)) expanded.delete(folder);
-  else expanded.add(folder);
-  renderFolders(folders);
+function isAncestorOf(a, b) {
+  return b.indexOf(a + '/') === 0;
 }
 
 function renderFolders(list) {
   var el = document.getElementById('folderList');
   var sorted = list.slice().sort();
+  var atRoot = currentFolder === ROOT;
   var html = '';
-  html += '<div class="folder ' + (currentFolder === ROOT ? 'active' : '') + '" onclick="selectFolder(\'' + ROOT + '\')" style="padding-left:1.25rem">'
-    + '<span class="fchev"></span>'
+
+  html += '<div class="folder ' + (atRoot ? 'active' : '') + '" onclick="selectFolder(\'' + ROOT + '\')" style="padding-left:1.25rem">'
     + '<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>'
     + '<span class="fname">Alle foto\'s</span></div>';
+
   sorted.forEach(function(f) {
-    if (!isVisible(f, sorted)) return;
+    var isCurrent = f === currentFolder;
+    var isAncestor = !isCurrent && isAncestorOf(f, currentFolder);
+    var isDirectChild = parentOf(f) === currentFolder;
+    var isTopLevel = parentOf(f) === ROOT;
+
+    var show;
+    if (atRoot) {
+      show = isTopLevel;
+    } else {
+      show = isCurrent || isAncestor || isDirectChild;
+    }
+    if (!show) return;
+
     var relPath = f.replace(ROOT + '/', '');
     var parts = relPath.split('/');
     var name = parts[parts.length - 1];
     var depth = parts.length - 1;
-    var indent = 0.65 + depth * 1.1;
-    var isActive = f === currentFolder;
+    var indent = 0.9 + depth * 1.1;
     var kids = hasChildren(f, sorted);
-    var isExp = expanded.has(f);
-    var chev = kids
-      ? '<span class="fchev on" onclick="event.stopPropagation(); toggleExpand(\'' + esc(f) + '\')">' + (isExp ? '&#9662;' : '&#9656;') + '</span>'
-      : '<span class="fchev"></span>';
-    html += '<div class="folder ' + (isActive ? 'active' : '') + '" onclick="selectFolder(\'' + esc(f) + '\')" style="padding-left:' + indent + 'rem">'
-      + chev
+
+    html += '<div class="folder ' + (isCurrent ? 'active' : '') + '" onclick="selectFolder(\'' + esc(f) + '\')" style="padding-left:' + indent + 'rem">'
       + '<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>'
-      + '<span class="fname">' + esc(name) + '</span>'
+      + '<span class="fname">' + esc(name) + (kids && !isCurrent ? ' <span class="fmore">&rsaquo;</span>' : '') + '</span>'
       + '<button class="fdel" onclick="event.stopPropagation(); deleteFolder(\'' + esc(f) + '\')" title="Map verwijderen">&times;</button>'
       + '</div>';
   });
+
+  if (!atRoot) {
+    html = '<div class="folder-back" onclick="goUp()">&larr; Terug</div>' + html;
+  }
+
   el.innerHTML = html;
+}
+
+function goUp() {
+  var p = parentOf(currentFolder);
+  if (!p) selectFolder(ROOT);
+  else selectFolder(p);
 }
 function updateBulkMoveOptions() {
   var sel = document.getElementById('bulkMove');
@@ -812,8 +816,6 @@ function selectFolder(f) {
   currentFolder = f;
   clearSelection();
   document.getElementById('crumb').textContent = f === ROOT ? 'Alle foto\'s' : f.replace(ROOT + '/', '');
-  expandAncestors(f);
-  if (hasChildren(f, folders)) expanded.add(f);
   renderFolders(folders);
   loadPhotos();
 }

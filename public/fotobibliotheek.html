@@ -692,8 +692,9 @@ function humanBytes(b) {
 }
 
 function promptNewFolder() {
-  document.getElementById('promptTitle').textContent = 'Nieuwe map';
-  document.getElementById('promptText').textContent = 'Geef de naam van de nieuwe map.';
+  var parentLabel = currentFolder === ROOT ? 'de hoofdmap' : '"' + currentFolder.replace(ROOT + '/', '') + '"';
+  document.getElementById('promptTitle').textContent = 'Nieuwe map in ' + parentLabel;
+  document.getElementById('promptText').textContent = 'De map komt binnen ' + parentLabel + '. Ga eerst naar een andere map als je hem ergens anders wilt aanmaken.';
   document.getElementById('promptInput').value = '';
   promptCb = function(name) {
     if (!name.trim()) return;
@@ -724,16 +725,21 @@ async function loadFolders() {
 }
 function renderFolders(list) {
   var el = document.getElementById('folderList');
+  var sorted = list.slice().sort();
   var html = '';
-  html += '<div class="folder ' + (currentFolder === ROOT ? 'active' : '') + '" onclick="selectFolder(\'' + ROOT + '\')">'
+  html += '<div class="folder ' + (currentFolder === ROOT ? 'active' : '') + '" onclick="selectFolder(\'' + ROOT + '\')" style="padding-left:1.25rem">'
     + '<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>'
     + '<span class="fname">Alle foto\'s</span></div>';
-  list.forEach(function(f) {
-    var short = f.replace(ROOT + '/', '');
+  sorted.forEach(function(f) {
+    var relPath = f.replace(ROOT + '/', '');
+    var parts = relPath.split('/');
+    var name = parts[parts.length - 1];
+    var depth = parts.length - 1;
+    var indent = 1.25 + depth * 1.15;
     var isActive = f === currentFolder;
-    html += '<div class="folder ' + (isActive ? 'active' : '') + '" onclick="selectFolder(\'' + esc(f) + '\')">'
+    html += '<div class="folder ' + (isActive ? 'active' : '') + '" onclick="selectFolder(\'' + esc(f) + '\')" style="padding-left:' + indent + 'rem">'
       + '<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>'
-      + '<span class="fname">' + esc(short) + '</span>'
+      + '<span class="fname">' + esc(name) + '</span>'
       + '<button class="fdel" onclick="event.stopPropagation(); deleteFolder(\'' + esc(f) + '\')" title="Map verwijderen">&times;</button>'
       + '</div>';
   });

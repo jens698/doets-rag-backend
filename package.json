@@ -9,6 +9,7 @@
     "openai": "^4.0.0",
     "pdf-parse": "^1.1.1",
     "formidable": "^3.5.1",
-    "cheerio": "^1.0.0"
+    "cheerio": "^1.0.0",
+    "cloudinary": "^2.5.1"
   }
 }

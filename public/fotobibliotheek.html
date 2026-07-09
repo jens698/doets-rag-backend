@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fotobibliotheek — Doets AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --navy: #0D1F3C;
+      --navy-soft: #1a3556;
+      --gold: #C9A84C;
+      --gold-soft: #E2C875;
+      --gold-pale: #F4EBD0;
+      --gold-faint: #FAF5E5;
+      --cream: #FAF7F2;
+      --cream-dark: #F2EDE3;
+      --ink: #1A1A1A;
+      --ink-soft: #4A4A4A;
+      --ink-muted: #8B8B8B;
+      --line: #E8E2D5;
+      --danger: #B23A48;
+    }
+
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: 'Manrope', -apple-system, sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .app { display: flex; flex-direction: column; height: 100%; }
+
+    .topbar {
+      background: var(--navy);
+      color: #fff;
+      padding: 1.1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 3px solid var(--gold);
+      flex-shrink: 0;
+    }
+    .brand {
+      font-family: 'Fraunces', serif;
+      font-size: 1.35rem;
+      font-weight: 500;
+    }
+    .brand .accent { color: var(--gold); font-style: italic; }
+    .brand .tag {
+      font-size: 0.65rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      margin-left: 0.75rem;
+      padding-left: 0.75rem;
+      border-left: 1px solid rgba(255,255,255,0.15);
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 0.42rem 0.9rem;
+      border-radius: 4px;
+      transition: all 0.15s;
+    }
+    .back-link:hover { color: #fff; border-color: rgba(201,168,76,0.6); background: rgba(201,168,76,0.1); }
+
+    .main { flex: 1; display: flex; min-height: 0; }
+
+    .sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      background: #fff;
+      border-right: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .sb-head {
+      padding: 1.25rem 1.25rem 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .sb-title {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+    }
+    .btn-newfolder {
+      background: transparent;
+      color: var(--gold);
+      border: 1px solid var(--gold-pale);
+      padding: 0.28rem 0.55rem;
+      font-size: 0.65rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-newfolder:hover { background: var(--gold-faint); }
+
+    .folder-list { flex: 1; overflow-y: auto; padding: 0.4rem 0 1rem; }
+    .folder {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.55rem 1.25rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--ink-soft);
+      border-left: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .folder:hover { background: var(--gold-faint); color: var(--navy); }
+    .folder.active {
+      background: var(--gold-faint);
+      color: var(--navy);
+      border-left-color: var(--gold);
+      font-weight: 600;
+    }
+    .folder svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; flex-shrink: 0; }
+    .folder .fname { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .folder .fdel {
+      opacity: 0;
+      color: var(--danger);
+      background: none;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+    .folder:hover .fdel { opacity: 0.5; }
+    .folder .fdel:hover { opacity: 1; }
+
+    .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    .toolbar {
+      padding: 1rem 2rem;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .breadcrumb {
+      flex: 1;
+      font-family: 'Fraunces', serif;
+      font-size: 1.4rem;
+      color: var(--navy);
+      font-weight: 500;
+    }
+    .breadcrumb .count {
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--ink-muted);
+      margin-left: 0.6rem;
+      letter-spacing: 0.08em;
+    }
+    .search-box {
+      background: var(--cream);
+      border: 1px solid var(--line);
+      padding: 0.55rem 0.9rem;
+      font: inherit;
+      font-size: 0.85rem;
+      width: 220px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .search-box:focus { border-color: var(--gold); background: #fff; }
+
+    .btn {
+      padding: 0.55rem 1rem;
+      font: inherit;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink-soft);
+      transition: all 0.15s;
+    }
+    .btn:hover { border-color: var(--navy); color: var(--navy); }
+    .btn.primary {
+      background: var(--navy);
+      color: #fff;
+      border-color: var(--navy);
+    }
+    .btn.primary:hover { background: var(--navy-soft); }
+    .btn.danger { color: var(--danger); border-color: #E7B7A9; }
+    .btn.danger:hover { background: #FBEAE6; border-color: var(--danger); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .grid-wrap {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem 2rem 2rem;
+      background: var(--cream);
+      position: relative;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .tile {
+      background: #fff;
+      border: 1px solid var(--line);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .tile:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px -10px rgba(13,31,60,0.18);
+      border-color: var(--gold);
+    }
+    .tile.selected {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px var(--gold-faint);
+    }
+    .tile-img {
+      aspect-ratio: 1;
+      background: var(--cream-dark);
+      overflow: hidden;
+      position: relative;
+    }
+    .tile-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .tile-check {
+      position: absolute;
+      top: 8px; left: 8px;
+      width: 22px;
+      height: 22px;
+      background: rgba(255,255,255,0.9);
+      border: 1.5px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.15s;
+      cursor: pointer;
+      z-index: 2;
+    }
+    .tile:hover .tile-check, .tile.selected .tile-check { opacity: 1; }
+    .tile.selected .tile-check {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: var(--navy);
+    }
+    .tile-check::before { content: ''; width: 12px; height: 12px; }
+    .tile.selected .tile-check::before {
+      content: '✓';
+      color: var(--navy);
+      font-weight: 700;
+      font-size: 0.75rem;
+      width: auto; height: auto;
+    }
+    .tile-info {
+      padding: 0.6rem 0.75rem;
+      font-size: 0.75rem;
+      color: var(--ink-soft);
+      border-top: 1px solid var(--line);
+    }
+    .tile-name {
+      font-weight: 600;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 0.15rem;
+    }
+    .tile-meta { font-size: 0.65rem; color: var(--ink-muted); }
+
+    .empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 5rem 2rem;
+      color: var(--ink-muted);
+    }
+    .empty h3 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.4rem;
+      font-weight: 500;
+      color: var(--navy);
+      margin-bottom: 0.5rem;
+    }
+    .empty p { font-size: 0.9rem; margin-bottom: 1.25rem; }
+
+    .drop-overlay {
+      position: absolute;
+      inset: 1rem;
+      background: rgba(201,168,76,0.12);
+      border: 2px dashed var(--gold);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 30;
+      pointer-events: none;
+      font-family: 'Fraunces', serif;
+      font-size: 1.5rem;
+      color: var(--navy);
+    }
+    .grid-wrap.dragging .drop-overlay { display: flex; }
+
+    /* Upload progress */
+    .upload-status {
+      position: fixed;
+      bottom: 1.25rem;
+      right: 1.25rem;
+      background: var(--navy);
+      color: #fff;
+      padding: 0.9rem 1.25rem;
+      font-size: 0.82rem;
+      z-index: 50;
+      display: none;
+      max-width: 320px;
+    }
+    .upload-status.on { display: block; }
+    .upload-status .bar {
+      height: 3px;
+      background: rgba(255,255,255,0.15);
+      margin-top: 0.5rem;
+      overflow: hidden;
+    }
+    .upload-status .fill {
+      height: 100%;
+      background: var(--gold);
+      transition: width 0.3s;
+      width: 0%;
+    }
+
+    /* Detail modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(13,31,60,0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 2rem;
+    }
+    .modal.on { display: flex; }
+    .modal-close {
+      position: absolute;
+      top: 1rem; right: 1rem;
+      width: 40px; height: 40px;
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-close:hover { background: rgba(0,0,0,0.8); }
+    .modal-content {
+      display: flex;
+      gap: 1rem;
+      max-width: 1400px;
+      width: 100%;
+      max-height: 90vh;
+    }
+    .modal-img-wrap {
+      flex: 1;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      min-width: 0;
+    }
+    .modal-img-wrap img {
+      max-width: 100%;
+      max-height: 90vh;
+      object-fit: contain;
+    }
+    .modal-side {
+      width: 320px;
+      background: var(--cream);
+      padding: 1.5rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      flex-shrink: 0;
+    }
+    .modal-side h3 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.3rem;
+      color: var(--navy);
+      font-weight: 500;
+    }
+    .kv {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 0.4rem 0.75rem;
+      font-size: 0.78rem;
+    }
+    .kv .k {
+      color: var(--ink-muted);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-size: 0.65rem;
+      padding-top: 2px;
+    }
+    .kv .v { color: var(--ink); overflow-wrap: anywhere; }
+    .modal-tags input, .modal-caption textarea {
+      width: 100%;
+      padding: 0.5rem 0.7rem;
+      font: inherit;
+      font-size: 0.8rem;
+      border: 1px solid var(--line);
+      background: #fff;
+      outline: none;
+    }
+    .modal-tags input:focus, .modal-caption textarea:focus { border-color: var(--gold); }
+    .modal-caption textarea { min-height: 60px; resize: vertical; }
+    .modal-actions { display: flex; gap: 0.5rem; margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--line); flex-wrap: wrap; }
+    .modal-actions .btn { flex: 1; min-width: 100px; text-align: center; justify-content: center; }
+    label.field-lbl {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-bottom: 0.3rem;
+      display: block;
+    }
+
+    /* Bulk action bar */
+    .bulk-bar {
+      position: fixed;
+      bottom: 1.25rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(150%);
+      background: var(--navy);
+      color: #fff;
+      padding: 0.85rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      z-index: 40;
+      box-shadow: 0 10px 30px rgba(13,31,60,0.35);
+      transition: transform 0.25s;
+    }
+    .bulk-bar.on { transform: translateX(-50%) translateY(0); }
+    .bulk-bar .n { font-weight: 700; color: var(--gold); }
+    .bulk-bar select {
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 0.35rem 0.5rem;
+      font: inherit;
+      font-size: 0.75rem;
+    }
+    .bulk-bar .btn { background: transparent; color: #fff; border-color: rgba(255,255,255,0.25); }
+    .bulk-bar .btn:hover { background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.5); }
+
+    /* Prompt */
+    .prompt {
+      position: fixed;
+      inset: 0;
+      background: rgba(13,31,60,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 2rem;
+    }
+    .prompt.on { display: flex; }
+    .prompt-box {
+      background: #fff;
+      padding: 2rem;
+      max-width: 420px;
+      width: 100%;
+      border-top: 3px solid var(--gold);
+    }
+    .prompt-box h4 { font-family: 'Fraunces', serif; font-size: 1.25rem; color: var(--navy); font-weight: 500; margin-bottom: 0.5rem; }
+    .prompt-box p { font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 1rem; }
+    .prompt-box input {
+      width: 100%;
+      padding: 0.65rem 0.85rem;
+      font: inherit;
+      font-size: 0.9rem;
+      border: 1px solid var(--line);
+      background: var(--cream);
+      outline: none;
+      margin-bottom: 1rem;
+    }
+    .prompt-box input:focus { border-color: var(--gold); background: #fff; }
+    .prompt-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
+
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(200%);
+      background: var(--navy);
+      color: #fff;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.8rem;
+      z-index: 300;
+      transition: transform 0.25s;
+    }
+    .toast.on { transform: translateX(-50%) translateY(0); }
+
+    input[type=file] { display: none; }
+
+    @media (max-width: 900px) {
+      .sidebar { width: 200px; }
+      .toolbar { padding: 0.75rem 1rem; }
+      .grid-wrap { padding: 1rem; }
+      .grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+      .modal-content { flex-direction: column; }
+      .modal-side { width: 100%; max-height: 200px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <header class="topbar">
+    <div>
+      <span class="brand"><span class="accent">Doets</span> Reizen<span class="tag">Fotobibliotheek</span></span>
+    </div>
+    <a href="/dashboard.html" class="back-link">&larr; Portaal</a>
+  </header>
+
+  <div class="main">
+    <aside class="sidebar">
+      <div class="sb-head">
+        <span class="sb-title">Mappen</span>
+        <button class="btn-newfolder" onclick="promptNewFolder()">+ Nieuw</button>
+      </div>
+      <div class="folder-list" id="folderList">
+        <div style="padding:1rem 1.25rem;font-size:0.75rem;color:var(--ink-muted)">Laden...</div>
+      </div>
+    </aside>
+
+    <div class="content">
+      <div class="toolbar">
+        <div class="breadcrumb">
+          <span id="crumb">Alle foto's</span>
+          <span class="count" id="count"></span>
+        </div>
+        <input type="text" class="search-box" id="searchBox" placeholder="Zoeken op naam of tag..." oninput="applyFilter()">
+        <button class="btn primary" onclick="document.getElementById('fileInput').click()">Upload foto's</button>
+        <input type="file" id="fileInput" accept="image/*" multiple onchange="uploadFiles(this.files)">
+      </div>
+
+      <div class="grid-wrap" id="gridWrap"
+           ondragover="event.preventDefault(); this.classList.add('dragging')"
+           ondragleave="this.classList.remove('dragging')"
+           ondrop="handleDrop(event)">
+        <div class="drop-overlay">Laat los om te uploaden</div>
+        <div class="grid" id="grid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Upload status -->
+<div class="upload-status" id="uploadStatus">
+  <div id="uploadText">Uploaden...</div>
+  <div class="bar"><div class="fill" id="uploadBar"></div></div>
+</div>
+
+<!-- Detail modal -->
+<div class="modal" id="modal" onclick="if(event.target===this) closeModal()">
+  <button class="modal-close" onclick="closeModal()">&times;</button>
+  <div class="modal-content">
+    <div class="modal-img-wrap"><img id="modalImg" src=""></div>
+    <div class="modal-side">
+      <h3 id="mTitle">Foto</h3>
+      <div class="kv">
+        <span class="k">Afmeting</span><span class="v" id="mDim">—</span>
+        <span class="k">Grootte</span><span class="v" id="mSize">—</span>
+        <span class="k">Uploaded</span><span class="v" id="mUploader">—</span>
+        <span class="k">Datum</span><span class="v" id="mDate">—</span>
+      </div>
+      <div class="modal-tags">
+        <label class="field-lbl">Tags (komma-gescheiden)</label>
+        <input type="text" id="mTags" placeholder="ijsland, hotel, winter...">
+      </div>
+      <div class="modal-caption">
+        <label class="field-lbl">Beschrijving</label>
+        <textarea id="mCaption" placeholder="Beschrijving of context..."></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" onclick="saveMeta()">Opslaan</button>
+        <button class="btn" onclick="downloadOriginal()">Download origineel</button>
+        <button class="btn danger" onclick="deleteCurrent()">Verwijderen</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bulk action bar -->
+<div class="bulk-bar" id="bulkBar">
+  <span><b class="n" id="bulkN">0</b> geselecteerd</span>
+  <select id="bulkMove"><option value="">Verplaats naar map...</option></select>
+  <button class="btn" onclick="bulkMove()">Verplaats</button>
+  <button class="btn" onclick="bulkDownload()">Download alle</button>
+  <button class="btn danger" onclick="bulkDelete()">Verwijder</button>
+  <button class="btn" onclick="clearSelection()">Annuleer</button>
+</div>
+
+<!-- New folder prompt -->
+<div class="prompt" id="prompt">
+  <div class="prompt-box">
+    <h4 id="promptTitle">Nieuwe map</h4>
+    <p id="promptText">Geef de naam van de nieuwe map (bijv. IJsland, Hotels Reykjavik).</p>
+    <input type="text" id="promptInput" placeholder="Mapnaam" onkeydown="if(event.key==='Enter') promptOk()">
+    <div class="prompt-actions">
+      <button class="btn" onclick="closePrompt()">Annuleer</button>
+      <button class="btn primary" onclick="promptOk()">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var API = window.location.origin;
+var token = localStorage.getItem('doets_token');
+var user  = localStorage.getItem('doets_user') || '';
+
+if (!token) window.location.href = '/dashboard.html';
+
+var ROOT = 'doets';
+var currentFolder = ROOT;
+var photos = [];
+var folders = [];
+var selected = new Set();
+var currentPhoto = null;
+var searchQuery = '';
+var promptCb = null;
+
+function authHeaders() { return { 'Authorization': 'Bearer ' + token }; }
+
+function toast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('on');
+  clearTimeout(window.__tt);
+  window.__tt = setTimeout(function(){ t.classList.remove('on'); }, 2600);
+}
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+
+function shortName(path) {
+  var name = path.split('/').pop();
+  return name || path;
+}
+function humanBytes(b) {
+  if (!b) return '—';
+  if (b < 1024) return b + ' B';
+  if (b < 1024*1024) return (b/1024).toFixed(1) + ' KB';
+  return (b/1024/1024).toFixed(1) + ' MB';
+}
+
+function promptNewFolder() {
+  document.getElementById('promptTitle').textContent = 'Nieuwe map';
+  document.getElementById('promptText').textContent = 'Geef de naam van de nieuwe map.';
+  document.getElementById('promptInput').value = '';
+  promptCb = function(name) {
+    if (!name.trim()) return;
+    createFolder(name.trim());
+  };
+  document.getElementById('prompt').classList.add('on');
+  setTimeout(function(){ document.getElementById('promptInput').focus(); }, 60);
+}
+function closePrompt() { document.getElementById('prompt').classList.remove('on'); promptCb = null; }
+function promptOk() {
+  var v = document.getElementById('promptInput').value;
+  var cb = promptCb;
+  closePrompt();
+  if (cb) cb(v);
+}
+
+async function loadFolders() {
+  try {
+    var res = await fetch(API + '/api/photos?action=folders', { headers: authHeaders() });
+    if (!res.ok) { renderFolders([]); return; }
+    var data = await res.json();
+    folders = data.folders || [];
+    renderFolders(folders);
+    updateBulkMoveOptions();
+  } catch (e) {
+    renderFolders([]);
+  }
+}
+function renderFolders(list) {
+  var el = document.getElementById('folderList');
+  var html = '';
+  html += '<div class="folder ' + (currentFolder === ROOT ? 'active' : '') + '" onclick="selectFolder(\'' + ROOT + '\')">'
+    + '<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>'
+    + '<span class="fname">Alle foto\'s</span></div>';
+  list.forEach(function(f) {
+    var short = f.replace(ROOT + '/', '');
+    var isActive = f === currentFolder;
+    html += '<div class="folder ' + (isActive ? 'active' : '') + '" onclick="selectFolder(\'' + esc(f) + '\')">'
+      + '<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>'
+      + '<span class="fname">' + esc(short) + '</span>'
+      + '<button class="fdel" onclick="event.stopPropagation(); deleteFolder(\'' + esc(f) + '\')" title="Map verwijderen">&times;</button>'
+      + '</div>';
+  });
+  el.innerHTML = html;
+}
+function updateBulkMoveOptions() {
+  var sel = document.getElementById('bulkMove');
+  var html = '<option value="">Verplaats naar map...</option>';
+  html += '<option value="' + ROOT + '">Alle foto\'s (root)</option>';
+  folders.forEach(function(f) {
+    html += '<option value="' + esc(f) + '">' + esc(f.replace(ROOT + '/', '')) + '</option>';
+  });
+  sel.innerHTML = html;
+}
+
+function selectFolder(f) {
+  currentFolder = f;
+  clearSelection();
+  document.getElementById('crumb').textContent = f === ROOT ? 'Alle foto\'s' : f.replace(ROOT + '/', '');
+  renderFolders(folders);
+  loadPhotos();
+}
+
+async function loadPhotos() {
+  var wrap = document.getElementById('grid');
+  wrap.innerHTML = '<div class="empty">Laden...</div>';
+  try {
+    var res = await fetch(API + '/api/photos?action=list&folder=' + encodeURIComponent(currentFolder), { headers: authHeaders() });
+    if (!res.ok) {
+      var err = await res.json().catch(function(){ return {}; });
+      wrap.innerHTML = '<div class="empty"><h3>Kon foto\'s niet ophalen</h3><p>' + esc(err.error || 'Onbekende fout') + '</p></div>';
+      return;
+    }
+    var data = await res.json();
+    photos = data.photos || [];
+    renderGrid();
+  } catch (e) {
+    wrap.innerHTML = '<div class="empty"><h3>Netwerkfout</h3><p>' + esc(e.message) + '</p></div>';
+  }
+}
+
+function renderGrid() {
+  var wrap = document.getElementById('grid');
+  var q = searchQuery.toLowerCase();
+  var filtered = photos.filter(function(p) {
+    if (!q) return true;
+    var hay = (p.filename + ' ' + (p.tags || []).join(' ') + ' ' + (p.caption || '')).toLowerCase();
+    return hay.indexOf(q) >= 0;
+  });
+  document.getElementById('count').textContent = filtered.length + (filtered.length === 1 ? ' foto' : ' foto\'s');
+  if (!filtered.length) {
+    wrap.innerHTML = '<div class="empty"><h3>Nog geen foto\'s</h3><p>Sleep foto\'s in dit venster of klik op "Upload foto\'s" om te beginnen.</p></div>';
+    return;
+  }
+  wrap.innerHTML = filtered.map(function(p) {
+    return '<div class="tile ' + (selected.has(p.public_id) ? 'selected' : '') + '" data-id="' + esc(p.public_id) + '">'
+      + '<div class="tile-check" onclick="event.stopPropagation(); toggleSelect(\'' + esc(p.public_id) + '\')"></div>'
+      + '<div class="tile-img" onclick="openPhoto(\'' + esc(p.public_id) + '\')"><img loading="lazy" src="' + esc(p.thumb_url) + '" alt=""></div>'
+      + '<div class="tile-info">'
+      + '<div class="tile-name" title="' + esc(p.filename) + '">' + esc(p.filename) + '</div>'
+      + '<div class="tile-meta">' + (p.width || '?') + '×' + (p.height || '?') + ' &middot; ' + humanBytes(p.bytes) + '</div>'
+      + '</div></div>';
+  }).join('');
+}
+
+function applyFilter() {
+  searchQuery = document.getElementById('searchBox').value;
+  renderGrid();
+}
+
+function toggleSelect(id) {
+  if (selected.has(id)) selected.delete(id);
+  else selected.add(id);
+  renderGrid();
+  updateBulkBar();
+}
+function clearSelection() {
+  selected.clear();
+  renderGrid();
+  updateBulkBar();
+}
+function updateBulkBar() {
+  var bar = document.getElementById('bulkBar');
+  document.getElementById('bulkN').textContent = selected.size;
+  bar.classList.toggle('on', selected.size > 0);
+}
+
+function openPhoto(id) {
+  var p = photos.find(function(x){ return x.public_id === id; });
+  if (!p) return;
+  currentPhoto = p;
+  document.getElementById('mTitle').textContent = p.filename;
+  document.getElementById('modalImg').src = p.preview_url;
+  document.getElementById('mDim').textContent = (p.width || '?') + '×' + (p.height || '?') + ' px';
+  document.getElementById('mSize').textContent = humanBytes(p.bytes);
+  document.getElementById('mUploader').textContent = p.uploader || '—';
+  document.getElementById('mDate').textContent = p.created_at ? new Date(p.created_at).toLocaleString('nl-NL') : '—';
+  document.getElementById('mTags').value = (p.tags || []).join(', ');
+  document.getElementById('mCaption').value = p.caption || '';
+  document.getElementById('modal').classList.add('on');
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('on');
+  currentPhoto = null;
+}
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape') { closeModal(); closePrompt(); } });
+
+async function saveMeta() {
+  if (!currentPhoto) return;
+  var tags = document.getElementById('mTags').value.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+  var caption = document.getElementById('mCaption').value;
+  try {
+    var res = await fetch(API + '/api/photos', {
+      method: 'PATCH',
+      headers: { 'Content-Type':'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ action: 'update', public_id: currentPhoto.public_id, tags: tags, caption: caption })
+    });
+    if (!res.ok) { toast('Opslaan mislukt'); return; }
+    currentPhoto.tags = tags;
+    currentPhoto.caption = caption;
+    var idx = photos.findIndex(function(x){ return x.public_id === currentPhoto.public_id; });
+    if (idx >= 0) { photos[idx].tags = tags; photos[idx].caption = caption; }
+    toast('Opgeslagen');
+  } catch (e) { toast('Netwerkfout'); }
+}
+
+function downloadOriginal() {
+  if (!currentPhoto) return;
+  var url = currentPhoto.secure_url;
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = currentPhoto.filename;
+  a.target = '_blank';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+async function deleteCurrent() {
+  if (!currentPhoto) return;
+  if (!confirm('Deze foto verwijderen? Dit kan niet ongedaan gemaakt worden.')) return;
+  try {
+    var res = await fetch(API + '/api/photos?public_id=' + encodeURIComponent(currentPhoto.public_id), {
+      method: 'DELETE',
+      headers: authHeaders()
+    });
+    if (!res.ok) { toast('Verwijderen mislukt'); return; }
+    photos = photos.filter(function(x){ return x.public_id !== currentPhoto.public_id; });
+    selected.delete(currentPhoto.public_id);
+    closeModal();
+    renderGrid();
+    updateBulkBar();
+    toast('Verwijderd');
+  } catch (e) { toast('Netwerkfout'); }
+}
+
+async function bulkDelete() {
+  if (!selected.size) return;
+  if (!confirm(selected.size + ' foto\'s verwijderen? Dit kan niet ongedaan gemaakt worden.')) return;
+  try {
+    var ids = Array.from(selected);
+    var res = await fetch(API + '/api/photos', {
+      method: 'DELETE',
+      headers: { 'Content-Type':'application/json', 'Authorization':'Bearer ' + token },
+      body: JSON.stringify({ public_ids: ids })
+    });
+    if (!res.ok) { toast('Verwijderen mislukt'); return; }
+    photos = photos.filter(function(x){ return !selected.has(x.public_id); });
+    clearSelection();
+    renderGrid();
+    toast(ids.length + ' foto\'s verwijderd');
+  } catch (e) { toast('Netwerkfout'); }
+}
+
+async function bulkMove() {
+  var target = document.getElementById('bulkMove').value;
+  if (!target) { toast('Kies eerst een doelmap'); return; }
+  if (!selected.size) return;
+  var ids = Array.from(selected);
+  var okCount = 0;
+  document.getElementById('uploadText').textContent = 'Verplaatsen...';
+  document.getElementById('uploadStatus').classList.add('on');
+  for (var i = 0; i < ids.length; i++) {
+    var id = ids[i];
+    var name = id.split('/').pop();
+    var newId = target + '/' + name;
+    document.getElementById('uploadBar').style.width = ((i+1)/ids.length*100) + '%';
+    try {
+      var res = await fetch(API + '/api/photos', {
+        method: 'PATCH',
+        headers: { 'Content-Type':'application/json', 'Authorization':'Bearer ' + token },
+        body: JSON.stringify({ action:'rename', public_id: id, new_public_id: newId })
+      });
+      if (res.ok) okCount++;
+    } catch (e) {}
+  }
+  document.getElementById('uploadStatus').classList.remove('on');
+  clearSelection();
+  toast(okCount + ' foto\'s verplaatst');
+  loadFolders();
+  loadPhotos();
+}
+
+function bulkDownload() {
+  if (!selected.size) return;
+  toast('Bestanden openen in nieuwe tabbladen...');
+  selected.forEach(function(id) {
+    var p = photos.find(function(x){ return x.public_id === id; });
+    if (!p) return;
+    var a = document.createElement('a');
+    a.href = p.secure_url;
+    a.download = p.filename;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  });
+}
+
+async function createFolder(name) {
+  var full = currentFolder === ROOT ? ROOT + '/' + name : currentFolder + '/' + name;
+  try {
+    var res = await fetch(API + '/api/photos', {
+      method: 'PATCH',
+      headers: { 'Content-Type':'application/json', 'Authorization':'Bearer ' + token },
+      body: JSON.stringify({ action:'create_folder', folder: full })
+    });
+    if (!res.ok) { var err = await res.json().catch(function(){return{};}); toast(err.error || 'Map maken mislukt'); return; }
+    toast('Map "' + name + '" aangemaakt');
+    await loadFolders();
+    selectFolder(full);
+  } catch (e) { toast('Netwerkfout'); }
+}
+
+async function deleteFolder(f) {
+  if (!confirm('Map "' + f.replace(ROOT + '/', '') + '" verwijderen? De map moet leeg zijn.')) return;
+  try {
+    var res = await fetch(API + '/api/photos', {
+      method: 'PATCH',
+      headers: { 'Content-Type':'application/json', 'Authorization':'Bearer ' + token },
+      body: JSON.stringify({ action:'delete_folder', folder: f })
+    });
+    if (!res.ok) {
+      var err = await res.json().catch(function(){return{};});
+      toast(err.error || 'Verwijderen mislukt (map moet leeg zijn)');
+      return;
+    }
+    toast('Map verwijderd');
+    if (currentFolder === f) currentFolder = ROOT;
+    await loadFolders();
+    loadPhotos();
+  } catch (e) { toast('Netwerkfout'); }
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('gridWrap').classList.remove('dragging');
+  if (e.dataTransfer.files.length) uploadFiles(e.dataTransfer.files);
+}
+
+async function uploadFiles(files) {
+  var arr = Array.from(files).filter(function(f){ return f.type.startsWith('image/'); });
+  if (!arr.length) { toast('Geen afbeeldingen geselecteerd'); return; }
+  var status = document.getElementById('uploadStatus');
+  var bar = document.getElementById('uploadBar');
+  var text = document.getElementById('uploadText');
+  status.classList.add('on');
+  var uploaded = 0;
+
+  for (var i = 0; i < arr.length; i++) {
+    var f = arr[i];
+    text.textContent = 'Uploaden ' + (i+1) + ' van ' + arr.length + ': ' + f.name;
+    bar.style.width = (i/arr.length*100) + '%';
+    var fd = new FormData();
+    fd.append('file', f);
+    fd.append('folder', currentFolder);
+    fd.append('uploader', user);
+    try {
+      var res = await fetch(API + '/api/photos', { method: 'POST', headers: authHeaders(), body: fd });
+      if (res.ok) uploaded++;
+      else {
+        var err = await res.json().catch(function(){return{};});
+        console.error('Upload error:', err);
+      }
+    } catch (e) { console.error(e); }
+  }
+
+  bar.style.width = '100%';
+  text.textContent = uploaded + ' van ' + arr.length + ' geupload';
+  setTimeout(function(){ status.classList.remove('on'); }, 1400);
+  toast(uploaded + ' foto\'s geupload');
+  loadPhotos();
+  document.getElementById('fileInput').value = '';
+}
+
+// Init
+loadFolders();
+loadPhotos();
+</script>
+</body>
+</html>

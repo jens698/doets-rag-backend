@@ -64,12 +64,27 @@ export default async function handler(req, res) {
       const action = req.query.action || 'list';
 
       if (action === 'folders') {
+        async function walk(path) {
+          try {
+            const r = await cloudinary.api.sub_folders(path);
+            const subs = r.folders || [];
+            const all = [];
+            for (const s of subs) {
+              all.push(s.path);
+              const nested = await walk(s.path);
+              all.push(...nested);
+            }
+            return all;
+          } catch (e) {
+            if (e.error && e.error.http_code === 404) return [];
+            throw e;
+          }
+        }
         try {
-          const r = await cloudinary.api.sub_folders(ROOT);
-          return res.status(200).json({ folders: (r.folders || []).map(f => f.path) });
+          const all = await walk(ROOT);
+          return res.status(200).json({ folders: all });
         } catch (e) {
-          if (e.error && e.error.http_code === 404) return res.status(200).json({ folders: [] });
-          throw e;
+          return res.status(200).json({ folders: [] });
         }
       }
 

@@ -224,6 +224,72 @@
       border-radius: 4px;
     }
 
+    .shortcuts {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 0.75rem;
+    }
+    .shortcut {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .shortcut:hover {
+      border-color: var(--gold);
+      transform: translateX(3px);
+      box-shadow: 0 6px 18px -10px rgba(13,31,60,0.2);
+    }
+    .sc-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--gold-faint);
+      border: 1px solid var(--gold-pale);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border-radius: 6px;
+    }
+    .sc-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke: var(--gold);
+      stroke-width: 1.7;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .sc-body { flex: 1; min-width: 0; }
+    .sc-title {
+      font-family: 'Fraunces', serif;
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--navy);
+      line-height: 1.2;
+      margin-bottom: 0.15rem;
+    }
+    .sc-desc {
+      font-size: 0.75rem;
+      color: var(--ink-soft);
+      line-height: 1.4;
+    }
+    .sc-arr {
+      color: var(--gold);
+      font-size: 1.1rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      transition: transform 0.2s;
+    }
+    .shortcut:hover .sc-arr { transform: translateX(4px); }
+
     .info-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
     .info-card {
       background: #fff;
@@ -451,6 +517,28 @@
           <div class="tile-title">Admin &amp; Scrape tool</div>
           <div class="tile-desc">Documenten uploaden, website-pagina's scrapen en de kennisdatabank vullen of updaten.</div>
           <div class="tile-cta">Openen <span class="arr">&rarr;</span></div>
+        </a>
+
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2 class="section-title">Snelkoppelingen Claude Projecten</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="shortcuts">
+
+        <a href="https://claude.ai/project/019eee5f-e125-7135-bd92-e1ecc13bf5cb" target="_blank" rel="noopener" class="shortcut">
+          <div class="sc-icon">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div class="sc-body">
+            <div class="sc-title">Omzetten PM</div>
+            <div class="sc-desc">Maandelijkse omzet analyseren en rapporteren.</div>
+          </div>
+          <div class="sc-arr">&rarr;</div>
         </a>
 
       </div>

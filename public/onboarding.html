@@ -11,23 +11,27 @@
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
     :root {
-      --bg:         #F7F4EE;
-      --panel:      #FFFFFF;
-      --sidebar-bg: #0A1628;
-      --sidebar-2:  #0F1F38;
-      --ink:        #111827;
-      --ink-soft:   #4B5563;
-      --ink-mute:   #9CA3AF;
-      --navy:       #0A1628;
-      --gold:       #B8962E;
-      --gold-soft:  #D4B44A;
-      --gold-pale:  #FBF5E6;
-      --rule:       #E5E1D8;
-      --danger:     #B91C1C;
-      --warn:       #C2410C;
-      --warn-bg:    #FEF3E7;
-      --admin:      #7C3AED;
-      --admin-bg:   #F3EDFF;
+      --bg:           #FAF7F2;
+      --bg-deep:      #F2EDE3;
+      --panel:        #FFFFFF;
+      --sidebar-bg:   #0D1F3C;
+      --sidebar-2:    #172a4d;
+      --sidebar-deep: #06122a;
+      --ink:          #1A1A1A;
+      --ink-soft:     #4A4A4A;
+      --ink-mute:     #8B8B8B;
+      --navy:         #0D1F3C;
+      --navy-soft:    #172a4d;
+      --gold:         #C9A84C;
+      --gold-soft:    #E2C875;
+      --gold-pale:    #F4EBD0;
+      --gold-faint:   #FAF5E5;
+      --rule:         #E8E2D5;
+      --danger:       #B23A48;
+      --warn:         #C2410C;
+      --warn-bg:      #FEF3E7;
+      --admin:        #7C3AED;
+      --admin-bg:     #F3EDFF;
     }
 
     html, body { height:100%; }
@@ -42,8 +46,10 @@
     /* ── SIDEBAR ── */
     .sidebar {
       width:280px;
-      background:var(--sidebar-bg);
-      color:#E6E9EF;
+      background:
+        radial-gradient(120% 60% at 100% 0%, var(--sidebar-2) 0%, transparent 55%),
+        linear-gradient(172deg, var(--sidebar-bg) 0%, var(--sidebar-deep) 100%);
+      color:#EDE7D8;
       display:flex;
       flex-direction:column;
       padding:32px 24px;
@@ -65,8 +71,9 @@
       font-family:'Fraunces', serif;
       font-size:22px;
       font-weight:500;
-      color:#fff;
+      color:#F4EBD0;
     }
+    .brand-name em { font-style:italic; color:var(--gold); }
     .brand-tag {
       font-size:11px;
       letter-spacing:0.2em;
@@ -507,6 +514,82 @@
       .step-num-col { width:100%; flex-direction:row; padding:14px; justify-content:space-between; }
       .step-num-col .check { margin-top:0; }
     }
+  
+    /* Per-stap admin controls (alleen in beheermodus zichtbaar) */
+    .step-admin {
+      display: none;
+      gap: 6px;
+      padding: 8px 32px 12px;
+      border-top: 1px dashed var(--admin-bg);
+      background: var(--admin-bg);
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    body.admin .step-admin { display: flex; }
+    .step-admin .lbl {
+      margin-right: auto;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--admin);
+    }
+    .step-admin button {
+      background: #fff;
+      color: var(--admin);
+      border: 1px solid var(--admin);
+      padding: 5px 10px;
+      font: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .step-admin button:hover { background: var(--admin); color: #fff; }
+    .step-admin button.danger { color: var(--danger); border-color: var(--danger); }
+    .step-admin button.danger:hover { background: var(--danger); color: #fff; }
+
+    .substep.admin-sub {
+      position: relative;
+      padding-right: 10px;
+    }
+    .substep-admin {
+      display: none;
+      gap: 4px;
+      margin-top: 6px;
+    }
+    body.admin .substep-admin { display: flex; }
+    .substep-admin button {
+      background: #fff;
+      border: 1px solid var(--admin);
+      color: var(--admin);
+      padding: 3px 8px;
+      font: inherit;
+      font-size: 10px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .substep-admin button:hover { background: var(--admin); color: #fff; }
+    .substep-admin button.danger { color: var(--danger); border-color: var(--danger); }
+    .substep-admin button.danger:hover { background: var(--danger); color: #fff; }
+    .add-substep-btn {
+      display: none;
+      background: transparent;
+      border: 1px dashed var(--admin);
+      color: var(--admin);
+      padding: 6px 12px;
+      font: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 4px 0 14px;
+      width: 100%;
+    }
+    body.admin .add-substep-btn { display: block; }
+    .add-substep-btn:hover { background: var(--admin-bg); }
+
   </style>
 </head>
 <body>
@@ -922,6 +1005,7 @@
       mod.steps.forEach(function(step, si){
         var stepKey = mod.id + '_' + si;
         var checked = !!progress.steps[stepKey];
+        var totalSteps = mod.steps.length;
         html += '<div class="step">';
         html += '  <div class="step-num-col">';
         html += '    <div>' + (si+1) + '</div>';
@@ -935,17 +1019,22 @@
         if(step.substeps && step.substeps.length){
           html += '<div class="substeps">';
           step.substeps.forEach(function(sub, i){
-            html += '<div class="substep">';
+            html += '<div class="substep admin-sub">';
             html += '  <div class="substep-num">' + (i+1) + '</div>';
             html += '  <div class="substep-body">';
             html += '    <div class="substep-action">' + escapeHTML(sub.action || '') + '</div>';
             if(sub.detail) html += '<div class="substep-detail">' + escapeHTML(sub.detail) + '</div>';
             if(sub.tip) html += '<div class="substep-tip">Tip: ' + escapeHTML(sub.tip) + '</div>';
+            html += '    <div class="substep-admin">';
+            html += '      <button onclick="editSubstep(\'' + mod.id + '\',' + si + ',' + i + ')">Bewerken</button>';
+            html += '      <button class="danger" onclick="removeSubstep(\'' + mod.id + '\',' + si + ',' + i + ')">×</button>';
+            html += '    </div>';
             html += '  </div>';
             html += '</div>';
           });
           html += '</div>';
         }
+        html += '<button class="add-substep-btn" onclick="addSubstep(\'' + mod.id + '\',' + si + ')">+ Substap toevoegen</button>';
 
         if(step.tip) html += '<div class="box-tip"><b>Tip</b>' + escapeHTML(step.tip) + '</div>';
         if(step.warning) html += '<div class="box-warn"><b>Let op</b>' + escapeHTML(step.warning) + '</div>';
@@ -969,6 +1058,13 @@
         html += '  </div>';
         html += '</div>';
 
+        html += '  </div>';
+        html += '  <div class="step-admin">';
+        html += '    <span class="lbl">Stap ' + (si+1) + '</span>';
+        html += '    <button onclick="editStep(\'' + mod.id + '\',' + si + ')">Stap bewerken</button>';
+        if(si > 0) html += '<button onclick="moveStep(\'' + mod.id + '\',' + si + ',-1)">↑</button>';
+        if(si < totalSteps - 1) html += '<button onclick="moveStep(\'' + mod.id + '\',' + si + ',1)">↓</button>';
+        html += '    <button class="danger" onclick="removeStep(\'' + mod.id + '\',' + si + ')">Verwijderen</button>';
         html += '  </div>';
         html += '</div>';
       });
@@ -1195,6 +1291,95 @@
           saveData(); closeModal(); goMod(modId);
         }
       });
+    }
+
+    function editStep(modId, si){
+      var mod = findMod(modId); if(!mod) return;
+      var step = mod.steps[si]; if(!step) return;
+      openModal({
+        title:'Stap ' + (si+1) + ' bewerken',
+        html:'<input id="sTitle" placeholder="Titel" value="' + escapeAttr(step.title||'') + '"><input id="sSub" placeholder="Subtitel (optioneel)" value="' + escapeAttr(step.subtitle||'') + '"><textarea id="sExpl" placeholder="Uitleg">' + escapeAttr(step.explanation||'') + '</textarea><textarea id="sTip" placeholder="Tip (optioneel)">' + escapeAttr(step.tip||'') + '</textarea><textarea id="sWarn" placeholder="Waarschuwing (optioneel)">' + escapeAttr(step.warning||'') + '</textarea><input id="sShot" placeholder="Screenshot label" value="' + escapeAttr(step.screenshot_label||'Screenshot') + '">',
+        submit:'Opslaan',
+        onSubmit:function(){
+          step.title = document.getElementById('sTitle').value.trim() || step.title;
+          step.subtitle = document.getElementById('sSub').value.trim();
+          step.explanation = document.getElementById('sExpl').value.trim();
+          step.tip = document.getElementById('sTip').value.trim();
+          step.warning = document.getElementById('sWarn').value.trim();
+          step.screenshot_label = document.getElementById('sShot').value.trim() || 'Screenshot';
+          saveData(); closeModal(); goMod(modId);
+        }
+      });
+    }
+
+    function moveStep(modId, si, dir){
+      var mod = findMod(modId); if(!mod) return;
+      var newIdx = si + dir;
+      if(newIdx < 0 || newIdx >= mod.steps.length) return;
+      var tmp = mod.steps[si];
+      mod.steps[si] = mod.steps[newIdx];
+      mod.steps[newIdx] = tmp;
+      // migrate step progress keys
+      var oldKey1 = mod.id + '_' + si;
+      var oldKey2 = mod.id + '_' + newIdx;
+      var v1 = progress.steps[oldKey1];
+      var v2 = progress.steps[oldKey2];
+      if(v1 !== undefined) progress.steps[oldKey2] = v1; else delete progress.steps[oldKey2];
+      if(v2 !== undefined) progress.steps[oldKey1] = v2; else delete progress.steps[oldKey1];
+      saveData(); saveProgress(); goMod(modId);
+    }
+
+    function removeStep(modId, si){
+      if(!confirm('Deze stap verwijderen?')) return;
+      var mod = findMod(modId); if(!mod) return;
+      mod.steps.splice(si, 1);
+      saveData(); goMod(modId);
+    }
+
+    function addSubstep(modId, si){
+      var mod = findMod(modId); if(!mod) return;
+      var step = mod.steps[si]; if(!step) return;
+      openModal({
+        title:'Nieuwe substap',
+        html:'<input id="ssAction" placeholder="Actie (bv. Klik op Nieuw)"><textarea id="ssDetail" placeholder="Toelichting (optioneel)"></textarea><input id="ssTip" placeholder="Tip (optioneel)">',
+        submit:'Toevoegen',
+        onSubmit:function(){
+          var action = document.getElementById('ssAction').value.trim();
+          if(!action) return;
+          if(!step.substeps) step.substeps = [];
+          step.substeps.push({
+            action: action,
+            detail: document.getElementById('ssDetail').value.trim(),
+            tip: document.getElementById('ssTip').value.trim()
+          });
+          saveData(); closeModal(); goMod(modId);
+        }
+      });
+    }
+
+    function editSubstep(modId, si, ssi){
+      var mod = findMod(modId); if(!mod) return;
+      var step = mod.steps[si]; if(!step) return;
+      var sub = step.substeps[ssi]; if(!sub) return;
+      openModal({
+        title:'Substap ' + (ssi+1) + ' bewerken',
+        html:'<input id="ssAction" placeholder="Actie" value="' + escapeAttr(sub.action||'') + '"><textarea id="ssDetail" placeholder="Toelichting">' + escapeAttr(sub.detail||'') + '</textarea><input id="ssTip" placeholder="Tip" value="' + escapeAttr(sub.tip||'') + '">',
+        submit:'Opslaan',
+        onSubmit:function(){
+          sub.action = document.getElementById('ssAction').value.trim() || sub.action;
+          sub.detail = document.getElementById('ssDetail').value.trim();
+          sub.tip = document.getElementById('ssTip').value.trim();
+          saveData(); closeModal(); goMod(modId);
+        }
+      });
+    }
+
+    function removeSubstep(modId, si, ssi){
+      if(!confirm('Deze substap verwijderen?')) return;
+      var mod = findMod(modId); if(!mod) return;
+      var step = mod.steps[si]; if(!step) return;
+      step.substeps.splice(ssi, 1);
+      saveData(); goMod(modId);
     }
 
     function openAIGen(){

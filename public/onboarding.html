@@ -874,22 +874,32 @@ function renderDeptGrid() {
 
 function renderModuleList(dk) {
   const d=DEPTS[dk];
+  if(!d){ console.warn('renderModuleList: dept niet gevonden', dk); return; }
   const list=document.getElementById('module-list');
+  if(!list){ console.warn('renderModuleList: #module-list niet in DOM'); return; }
+  if(!Array.isArray(d.modules)) d.modules = [];
+  if(!progress.modules) progress.modules = {};
+  if(!progress.steps) progress.steps = {};
   list.innerHTML=d.modules.map((m,i)=>{
+    if(!m || !m.id) return '';
+    if(!Array.isArray(m.steps)) m.steps = [];
     const done=progress.modules[m.id];
     const sc=m.steps.filter((_,si)=>progress.steps[m.id+'_'+si]).length;
     const partial=sc>0&&!done;
+    const modTitle=(m.title||'Naamloos').replace(/</g,'&lt;');
+    const modDesc=(m.desc||'').replace(/</g,'&lt;');
+    const modBadge=(m.badge||'basis').replace(/[^a-z]/gi,'');
     return `<div class="module-row" onclick="showModule('${m.id}')">
       <div class="mod-check${done?' done':partial?' partial':''}"></div>
       <div class="mod-info">
-        <div class="mod-title">${m.title}${adminMode?` <span style="color:var(--admin);font-size:0.65rem;cursor:pointer;" onclick="event.stopPropagation();openEditModulePanel('${dk}','${m.id}')">✎</span>`:''}
+        <div class="mod-title">${modTitle}${adminMode?` <span style="color:var(--admin);font-size:0.65rem;cursor:pointer;" onclick="event.stopPropagation();openEditModulePanel('${dk}','${m.id}')">✎</span>`:''}
         </div>
-        <div class="mod-desc">${m.desc}</div>
+        <div class="mod-desc">${modDesc}</div>
       </div>
-      <div class="mod-badge ${m.badge}">${m.badge}</div>
+      <div class="mod-badge ${modBadge}">${modBadge}</div>
       <div class="mod-arrow">→</div>
     </div>`;
-  }).join('');
+  }).filter(Boolean).join('');
 }
 
 function renderModuleDetail(mod, idx, d) {
@@ -1091,6 +1101,8 @@ function openAddModulePanel() {
 
 function saveNewModule() {
   const dk=currentDept;
+  if(!dk){ alert('Geen afdeling geselecteerd. Ga naar een afdeling en probeer opnieuw.'); return; }
+  if(!DEPTS[dk]){ alert('Afdeling niet gevonden: '+dk); return; }
   const title=document.getElementById('ae-mod-title').value.trim();
   const desc=document.getElementById('ae-mod-desc').value.trim();
   const intro=document.getElementById('ae-mod-intro').value.trim();
@@ -1098,8 +1110,19 @@ function saveNewModule() {
   const badge=document.getElementById('ae-mod-badge').value;
   if(!title){alert('Vul een titel in.');return;}
   const id=dk[0]+(Date.now()%100000);
-  DEPTS[dk].modules.push({id,title,badge,desc,intro,duration,steps:[],quiz:null});
-  saveData(); closeAdminPanel(); showDept(dk);
+  if(!Array.isArray(DEPTS[dk].modules)) DEPTS[dk].modules = [];
+  const newMod = {id:id,title:title,badge:badge||'basis',desc:desc,intro:intro,duration:duration,steps:[],quiz:null};
+  DEPTS[dk].modules.push(newMod);
+  saveData();
+  closeAdminPanel();
+  // Force complete re-render
+  setTimeout(function(){
+    showDept(dk);
+    // Extra render zeker weten
+    renderModuleList(dk);
+    renderSidebarDepts();
+    updateSidebarProgress();
+  }, 50);
 }
 
 function openEditModulePanel(dk,mid) {

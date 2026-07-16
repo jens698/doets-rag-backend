@@ -1,1283 +1,1518 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Onboarding — Doets AI</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doets Reizen — Onboarding Portaal</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#111827;--ink-soft:#374151;--ink-muted:#6B7280;--ink-faint:#9CA3AF;
+  --gold:#B8962E;--gold-bg:#FBF5E6;--gold-border:rgba(184,150,46,0.35);
+  --line:#E5E7EB;--line-soft:#F3F4F6;--white:#FFFFFF;
+  --sidebar:#0F172A;--s-text:rgba(255,255,255,0.55);--s-active:rgba(255,255,255,0.92);--s-line:rgba(255,255,255,0.08);
+  --green:#166534;--green-bg:#F0FDF4;--green-border:#BBF7D0;
+  --blue-text:#1D4ED8;--blue-border:#BFDBFE;
+  --admin:#7C3AED;--admin-bg:#F5F3FF;--admin-border:rgba(124,58,237,0.25);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:var(--white);color:var(--ink);height:100vh;overflow:hidden;}
+#app{height:100vh;display:grid;grid-template-rows:52px 1fr;}
 
-    :root {
-      --bg:         #F7F4EE;
-      --panel:      #FFFFFF;
-      --sidebar-bg: #0A1628;
-      --sidebar-2:  #0F1F38;
-      --ink:        #111827;
-      --ink-soft:   #4B5563;
-      --ink-mute:   #9CA3AF;
-      --navy:       #0A1628;
-      --gold:       #B8962E;
-      --gold-soft:  #D4B44A;
-      --gold-pale:  #FBF5E6;
-      --rule:       #E5E1D8;
-      --danger:     #B91C1C;
-      --warn:       #C2410C;
-      --warn-bg:    #FEF3E7;
-      --admin:      #7C3AED;
-      --admin-bg:   #F3EDFF;
-    }
+/* TOPBAR */
+.topbar{background:var(--sidebar);display:flex;align-items:center;justify-content:space-between;padding:0 1.75rem;border-bottom:1px solid var(--gold-border);}
+.topbar-left{display:flex;align-items:baseline;gap:1rem;}
+.wordmark{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--white);}
+.wordmark-sep{width:1px;height:14px;background:rgba(255,255,255,0.15);}
+.wordmark-sub{font-size:0.6rem;font-weight:400;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.35);}
+.topbar-right{display:flex;align-items:center;gap:0.85rem;}
+.topbar-tag{font-size:0.6rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);border:1px solid var(--gold-border);padding:3px 10px;}
+.topbar-tag.admin-tag{color:#A78BFA;border-color:rgba(167,139,250,0.4);}
+.topbar-btn{font-size:0.6rem;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;background:none;border:1px solid rgba(255,255,255,0.1);padding:4px 10px;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;color:rgba(255,255,255,0.25);}
+.topbar-btn:hover{color:rgba(255,255,255,0.6);border-color:rgba(255,255,255,0.25);}
+.topbar-btn.admin-btn{color:rgba(167,139,250,0.7);border-color:rgba(167,139,250,0.3);}
+.topbar-btn.admin-btn:hover{color:#A78BFA;border-color:rgba(167,139,250,0.6);}
 
-    html, body { height:100%; }
-    body {
-      font-family:'Manrope', sans-serif;
-      background:var(--bg);
-      color:var(--ink);
-      display:flex;
-      min-height:100vh;
-    }
+/* BODY GRID */
+.body-grid{display:grid;grid-template-columns:230px 1fr;overflow:hidden;}
 
-    /* ── SIDEBAR ── */
-    .sidebar {
-      width:280px;
-      background:var(--sidebar-bg);
-      color:#E6E9EF;
-      display:flex;
-      flex-direction:column;
-      padding:32px 24px;
-      border-right:1px solid rgba(255,255,255,0.06);
-      position:sticky;
-      top:0;
-      max-height:100vh;
-      overflow-y:auto;
-    }
-    .brand {
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-      padding-bottom:20px;
-      border-bottom:1px solid rgba(255,255,255,0.08);
-      margin-bottom:20px;
-    }
-    .brand-name {
-      font-family:'Fraunces', serif;
-      font-size:22px;
-      font-weight:500;
-      color:#fff;
-    }
-    .brand-tag {
-      font-size:11px;
-      letter-spacing:0.2em;
-      text-transform:uppercase;
-      color:var(--gold-soft);
-    }
-    .back-link {
-      display:flex;
-      align-items:center;
-      gap:8px;
-      font-size:12px;
-      color:rgba(255,255,255,0.55);
-      text-decoration:none;
-      margin-bottom:24px;
-      padding:8px 0;
-      border-bottom:1px solid rgba(255,255,255,0.08);
-      transition:color 0.15s;
-    }
-    .back-link:hover { color:#fff; }
+/* SIDEBAR */
+.sidebar{background:var(--sidebar);overflow-y:auto;display:flex;flex-direction:column;border-right:1px solid var(--s-line);}
+.sidebar::-webkit-scrollbar{width:0;}
+.nav-section{padding:1.5rem 0 0.5rem;}
+.nav-label{font-size:0.55rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.22);padding:0 1.25rem;margin-bottom:0.35rem;}
+.nav-item{display:flex;align-items:center;gap:0.65rem;padding:0.45rem 1.25rem;cursor:pointer;transition:all .15s;color:var(--s-text);font-size:0.78rem;font-weight:400;border-left:2px solid transparent;user-select:none;}
+.nav-item:hover{color:var(--s-active);background:rgba(255,255,255,0.04);}
+.nav-item.active{color:var(--s-active);border-left-color:var(--gold);background:rgba(184,150,46,0.08);}
+.nav-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.2);flex-shrink:0;transition:background .15s;}
+.nav-item.active .nav-dot,.nav-item:hover .nav-dot{background:var(--gold);}
+.nav-divider{height:1px;background:var(--s-line);margin:0.75rem 1.25rem;}
+.sidebar-progress{padding:1rem 1.25rem;border-top:1px solid var(--s-line);margin-top:auto;}
+.sp-label{font-size:0.55rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.22);margin-bottom:0.6rem;}
+.sp-bar-wrap{height:2px;background:rgba(255,255,255,0.1);margin-bottom:0.5rem;}
+.sp-bar-fill{height:100%;background:var(--gold);transition:width .4s;}
+.sp-nums{display:flex;justify-content:space-between;font-size:0.65rem;color:rgba(255,255,255,0.3);}
+.sp-nums em{color:var(--gold);font-style:normal;font-weight:500;}
 
-    .nav-label {
-      font-size:11px;
-      letter-spacing:0.18em;
-      text-transform:uppercase;
-      color:rgba(255,255,255,0.4);
-      margin-bottom:12px;
-    }
-    .nav {
-      display:flex;
-      flex-direction:column;
-      gap:2px;
-      margin-bottom:24px;
-    }
-    .nav a {
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding:9px 12px;
-      color:rgba(255,255,255,0.85);
-      text-decoration:none;
-      font-size:13px;
-      border-left:2px solid transparent;
-      cursor:pointer;
-    }
-    .nav a:hover { background:rgba(255,255,255,0.04); }
-    .nav a.active {
-      background:rgba(184,150,46,0.1);
-      border-left-color:var(--gold);
-      color:#fff;
-    }
+/* MAIN */
+.main{display:flex;flex-direction:column;overflow:hidden;background:var(--white);}
+.view-scroll{flex:1;overflow-y:auto;padding:2rem 2.5rem;}
+.view-scroll::-webkit-scrollbar{width:4px;}
+.view-scroll::-webkit-scrollbar-thumb{background:var(--line);}
+.view-topbar{border-bottom:1px solid var(--line);padding:0.85rem 2.5rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.breadcrumb{font-size:0.7rem;color:var(--ink-muted);display:flex;align-items:center;gap:0.5rem;}
+.bc-link{color:var(--gold);cursor:pointer;}.bc-link:hover{text-decoration:underline;}
+.bc-sep{color:var(--ink-faint);}
+.back-btn{font-size:0.65rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-muted);background:none;border:1px solid var(--line);padding:5px 14px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;}
+.back-btn:hover{border-color:var(--ink);color:var(--ink);}
 
-    .progress-block {
-      margin-top:auto;
-      padding-top:20px;
-      border-top:1px solid rgba(255,255,255,0.08);
-    }
-    .progress-label {
-      font-size:11px;
-      letter-spacing:0.18em;
-      text-transform:uppercase;
-      color:rgba(255,255,255,0.4);
-      margin-bottom:10px;
-      display:flex;
-      justify-content:space-between;
-    }
-    .progress-bar {
-      height:6px;
-      background:rgba(255,255,255,0.08);
-      overflow:hidden;
-    }
-    .progress-fill {
-      height:100%;
-      background:var(--gold);
-      transition:width 0.4s;
-    }
+/* HOME */
+.home-eyebrow{font-size:0.6rem;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:0.75rem;}
+.home-title{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:500;color:var(--ink);line-height:1.25;margin-bottom:0.75rem;}
+.home-sub{font-size:0.83rem;color:var(--ink-muted);line-height:1.75;max-width:520px;margin-bottom:2.5rem;}
+.dept-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);max-width:860px;margin-bottom:3rem;}
+.dept-card{background:var(--white);padding:1.75rem 1.5rem;cursor:pointer;transition:background .15s;position:relative;}
+.dept-card:hover{background:var(--gold-bg);}
+.dept-card-label{font-size:0.58rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:0.5rem;}
+.dept-card h3{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:500;color:var(--ink);margin-bottom:0.5rem;}
+.dept-card p{font-size:0.75rem;color:var(--ink-muted);line-height:1.6;margin-bottom:1.1rem;}
+.dept-bar{height:2px;background:var(--line);margin-bottom:0.5rem;}
+.dept-bar-fill{height:100%;background:var(--gold);transition:width .4s;}
+.dept-card-meta{display:flex;justify-content:space-between;font-size:0.7rem;}
+.dept-card-count{color:var(--ink-faint);}
+.dept-card-pct{color:var(--gold);font-weight:500;}
+.dept-card-edit{position:absolute;top:0.75rem;right:0.75rem;font-size:0.6rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;background:var(--admin-bg);color:var(--admin);border:1px solid var(--admin-border);padding:2px 8px;cursor:pointer;display:none;}
+.admin-mode .dept-card-edit{display:block;}
 
-    /* ── MAIN ── */
-    .main {
-      flex:1;
-      overflow-y:auto;
-    }
+/* DEPT */
+.dept-eyebrow{font-size:0.58rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:0.4rem;}
+.dept-title{font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:500;color:var(--ink);margin-bottom:0.4rem;}
+.dept-desc{font-size:0.8rem;color:var(--ink-muted);line-height:1.65;max-width:520px;}
+.dept-header{margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--line);}
+.section-label{font-size:0.58rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:0.6rem;}
+.module-list{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:2.5rem;}
+.module-row{background:var(--white);display:grid;grid-template-columns:28px 1fr auto 20px;align-items:center;gap:1rem;padding:1rem 1.25rem;cursor:pointer;transition:background .15s;}
+.module-row:hover{background:var(--gold-bg);}
+.mod-check{width:20px;height:20px;border:1.5px solid var(--line);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;}
+.mod-check.done{background:var(--sidebar);border-color:var(--sidebar);}
+.mod-check.done::after{content:'';width:9px;height:6px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(-45deg) translateY(-1px);display:block;}
+.mod-check.partial{background:var(--gold-bg);border-color:var(--gold);}
+.mod-info{min-width:0;}
+.mod-title{font-size:0.82rem;font-weight:500;color:var(--ink);margin-bottom:2px;}
+.mod-desc{font-size:0.73rem;color:var(--ink-muted);}
+.mod-badge{font-size:0.58rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:2px 8px;border:1px solid;flex-shrink:0;}
+.mod-badge.basis{color:var(--gold);border-color:var(--gold-border);}
+.mod-badge.systeem{color:var(--blue-text);border-color:var(--blue-border);}
+.mod-badge.proces{color:#92400E;border-color:#FDE68A;}
+.mod-arrow{font-size:0.75rem;color:var(--ink-faint);}
 
-    /* Topbar */
-    .topbar {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:16px 40px;
-      background:var(--sidebar-bg);
-      color:#fff;
-      border-bottom:2px solid var(--gold);
-    }
-    .topbar-title {
-      font-family:'Fraunces', serif;
-      font-size:18px;
-      font-weight:500;
-    }
-    .topbar-btn {
-      background:transparent;
-      color:rgba(255,255,255,0.75);
-      border:1px solid rgba(255,255,255,0.15);
-      padding:8px 14px;
-      font:inherit;
-      font-size:12px;
-      letter-spacing:0.12em;
-      text-transform:uppercase;
-      cursor:pointer;
-    }
-    .topbar-btn:hover { color:#fff; border-color:rgba(255,255,255,0.3); }
-    .topbar-btn.admin-on {
-      background:var(--admin);
-      border-color:var(--admin);
-      color:#fff;
-    }
+/* MODULE DETAIL */
+.mod-detail-scroll{flex:1;overflow-y:auto;padding:2.5rem;}
+.mod-detail-scroll::-webkit-scrollbar{width:4px;}
+.mod-detail-scroll::-webkit-scrollbar-thumb{background:var(--line);}
+.mod-intro-block{margin-bottom:2rem;padding-bottom:1.75rem;border-bottom:1px solid var(--line);}
+.mod-intro-eyebrow{font-size:0.58rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:0.4rem;}
+.mod-intro-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:500;color:var(--ink);margin-bottom:0.75rem;}
+.mod-intro-body{font-size:0.82rem;color:var(--ink-soft);line-height:1.75;max-width:600px;}
+.mod-intro-meta{display:flex;gap:1.5rem;margin-top:1rem;}
+.mod-meta-item{font-size:0.7rem;color:var(--ink-faint);}
+.mod-meta-item strong{color:var(--ink-muted);font-weight:500;}
+.steps-container{display:flex;flex-direction:column;gap:1.5rem;margin-bottom:2rem;}
+.step-card{border:1px solid var(--line);overflow:hidden;}
+.step-card.completed{border-color:var(--green-border);}
+.step-header{display:grid;grid-template-columns:44px 1fr auto;align-items:center;}
+.step-num-block{background:var(--sidebar);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.25rem 0;border-right:1px solid rgba(255,255,255,0.06);height:100%;}
+.step-card.completed .step-num-block{background:#052E16;}
+.step-num-label{font-size:0.45rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:0.15rem;}
+.step-num-n{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:600;color:var(--gold);line-height:1;}
+.step-title-block{padding:1.1rem 1.25rem;}
+.step-title{font-size:0.88rem;font-weight:600;color:var(--ink);margin-bottom:0.2rem;}
+.step-subtitle{font-size:0.75rem;color:var(--ink-muted);}
+.step-check-block{padding:0 1.25rem;display:flex;align-items:center;}
+.step-checkbox{width:22px;height:22px;border:1.5px solid var(--line);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
+.step-checkbox:hover{border-color:var(--gold);}
+.step-checkbox.checked{background:var(--sidebar);border-color:var(--sidebar);}
+.step-card.completed .step-checkbox{background:#166534;border-color:#166534;}
+.step-checkbox.checked::after,.step-card.completed .step-checkbox::after{content:'';width:9px;height:6px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(-45deg) translateY(-1px);display:block;}
+.step-body{border-top:1px solid var(--line-soft);}
+.step-body-inner{padding:1.25rem 1.25rem 1.25rem 70px;display:flex;flex-direction:column;gap:1.25rem;}
+.step-explanation{font-size:0.82rem;color:var(--ink-soft);line-height:1.8;}
+.substeps{display:flex;flex-direction:column;gap:0;border:1px solid var(--line);}
+.substep{display:grid;grid-template-columns:28px 1fr;border-bottom:1px solid var(--line);}
+.substep:last-child{border-bottom:none;}
+.substep-num{background:var(--line-soft);display:flex;align-items:flex-start;justify-content:center;padding-top:0.8rem;font-size:0.65rem;font-weight:600;color:var(--ink-muted);border-right:1px solid var(--line);}
+.substep-body{padding:0.75rem 1rem;}
+.substep-action{font-size:0.8rem;font-weight:500;color:var(--ink);margin-bottom:0.2rem;}
+.substep-detail{font-size:0.75rem;color:var(--ink-muted);line-height:1.6;}
+.substep-tip{display:inline-block;font-size:0.7rem;color:var(--gold);background:var(--gold-bg);padding:1px 7px;margin-top:0.3rem;border:1px solid var(--gold-border);}
+.screenshot-block{border:1px solid var(--line);background:var(--white);}
+.screenshot-header{padding:0.6rem 1rem;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:var(--line-soft);}
+.screenshot-label{font-size:0.62rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-muted);}
+.screenshot-area{min-height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.4rem;padding:1rem;}
+.screenshot-area img{width:100%;height:auto;max-height:520px;object-fit:contain;display:block;cursor:zoom-in;}
+.screenshot-area img.zoomed{position:fixed;inset:0;z-index:9000;width:100vw;height:100vh;max-height:100vh;object-fit:contain;background:rgba(15,23,42,0.92);padding:2rem;cursor:zoom-out;}
+.screenshot-empty{height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.4rem;border:1px dashed var(--line);background:var(--line-soft);}
+.screenshot-icon{font-size:1.5rem;opacity:0.25;}
+.screenshot-text{font-size:0.75rem;color:var(--ink-faint);text-align:center;line-height:1.5;}
+.screenshot-input{margin:0 1rem 0.75rem;width:calc(100% - 2rem);border:1px solid var(--line);background:var(--white);padding:0.4rem 0.75rem;font-size:0.72rem;color:var(--ink-soft);font-family:'Inter',sans-serif;outline:none;}
+.screenshot-input:focus{border-color:var(--gold);}
+.video-block{border:1px solid var(--line-soft);overflow:hidden;}
+.video-toggle{display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;cursor:pointer;background:var(--line-soft);user-select:none;transition:background .15s;}
+.video-toggle:hover{background:#EAECF0;}
+.video-toggle-left{display:flex;align-items:center;gap:0.65rem;font-size:0.78rem;font-weight:500;color:var(--ink-soft);}
+.video-toggle-arrow{font-size:0.75rem;color:var(--ink-faint);transition:transform .2s;}
+.video-toggle-arrow.open{transform:rotate(90deg);}
+.video-body{display:none;border-top:1px solid var(--line);}
+.video-body.open{display:block;}
+.video-inner{padding:1rem;}
+.video-placeholder{border:1px dashed var(--line);background:var(--white);height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.4rem;margin-bottom:0.75rem;}
+.video-placeholder-icon{font-size:1.75rem;opacity:0.2;}
+.video-placeholder-text{font-size:0.73rem;color:var(--ink-faint);text-align:center;}
+.video-url-input{width:100%;border:1px solid var(--line);background:var(--line-soft);padding:0.45rem 0.75rem;font-size:0.72rem;color:var(--ink-soft);font-family:'Inter',sans-serif;outline:none;}
+.video-url-input:focus{border-color:var(--gold);background:var(--white);}
+.video-hint{font-size:0.7rem;color:var(--ink-faint);margin-top:0.4rem;line-height:1.5;}
+.tip-box{background:var(--gold-bg);border-left:2px solid var(--gold);padding:0.85rem 1rem;}
+.tip-box-label{font-size:0.58rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:0.3rem;}
+.tip-box-text{font-size:0.78rem;color:var(--ink-soft);line-height:1.65;}
+.warning-box{background:#FFF7ED;border-left:2px solid #F59E0B;padding:0.85rem 1rem;}
+.warning-box-label{font-size:0.58rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#B45309;margin-bottom:0.3rem;}
+.warning-box-text{font-size:0.78rem;color:var(--ink-soft);line-height:1.65;}
+.knowledge-check{border:1px solid var(--line);margin-top:2rem;margin-bottom:2rem;}
+.kc-header{background:var(--sidebar);padding:0.85rem 1.25rem;}
+.kc-title{font-size:0.65rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:0.15rem;}
+.kc-sub{font-size:0.72rem;color:rgba(255,255,255,0.45);}
+.kc-body{padding:1.25rem;display:flex;flex-direction:column;gap:1.25rem;}
+.kc-question{font-size:0.82rem;font-weight:500;color:var(--ink);margin-bottom:0.6rem;}
+.kc-options{display:flex;flex-direction:column;gap:0.4rem;}
+.kc-option{display:flex;align-items:center;gap:0.65rem;padding:0.55rem 0.85rem;border:1px solid var(--line);cursor:pointer;transition:all .15s;font-size:0.78rem;color:var(--ink-soft);}
+.kc-option:hover{background:var(--gold-bg);border-color:var(--gold-border);}
+.kc-option.correct{background:var(--green-bg);border-color:var(--green-border);color:var(--green);}
+.kc-option.wrong{background:#FEF2F2;border-color:#FECACA;color:#991B1B;}
+.kc-radio{width:14px;height:14px;border:1.5px solid var(--line);border-radius:50%;flex-shrink:0;}
+.kc-option:hover .kc-radio{border-color:var(--gold);}
+.kc-option.correct .kc-radio{background:var(--green);border-color:var(--green);}
+.kc-option.wrong .kc-radio{background:#991B1B;border-color:#991B1B;}
+.kc-feedback{font-size:0.75rem;margin-top:0.5rem;padding:0.5rem 0.85rem;display:none;line-height:1.55;}
+.kc-feedback.show{display:block;}
+.kc-feedback.correct{background:var(--green-bg);color:var(--green);}
+.kc-feedback.wrong{background:#FEF2F2;color:#991B1B;}
+.mod-footer{border-top:1px solid var(--line);padding:1rem 2.5rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--white);}
+.mod-footer-meta{font-size:0.72rem;color:var(--ink-faint);}
+.mod-footer-meta em{color:var(--gold);font-style:normal;font-weight:500;}
+.complete-btn{background:var(--ink);color:var(--white);border:none;padding:0.7rem 1.75rem;font-family:'Inter',sans-serif;font-size:0.72rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:background .2s;}
+.complete-btn:hover{background:var(--gold);}
+.complete-btn.done{background:none;border:1px solid var(--line);color:var(--ink-muted);cursor:default;}
+.complete-btn.done:hover{background:none;}
 
-    .content { padding:48px 56px; max-width:1100px; margin:0 auto; }
+/* ═══ ADMIN STYLES ═══ */
+.admin-banner{background:var(--admin);padding:0.5rem 2.5rem;display:none;align-items:center;justify-content:space-between;flex-shrink:0;}
+.admin-mode .admin-banner{display:flex;}
+.admin-banner-left{display:flex;align-items:center;gap:0.75rem;font-size:0.72rem;color:#EDE9FE;font-weight:500;}
+.admin-banner-icon{font-size:0.9rem;}
+.admin-close-btn{font-size:0.65rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;background:rgba(255,255,255,0.15);border:none;color:#EDE9FE;padding:4px 12px;cursor:pointer;font-family:'Inter',sans-serif;}
+.admin-close-btn:hover{background:rgba(255,255,255,0.25);}
 
-    /* Home view */
-    .home-eyebrow { font-size:12px; letter-spacing:0.22em; text-transform:uppercase; color:var(--gold); margin-bottom:10px; }
-    .home-title { font-family:'Fraunces', serif; font-size:38px; font-weight:400; line-height:1.15; margin-bottom:12px; }
-    .home-sub { font-size:15px; color:var(--ink-soft); max-width:640px; line-height:1.6; margin-bottom:36px; }
+/* Admin edit panel (overlay) */
+.admin-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,0.6);z-index:9999;align-items:flex-start;justify-content:flex-end;padding:0;}
+.admin-overlay.open{display:flex;}
+.admin-panel{background:var(--white);width:520px;height:100vh;overflow-y:auto;display:flex;flex-direction:column;box-shadow:-4px 0 24px rgba(0,0,0,0.15);}
+.admin-panel::-webkit-scrollbar{width:4px;}
+.admin-panel::-webkit-scrollbar-thumb{background:var(--line);}
+.admin-panel-header{background:var(--admin);padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.admin-panel-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:500;color:#fff;}
+.admin-panel-sub{font-size:0.68rem;color:rgba(255,255,255,0.55);margin-top:0.1rem;}
+.admin-panel-close{font-size:1.1rem;color:rgba(255,255,255,0.5);cursor:pointer;background:none;border:none;line-height:1;padding:0.2rem 0.4rem;}
+.admin-panel-close:hover{color:#fff;}
+.admin-body{padding:1.5rem;flex:1;}
+.admin-section{margin-bottom:1.75rem;padding-bottom:1.75rem;border-bottom:1px solid var(--line);}
+.admin-section:last-child{border-bottom:none;}
+.admin-section-title{font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--admin);margin-bottom:1rem;}
+.admin-field{margin-bottom:0.85rem;}
+.admin-label{font-size:0.68rem;font-weight:600;color:var(--ink-muted);margin-bottom:0.3rem;display:block;}
+.admin-input{width:100%;border:1px solid var(--line);padding:0.55rem 0.75rem;font-family:'Inter',sans-serif;font-size:0.8rem;color:var(--ink);outline:none;background:var(--white);transition:border-color .15s;}
+.admin-input:focus{border-color:var(--admin);}
+.admin-textarea{width:100%;border:1px solid var(--line);padding:0.55rem 0.75rem;font-family:'Inter',sans-serif;font-size:0.8rem;color:var(--ink);outline:none;background:var(--white);resize:vertical;min-height:80px;line-height:1.6;transition:border-color .15s;}
+.admin-textarea:focus{border-color:var(--admin);}
+.admin-select{width:100%;border:1px solid var(--line);padding:0.55rem 0.75rem;font-family:'Inter',sans-serif;font-size:0.8rem;color:var(--ink);outline:none;background:var(--white);cursor:pointer;}
+.admin-select:focus{border-color:var(--admin);}
+.admin-save-btn{width:100%;background:var(--admin);color:#fff;border:none;padding:0.75rem;font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;margin-top:0.5rem;transition:opacity .2s;}
+.admin-save-btn:hover{opacity:0.88;}
+.admin-secondary-btn{width:100%;background:none;color:var(--admin);border:1px solid var(--admin-border);padding:0.6rem;font-family:'Inter',sans-serif;font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;margin-top:0.5rem;transition:all .15s;}
+.admin-secondary-btn:hover{background:var(--admin-bg);}
+.admin-danger-btn{width:100%;background:none;color:#B91C1C;border:1px solid #FECACA;padding:0.6rem;font-family:'Inter',sans-serif;font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;margin-top:0.5rem;transition:all .15s;}
+.admin-danger-btn:hover{background:#FEF2F2;}
+.admin-substep-block{border:1px solid var(--line);margin-bottom:0.75rem;}
+.admin-substep-header{display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0.75rem;background:var(--line-soft);font-size:0.72rem;font-weight:500;color:var(--ink-muted);}
+.admin-substep-body{padding:0.75rem;}
+.admin-substep-remove{font-size:0.65rem;color:#B91C1C;cursor:pointer;background:none;border:none;font-family:'Inter',sans-serif;}
+.admin-substep-remove:hover{text-decoration:underline;}
+.admin-add-btn{font-size:0.68rem;font-weight:600;color:var(--admin);background:var(--admin-bg);border:1px dashed var(--admin-border);padding:0.45rem 0.85rem;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;margin-top:0.5rem;}
+.admin-add-btn:hover{background:#EDE9FE;}
+.admin-step-nav{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem;}
+.admin-step-tab{font-size:0.68rem;font-weight:500;padding:4px 10px;border:1px solid var(--line);cursor:pointer;transition:all .15s;background:var(--white);color:var(--ink-muted);}
+.admin-step-tab.active{background:var(--admin);color:#fff;border-color:var(--admin);}
+.admin-step-tab:hover:not(.active){background:var(--admin-bg);border-color:var(--admin-border);}
+.admin-saved-toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--sidebar);color:#fff;padding:0.6rem 1.25rem;font-size:0.75rem;font-weight:500;letter-spacing:0.05em;z-index:99999;opacity:0;transition:opacity .3s;pointer-events:none;}
+.admin-saved-toast.show{opacity:1;}
 
-    .dept-grid {
-      display:grid;
-      grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));
-      gap:20px;
-    }
-    .dept-card {
-      background:var(--panel);
-      border:1px solid var(--rule);
-      padding:26px;
-      cursor:pointer;
-      transition:border-color 0.15s, transform 0.15s;
-      position:relative;
-    }
-    .dept-card:hover { border-color:var(--navy); transform:translateY(-2px); }
-    .dept-name {
-      font-family:'Fraunces', serif;
-      font-size:22px;
-      font-weight:500;
-      color:var(--navy);
-      margin-bottom:8px;
-    }
-    .dept-desc { font-size:13px; color:var(--ink-soft); line-height:1.55; margin-bottom:18px; }
-    .dept-meta { display:flex; justify-content:space-between; align-items:center; }
-    .dept-count { font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-mute); }
-    .dept-progress-wrap { flex:1; height:4px; background:var(--rule); margin:0 12px; overflow:hidden; }
-    .dept-progress-fill { height:100%; background:var(--gold); transition:width 0.4s; }
-    .dept-progress-pct { font-size:12px; color:var(--navy); font-weight:600; min-width:36px; text-align:right; }
-
-    /* Department view */
-    .breadcrumb { font-size:12px; letter-spacing:0.16em; text-transform:uppercase; color:var(--ink-mute); margin-bottom:14px; }
-    .breadcrumb a { color:var(--gold); text-decoration:none; cursor:pointer; }
-    .dept-header { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; margin-bottom:36px; }
-    .mod-list { display:flex; flex-direction:column; gap:14px; }
-    .mod-card {
-      background:var(--panel);
-      border:1px solid var(--rule);
-      padding:22px 24px;
-      display:flex;
-      gap:20px;
-      align-items:flex-start;
-      cursor:pointer;
-      transition:border-color 0.15s;
-    }
-    .mod-card:hover { border-color:var(--navy); }
-    .mod-num {
-      width:44px; height:44px;
-      background:var(--sidebar-bg);
-      color:var(--gold-soft);
-      display:flex; align-items:center; justify-content:center;
-      font-family:'Fraunces', serif; font-size:18px; font-weight:500;
-      flex-shrink:0;
-    }
-    .mod-info { flex:1; }
-    .mod-badge { font-size:10px; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold); font-weight:600; margin-bottom:6px; }
-    .mod-title { font-family:'Fraunces', serif; font-size:20px; font-weight:500; color:var(--navy); margin-bottom:4px; }
-    .mod-desc { font-size:13px; color:var(--ink-soft); line-height:1.5; }
-    .mod-meta { display:flex; align-items:center; gap:16px; margin-top:12px; font-size:12px; color:var(--ink-mute); }
-    .mod-done {
-      background:var(--gold);
-      color:#fff;
-      font-size:10px; letter-spacing:0.14em; text-transform:uppercase;
-      padding:3px 8px; font-weight:600;
-    }
-
-    /* Module view */
-    .mod-intro { background:var(--panel); border:1px solid var(--rule); padding:32px 36px; margin-bottom:28px; }
-    .mod-intro .mod-badge { color:var(--gold); }
-    .mod-intro h1 { font-family:'Fraunces', serif; font-size:32px; font-weight:400; margin-bottom:10px; line-height:1.15; color:var(--navy); }
-    .mod-intro p { font-size:15px; color:var(--ink-soft); line-height:1.65; margin-bottom:16px; }
-    .mod-intro-meta { display:flex; gap:22px; font-size:12px; color:var(--ink-mute); text-transform:uppercase; letter-spacing:0.14em; }
-
-    /* Steps */
-    .step {
-      display:flex;
-      background:var(--panel);
-      border:1px solid var(--rule);
-      margin-bottom:16px;
-    }
-    .step-num-col {
-      width:70px;
-      background:var(--sidebar-bg);
-      color:var(--gold-soft);
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      padding:24px 8px;
-      font-family:'Fraunces', serif;
-      font-size:22px;
-      font-weight:500;
-      flex-shrink:0;
-    }
-    .step-num-col .check {
-      margin-top:16px;
-      width:22px; height:22px;
-      border:1px solid rgba(255,255,255,0.3);
-      cursor:pointer;
-      display:flex; align-items:center; justify-content:center;
-      color:transparent;
-      font-weight:700;
-      font-family:'Manrope', sans-serif;
-      font-size:14px;
-    }
-    .step-num-col .check.on { background:var(--gold); border-color:var(--gold); color:#0A1628; }
-    .step-body { flex:1; padding:26px 32px; }
-    .step-title { font-family:'Fraunces', serif; font-size:22px; color:var(--navy); font-weight:500; }
-    .step-subtitle { font-size:13px; color:var(--ink-mute); margin-bottom:14px; letter-spacing:0.06em; }
-    .step-explanation { font-size:14px; color:var(--ink-soft); line-height:1.65; margin-bottom:18px; }
-
-    .substeps { display:flex; flex-direction:column; gap:12px; margin-bottom:18px; }
-    .substep {
-      display:flex; gap:14px;
-      padding:12px 14px;
-      background:#FBFAF6;
-      border-left:2px solid var(--gold);
-    }
-    .substep-num {
-      font-family:'Fraunces', serif; color:var(--gold); font-weight:500;
-      font-size:16px; min-width:20px;
-    }
-    .substep-body { font-size:13px; color:var(--ink); line-height:1.55; }
-    .substep-action { font-weight:600; color:var(--navy); }
-    .substep-detail { color:var(--ink-soft); margin-top:2px; }
-    .substep-tip { color:var(--ink-mute); font-style:italic; margin-top:4px; font-size:12px; }
-
-    .box-tip, .box-warn {
-      padding:12px 16px;
-      margin-bottom:16px;
-      font-size:13px;
-      line-height:1.55;
-    }
-    .box-tip { background:var(--gold-pale); border-left:3px solid var(--gold); color:#5a4610; }
-    .box-warn { background:var(--warn-bg); border-left:3px solid var(--warn); color:#8a2e0a; }
-    .box-tip b, .box-warn b { display:block; font-size:11px; letter-spacing:0.16em; text-transform:uppercase; margin-bottom:4px; }
-
-    .shot-block { border:1px dashed var(--rule); padding:16px; margin-bottom:16px; background:#FCFBF7; }
-    .shot-label { font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:var(--ink-mute); margin-bottom:8px; }
-    .shot-upload {
-      display:inline-block;
-      padding:8px 12px;
-      background:var(--navy);
-      color:#fff;
-      font-size:12px;
-      letter-spacing:0.08em;
-      text-transform:uppercase;
-      cursor:pointer;
-    }
-    .shot-upload input { display:none; }
-    .shot-img { display:block; width:100%; margin-top:12px; cursor:zoom-in; }
-
-    .video-block { border:1px solid var(--rule); margin-bottom:16px; }
-    .video-toggle {
-      padding:12px 16px; cursor:pointer;
-      display:flex; justify-content:space-between; align-items:center;
-      font-size:13px; color:var(--ink); font-weight:500;
-      background:#FCFBF7;
-    }
-    .video-content { padding:14px 16px; display:none; }
-    .video-content.open { display:block; }
-    .video-content input {
-      width:100%; padding:8px 10px; font:inherit; font-size:13px;
-      border:1px solid var(--rule); background:#fff;
-    }
-    .video-embed { margin-top:12px; }
-    .video-embed iframe { width:100%; height:320px; border:none; }
-
-    /* Quiz */
-    .quiz {
-      background:var(--panel);
-      border:1px solid var(--rule);
-      padding:32px;
-      margin-bottom:16px;
-      border-top:3px solid var(--gold);
-    }
-    .quiz-label { font-size:11px; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold); margin-bottom:10px; }
-    .quiz-q { font-family:'Fraunces', serif; font-size:22px; color:var(--navy); font-weight:500; margin-bottom:20px; line-height:1.3; }
-    .quiz-opts { display:flex; flex-direction:column; gap:10px; }
-    .quiz-opt {
-      padding:12px 16px;
-      border:1px solid var(--rule);
-      background:#FBFAF6;
-      cursor:pointer;
-      font-size:14px;
-    }
-    .quiz-opt:hover { border-color:var(--navy); }
-    .quiz-opt.correct { background:#E7F6EC; border-color:#2E7D32; color:#1B5E20; }
-    .quiz-opt.wrong { background:#FBE9EA; border-color:#C62828; color:#7F1D1D; }
-    .quiz-feedback { margin-top:14px; padding:12px 16px; background:var(--gold-pale); font-size:13px; color:#5a4610; display:none; }
-    .quiz-feedback.show { display:block; }
-
-    /* Module footer */
-    .mod-footer {
-      background:var(--panel);
-      border:1px solid var(--rule);
-      padding:24px 32px;
-      display:flex; align-items:center; justify-content:space-between;
-      gap:20px;
-    }
-    .mod-footer-prog { flex:1; }
-    .mod-footer-label { font-size:12px; color:var(--ink-mute); margin-bottom:6px; }
-    .mod-footer-bar { height:6px; background:var(--rule); overflow:hidden; max-width:400px; }
-    .mod-footer-fill { height:100%; background:var(--gold); transition:width 0.4s; }
-    .btn-done {
-      background:var(--navy); color:#fff;
-      padding:12px 22px;
-      font:inherit; font-size:12px; letter-spacing:0.14em; text-transform:uppercase;
-      border:none; cursor:pointer; font-weight:600;
-    }
-    .btn-done:hover { background:#0F1F38; }
-    .btn-done.done { background:var(--gold); color:#0A1628; }
-
-    /* Admin mode */
-    .admin-badge {
-      position:fixed;
-      top:12px; right:16px;
-      background:var(--admin);
-      color:#fff;
-      padding:6px 12px;
-      font-size:11px; letter-spacing:0.14em; text-transform:uppercase; font-weight:600;
-      z-index:50;
-      display:none;
-    }
-    body.admin .admin-badge { display:block; }
-    .admin-only { display:none; }
-    body.admin .admin-only { display:block; }
-    body.admin .admin-only-inline { display:inline-block; }
-    .btn-admin {
-      background:var(--admin); color:#fff;
-      padding:8px 14px;
-      font:inherit; font-size:12px; letter-spacing:0.1em; text-transform:uppercase;
-      border:none; cursor:pointer; font-weight:600;
-    }
-    .btn-admin.outline { background:transparent; color:var(--admin); border:1px solid var(--admin); }
-    .btn-admin.danger { background:var(--danger); }
-    .admin-tools { display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
-
-    .editable {
-      cursor:text;
-    }
-    body.admin .editable:hover {
-      outline:1px dashed var(--admin);
-      background:var(--admin-bg);
-    }
-
-    /* Modal */
-    .modal-overlay {
-      position:fixed; inset:0;
-      background:rgba(10,22,40,0.6);
-      display:none; align-items:center; justify-content:center;
-      z-index:200; padding:24px;
-    }
-    .modal-overlay.show { display:flex; }
-    .modal {
-      background:var(--panel);
-      max-width:640px; width:100%;
-      max-height:90vh; overflow-y:auto;
-      border-top:4px solid var(--gold);
-      padding:32px;
-    }
-    .modal h3 { font-family:'Fraunces', serif; font-size:22px; color:var(--navy); margin-bottom:12px; font-weight:500; }
-    .modal p { font-size:14px; color:var(--ink-soft); margin-bottom:16px; line-height:1.5; }
-    .modal input, .modal textarea, .modal select {
-      width:100%; padding:10px 12px;
-      border:1px solid var(--rule); background:#FBFAF6;
-      font:inherit; font-size:14px; margin-bottom:12px;
-    }
-    .modal textarea { min-height:120px; resize:vertical; }
-    .modal-actions { display:flex; gap:10px; justify-content:flex-end; }
-    .modal-actions button {
-      padding:10px 18px;
-      font:inherit; font-size:12px; letter-spacing:0.1em; text-transform:uppercase;
-      cursor:pointer; border:none; font-weight:600;
-    }
-    .modal-cancel { background:transparent; color:var(--ink-soft); border:1px solid var(--rule) !important; }
-    .modal-submit { background:var(--navy); color:#fff; }
-    .modal-submit.admin { background:var(--admin); }
-
-    /* Zoom overlay */
-    .zoom-overlay {
-      position:fixed; inset:0;
-      background:rgba(0,0,0,0.9);
-      display:none; align-items:center; justify-content:center;
-      z-index:300; cursor:zoom-out;
-    }
-    .zoom-overlay.show { display:flex; }
-    .zoom-overlay img { max-width:95vw; max-height:95vh; }
-
-    /* AI generator button */
-    .ai-gen-wrap { margin-bottom:24px; }
-    .ai-gen-btn {
-      background:var(--admin);
-      color:#fff;
-      padding:14px 24px;
-      font:inherit; font-size:13px; letter-spacing:0.1em; text-transform:uppercase; font-weight:600;
-      border:none; cursor:pointer;
-    }
-
-    /* Notification */
-    .notif {
-      position:fixed;
-      bottom:20px; left:50%;
-      transform:translateX(-50%) translateY(200%);
-      background:var(--navy); color:#fff;
-      padding:14px 22px;
-      font-size:13px;
-      z-index:250;
-      transition:transform 0.3s;
-      max-width:90vw;
-    }
-    .notif.show { transform:translateX(-50%) translateY(0); }
-
-    @media (max-width: 900px) {
-      body { flex-direction:column; }
-      .sidebar { width:100%; position:relative; max-height:none; }
-      .content { padding:32px 24px; }
-      .step { flex-direction:column; }
-      .step-num-col { width:100%; flex-direction:row; padding:14px; justify-content:space-between; }
-      .step-num-col .check { margin-top:0; }
-    }
-  </style>
+/* Password modal */
+.pw-modal-wrap{display:none;position:fixed;inset:0;background:rgba(15,23,42,0.7);z-index:99999;align-items:center;justify-content:center;}
+.pw-modal-wrap.open{display:flex;}
+.pw-modal{background:var(--white);padding:2.5rem;width:100%;max-width:380px;}
+.pw-modal-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:500;color:var(--ink);margin-bottom:0.25rem;}
+.pw-modal-sub{font-size:0.78rem;color:var(--ink-muted);margin-bottom:1.5rem;}
+.pw-modal-divider{width:32px;height:1px;background:var(--admin);margin:1rem 0;}
+.pw-input{width:100%;border:1px solid var(--line);padding:0.65rem 0.85rem;font-family:'Inter',sans-serif;font-size:0.85rem;color:var(--ink);outline:none;margin-bottom:0.5rem;letter-spacing:0.08em;}
+.pw-input:focus{border-color:var(--admin);}
+.pw-btn{width:100%;background:var(--admin);color:#fff;border:none;padding:0.75rem;font-family:'Inter',sans-serif;font-size:0.72rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:opacity .2s;}
+.pw-btn:hover{opacity:0.88;}
+.pw-cancel{width:100%;background:none;color:var(--ink-muted);border:none;padding:0.5rem;font-family:'Inter',sans-serif;font-size:0.72rem;cursor:pointer;margin-top:0.25rem;}
+.pw-cancel:hover{color:var(--ink);}
+.pw-error{font-size:0.73rem;color:#B91C1C;margin-bottom:0.5rem;display:none;}
+</style>
 </head>
 <body>
 
-  <div class="admin-badge">Beheermodus actief</div>
+<!-- PASSWORD MODAL -->
+<div class="pw-modal-wrap" id="pw-modal">
+  <div class="pw-modal">
+    <div class="pw-modal-title">Beheermodus</div>
+    <div class="pw-modal-divider"></div>
+    <div class="pw-modal-sub">Voer het beheerderswachtwoord in om de bewerkingsmodus te activeren.</div>
+    <div class="pw-error" id="pw-error">Onjuist wachtwoord. Probeer opnieuw.</div>
+    <input class="pw-input" type="password" id="pw-input" placeholder="Wachtwoord" onkeydown="if(event.key==='Enter')checkPw()">
+    <button class="pw-btn" onclick="checkPw()">Inloggen als beheerder</button>
+    <button class="pw-cancel" onclick="closePwModal()">Annuleren</button>
+  </div>
+</div>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="brand">
-      <div class="brand-name">Doets AI</div>
-      <div class="brand-tag">Onboarding</div>
+<!-- ADMIN EDIT PANEL -->
+<div class="admin-overlay" id="admin-overlay" onclick="if(event.target===this)closeAdminPanel()">
+  <div class="admin-panel">
+    <div class="admin-panel-header">
+      <div>
+        <div class="admin-panel-title" id="ap-title">Bewerken</div>
+        <div class="admin-panel-sub" id="ap-sub"></div>
+      </div>
+      <button class="admin-panel-close" onclick="closeAdminPanel()">✕</button>
     </div>
-    <a href="/dashboard.html" class="back-link">&larr; Terug naar portaal</a>
+    <div class="admin-body" id="admin-body"></div>
+  </div>
+</div>
 
-    <div class="nav-label">Afdelingen</div>
-    <nav class="nav" id="deptNav"></nav>
+<!-- SAVED TOAST -->
+<div class="admin-saved-toast" id="saved-toast">✓ Wijzigingen opgeslagen</div>
 
-    <div class="progress-block">
-      <div class="progress-label"><span>Voortgang</span><span id="totalPct">0%</span></div>
-      <div class="progress-bar"><div class="progress-fill" id="totalFill" style="width:0%"></div></div>
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="wordmark">Doets Reizen</div>
+      <div class="wordmark-sep"></div>
+      <div class="wordmark-sub">Onboarding Portaal</div>
     </div>
-  </aside>
-
-  <!-- MAIN -->
-  <div class="main">
-    <div class="topbar">
-      <div class="topbar-title" id="topbarTitle">Doets Reizen — Onboarding Portaal</div>
-      <button class="topbar-btn" id="adminBtn" onclick="toggleAdmin()">Beheermodus</button>
+    <div class="topbar-right">
+      <div class="topbar-tag" id="topbar-tag">Intern</div>
+      <button class="topbar-btn" onclick="location.href='/dashboard.html'">&larr; Portaal</button>
+      <button class="topbar-btn admin-btn" onclick="openPwModal()" id="admin-toggle-btn">Beheermodus</button>
+      <button class="topbar-btn" onclick="resetProgress()">Voortgang wissen</button>
     </div>
-    <div class="content" id="content"></div>
   </div>
 
-  <!-- Modal -->
-  <div class="modal-overlay" id="modalOverlay">
-    <div class="modal" id="modalBox"></div>
+  <div class="body-grid">
+    <div class="sidebar" id="sidebar">
+      <div class="nav-section">
+        <div class="nav-label">Navigatie</div>
+        <div class="nav-item active" id="nav-home" onclick="showHome()"><div class="nav-dot"></div>Overzicht</div>
+      </div>
+      <div class="nav-divider"></div>
+      <div class="nav-section">
+        <div class="nav-label">Afdelingen</div>
+        <div id="sidebar-dept-links"></div>
+      </div>
+      <div class="sidebar-progress">
+        <div class="sp-label">Totale voortgang</div>
+        <div class="sp-bar-wrap"><div class="sp-bar-fill" id="sp-fill" style="width:0%"></div></div>
+        <div class="sp-nums"><em id="sp-done">0</em>&nbsp;/&nbsp;<span id="sp-total">0</span>&nbsp;voltooid</div>
+      </div>
+    </div>
+
+    <div class="main" id="main-area">
+      <!-- Admin banner -->
+      <div class="admin-banner">
+        <div class="admin-banner-left">
+          <span class="admin-banner-icon">✎</span>
+          Beheermodus actief — klik op een onderdeel om het te bewerken
+        </div>
+        <button class="admin-close-btn" onclick="exitAdminMode()">Beheermodus verlaten</button>
+      </div>
+
+      <!-- HOME VIEW -->
+      <div id="view-home" style="flex:1;overflow-y:auto;padding:2.5rem;display:block;">
+        <div class="home-eyebrow">Inwerkprogramma</div>
+        <div class="home-title">Welkom bij Doets Reizen</div>
+        <div class="home-sub">Hier vind je alles wat je nodig hebt om snel en zelfstandig aan de slag te gaan. Elke module begeleidt je stap voor stap — met uitleg, screenshots en video's. Je voortgang wordt automatisch opgeslagen.</div>
+        <div class="dept-grid" id="dept-grid"></div>
+        <div id="admin-add-dept-wrap" style="display:none;max-width:860px;">
+          <button class="admin-add-btn" style="width:100%;padding:1rem;" onclick="openAddDeptPanel()">+ Nieuwe afdeling toevoegen</button>
+        </div>
+      </div>
+
+      <!-- DEPT VIEW -->
+      <div id="view-dept" style="flex:1;overflow:hidden;flex-direction:column;display:none;">
+        <div class="view-topbar">
+          <div class="breadcrumb">
+            <span class="bc-link" onclick="showHome()">Overzicht</span>
+            <span class="bc-sep">›</span>
+            <span id="bc-dept"></span>
+          </div>
+          <div style="display:flex;gap:0.5rem;">
+            <button class="admin-add-btn" id="btn-add-module" style="display:none;" onclick="openAddModulePanel()">+ Module toevoegen</button>
+        <button class="admin-add-btn" id="btn-ai-module" onclick="openAIGenerator()" style="display:none; background:#7C3AED; color:#fff; border-color:#7C3AED;">+ AI-module genereren</button>
+            <button class="back-btn" onclick="showHome()">← Terug</button>
+          </div>
+        </div>
+        <div class="view-scroll">
+          <div class="dept-header">
+            <div class="dept-eyebrow" id="dept-eyebrow"></div>
+            <div class="dept-title" id="dept-title" style="cursor:pointer;" onclick="editDeptMeta()"></div>
+            <div class="dept-desc" id="dept-desc" style="cursor:pointer;" onclick="editDeptMeta()"></div>
+            <div id="dept-edit-hint" style="display:none;font-size:0.68rem;color:var(--admin);margin-top:0.5rem;cursor:pointer;" onclick="editDeptMeta()">✎ Klik op de titel of beschrijving om te bewerken</div>
+          </div>
+          <div class="section-label">Modules</div>
+          <div class="module-list" id="module-list"></div>
+        </div>
+      </div>
+
+      <!-- MODULE VIEW -->
+      <div id="view-module" style="flex:1;overflow:hidden;flex-direction:column;display:none;">
+        <div class="view-topbar">
+          <div class="breadcrumb">
+            <span class="bc-link" onclick="showHome()">Overzicht</span>
+            <span class="bc-sep">›</span>
+            <span class="bc-link" id="bc-mod-dept" onclick="backToDept()"></span>
+            <span class="bc-sep">›</span>
+            <span id="bc-mod-name"></span>
+          </div>
+          <div style="display:flex;gap:0.5rem;align-items:center;">
+            <button class="admin-add-btn" id="btn-edit-module-meta" style="display:none;" onclick="openEditModuleMetaPanel()">✎ Module bewerken</button>
+            <button class="admin-add-btn" id="btn-add-step" style="display:none;" onclick="openAddStepPanel()">+ Stap toevoegen</button>
+            <button class="back-btn" onclick="backToDept()">← Afdeling</button>
+          </div>
+        </div>
+        <div class="mod-detail-scroll" id="mod-detail-scroll">
+          <div id="mod-detail-content"></div>
+          <div class="knowledge-check" id="kc-block" style="display:none;"></div>
+        </div>
+        <div class="mod-footer">
+          <div class="mod-footer-meta" id="mod-footer-meta"></div>
+          <button class="complete-btn" id="complete-btn" onclick="markModuleDone()">Markeer module als voltooid</button>
+        </div>
+      </div>
+    </div>
   </div>
+</div>
 
-  <!-- Zoom -->
-  <div class="zoom-overlay" id="zoomOverlay" onclick="this.classList.remove('show')">
-    <img id="zoomImg" src="">
-  </div>
-
-  <!-- Notification -->
-  <div class="notif" id="notif"></div>
-
-  <script>
-    var API_URL = window.location.origin;
-    var ADMIN_PW = 'doets2025';
-    var STORAGE_DATA = 'doets_ob_data_v5';
-    var STORAGE_PROG = 'doets_ob_prog_v5';
-
-    /* ── DEFAULT DATA ─────────────────────────────── */
-    var DEFAULT_DATA = {
-      departments: [
-        {
-          id: 'verkoop',
-          name: 'Verkoop',
-          desc: 'Klantcontact, adviesgesprekken, offertes en boekingen bij Doets Reizen.',
-          modules: [
-            {
-              id: 'v1',
-              title: 'Klantgesprek voeren',
-              badge: 'Sales',
-              desc: 'De basis van een goed adviesgesprek met een klant.',
-              intro: 'In deze module leer je hoe je een klant het beste kunt adviseren. Je oefent met vragen stellen, luisteren en de klantwens vertalen naar een reisvoorstel.',
-              duration: '20 minuten',
-              steps: [
-                { title:'Voorbereiding', subtitle:'Voor het gesprek', explanation:'Voordat je het gesprek voert, kijk je in het klantprofiel en de eerdere reizen.', substeps:[
-                  { action:'Open het klantprofiel', detail:'Check naam, reisgeschiedenis en voorkeuren.' },
-                  { action:'Bekijk eerdere offertes', detail:'Weet wat er eerder aangeboden is.' }
-                ], tip:'Klanten voelen zich gehoord als je hun geschiedenis kent.', warning:'', screenshot_label:'Klantprofiel in het systeem' },
-                { title:'Vragen stellen', subtitle:'Tijdens het gesprek', explanation:'Stel open vragen om de wens helder te krijgen.', substeps:[
-                  { action:'Vraag naar het doel van de reis', detail:'Ontspannen, avontuur, cultuur?' },
-                  { action:'Peil budget en periode', detail:'Wees hier concreet in.' },
-                  { action:'Vraag naar eerdere ervaringen', detail:'Wat vonden ze goed of juist niet?' }
-                ], tip:'', warning:'', screenshot_label:'' },
-                { title:'Voorstel maken', subtitle:'Direct of later', explanation:'Op basis van de wens maak je een passend voorstel.', substeps:[
-                  { action:'Kies een passende bestemming', detail:'Gebruik de kennisdatabank en klantprofiel-tool voor inspiratie.' },
-                  { action:'Stel accommodaties voor', detail:'Combineer prijs, ligging en sfeer.' }
-                ], tip:'Wees eerlijk over wat wel/niet kan binnen het budget.', warning:'', screenshot_label:'' }
-              ],
-              quiz: { question:'Wat is de belangrijkste eerste stap voor een klantgesprek?', options:['Meteen bestemmingen voorstellen','Klantprofiel en historie doornemen','Prijzen opzoeken'], correct:1, explanation:'Door eerst het profiel en de historie te bekijken, kun je gerichter adviseren.' }
-            },
-            {
-              id: 'v2',
-              title: 'Offerte maken en verzenden',
-              badge: 'Sales',
-              desc: 'Een offerte opstellen en professioneel versturen naar de klant.',
-              intro: 'Deze module behandelt het maken van een reisvoorstel, het genereren van een offerte in het systeem en het verzenden ervan.',
-              duration: '15 minuten',
-              steps: [
-                { title:'Voorstel samenstellen', subtitle:'', explanation:'Kies bestemming, hotels en excursies die passen bij de klantwens.', substeps:[
-                  { action:'Open de reistool', detail:'Kies een sjabloon dat aansluit bij de duur en het type reis.' },
-                  { action:'Voeg de accommodaties toe', detail:'Let op de juiste kamerindeling.' }
-                ], tip:'', warning:'', screenshot_label:'' },
-                { title:'Prijs controleren', subtitle:'', explanation:'Loop de prijs na en check op fouten voor je verstuurt.', substeps:[
-                  { action:'Vergelijk met de calculatie', detail:'Sluit aan bij de correcte marges.' }
-                ], tip:'', warning:'Bij twijfel altijd overleggen voor verzenden.', screenshot_label:'' },
-                { title:'Versturen', subtitle:'', explanation:'Verstuur de offerte via e-mail met een korte persoonlijke boodschap.', substeps:[
-                  { action:'Genereer de PDF', detail:'Controleer dat foto\'s en tekst kloppen.' },
-                  { action:'Schrijf een korte begeleidende e-mail', detail:'Verwijs naar het gesprek.' }
-                ], tip:'', warning:'', screenshot_label:'' }
-              ],
-              quiz: { question:'Wat doe je vóór je een offerte verstuurt?', options:['Meteen versturen','De prijs en calculatie controleren','Alleen de PDF checken'], correct:1, explanation:'Prijs controleren voorkomt fouten die je later moet corrigeren.' }
-            }
-          ]
-        },
-        {
-          id: 'productie',
-          name: 'Productie',
-          desc: 'Aanmaken van producten in C3 en CMS: hotels, excursies en calculaties.',
-          modules: [
-            {
-              id: 'p1',
-              title: 'Nieuw hotel toevoegen in C3',
-              badge: 'Systeem',
-              desc: 'Een hotel aanmaken in C3 met alle basisgegevens en foto\'s.',
-              intro: 'In deze module leer je stap voor stap hoe je een nieuw hotel toevoegt in C3. Denk aan zoeken op duplicaten, basisgegevens invoeren en foto\'s uploaden.',
-              duration: '15 minuten',
-              steps: [
-                { title:'Zoek op duplicaten', subtitle:'Voorkom dubbele records', explanation:'Voordat je een nieuw hotel aanmaakt, controleer je of het hotel al bestaat.', substeps:[
-                  { action:'Open C3 → Hotels', detail:'Ga naar het hotels-overzicht.' },
-                  { action:'Zoek op hotelnaam', detail:'Probeer varianten (met/zonder "Hotel").' },
-                  { action:'Zoek op stad', detail:'Filter op stad om dubbele records op te sporen.' }
-                ], tip:'', warning:'Nooit een hotel dubbel aanmaken — dat verpest de calculaties.', screenshot_label:'C3 hotel zoekscherm' },
-                { title:'Basisgegevens invoeren', subtitle:'Naam, locatie, contact', explanation:'Vul alle basisgegevens in van het hotel.', substeps:[
-                  { action:'Nieuw hotel → aanmaken', detail:'Klik op "Nieuw" rechtsboven.' },
-                  { action:'Vul naam, adres, land en stad in', detail:'Wees precies met de spelling — dit wordt zichtbaar in offertes.' },
-                  { action:'Voeg contactgegevens toe', detail:'E-mail en telefoon van de reservering.' }
-                ], tip:'Gebruik altijd de officiële naam van het hotel.', warning:'', screenshot_label:'Basisgegevens invoerscherm' },
-                { title:'Foto\'s uploaden', subtitle:'Beeldmateriaal', explanation:'Upload foto\'s zodat ze in offertes en op de site getoond kunnen worden.', substeps:[
-                  { action:'Tab "Foto\'s" → uploaden', detail:'Kies duidelijke, scherpe beelden.' },
-                  { action:'Kies een hoofdfoto', detail:'Deze wordt als eerste getoond.' }
-                ], tip:'Ideale afmeting: 1920×1080.', warning:'', screenshot_label:'Foto-tab in C3' }
-              ],
-              quiz: { question:'Wat doe je voor je een nieuw hotel aanmaakt in C3?', options:['Meteen aanmaken','Eerst zoeken op duplicaten','Foto\'s uploaden'], correct:1, explanation:'Duplicaten voorkomen is essentieel voor kloppende calculaties en offertes.' }
-            },
-            {
-              id: 'p2',
-              title: 'Excursies toevoegen in C3 en CMS',
-              badge: 'Systeem',
-              desc: 'Excursies aanmaken, inbegrepen aanvinken en optioneel publiceren via jandoets.nl.',
-              intro: 'Deze module laat zien hoe je een excursie toevoegt in C3 en optioneel publiceert op jandoets.nl. Je leert ook hoe je "inbegrepen" instelt.',
-              duration: '15 minuten',
-              steps: [
-                { title:'Excursie aanmaken in C3', subtitle:'', explanation:'Maak de excursie aan met alle relevante informatie.', substeps:[
-                  { action:'Open C3 → Excursies', detail:'Ga naar het excursie-overzicht.' },
-                  { action:'Klik op "Nieuw"', detail:'Nieuw excursie-record aanmaken.' },
-                  { action:'Vul naam, locatie, duur, prijs in', detail:'Wees nauwkeurig met de prijs.' }
-                ], tip:'', warning:'', screenshot_label:'Excursie invoerscherm' },
-                { title:'Inbegrepen aanvinken', subtitle:'', explanation:'Als de excursie standaard bij een reispakket hoort, vink je "inbegrepen" aan.', substeps:[
-                  { action:'Ga naar tab "Standaard inbegrepen"', detail:'Zie welke pakketten deze excursie krijgen.' },
-                  { action:'Vink de gewenste pakketten aan', detail:'Alleen aanvinken als het écht standaard hoort.' }
-                ], tip:'', warning:'Bij verkeerd aanvinken komt de excursie in offertes waar hij niet hoort.', screenshot_label:'Inbegrepen tab' },
-                { title:'Optioneel: publiceren via jandoets.nl', subtitle:'CMS', explanation:'Excursies kunnen ook op de klantwebsite komen via het CMS.', substeps:[
-                  { action:'Open het CMS', detail:'Log in op jandoets.nl.' },
-                  { action:'Maak een nieuwe excursie-pagina', detail:'Sync met C3 excursie-ID.' }
-                ], tip:'', warning:'', screenshot_label:'CMS excursie-editor' }
-              ],
-              quiz: { question:'Waar vink je aan of een excursie inbegrepen is?', options:['Op tab Basisgegevens','Op tab Standaard inbegrepen','In het CMS'], correct:1, explanation:'Op de tab "Standaard inbegrepen" bepaal je bij welke reispakketten de excursie automatisch hoort.' }
-            },
-            {
-              id: 'p3',
-              title: 'Het calculatieproces (stap 1 t/m 9)',
-              badge: 'Proces',
-              desc: 'Volledige calculatie van reis: koerscode, gids, productgroepen, prijzen en publicatie.',
-              intro: 'Dit is het complete calculatieproces: van voorbereiding (koerscode + gids), via opbouw (productgroepen + codes), naar calculatie (prijstabel + calculeren) en publicatie (prijstabel in CMS).',
-              duration: '40 minuten',
-              steps: [
-                { title:'Fase 1 — Koerscode aanmaken', subtitle:'Menu 7204', explanation:'Elke calculatie begint bij de juiste koerscode voor de bestemming en periode.', substeps:[
-                  { action:'Open menu 7204', detail:'Koerscodebeheer.' },
-                  { action:'Maak nieuwe koerscode aan', detail:'Bestemming + jaar + seizoen.' }
-                ], tip:'Gebruik consistente naamgeving.', warning:'', screenshot_label:'Menu 7204 - Koerscode' },
-                { title:'Fase 1 — Gids aanmaken', subtitle:'Menu 3702', explanation:'Maak de gids (reisdocument) aan waar de calculatie in valt.', substeps:[
-                  { action:'Open menu 3702', detail:'Gids-beheer.' },
-                  { action:'Nieuwe gids aanmaken', detail:'Koppel aan koerscode.' }
-                ], tip:'', warning:'', screenshot_label:'Menu 3702 - Gids' },
-                { title:'Fase 2 — Productgroepen', subtitle:'Menu 3701', explanation:'Bouw de productgroepen op die in de reis zitten.', substeps:[
-                  { action:'Open menu 3701', detail:'Productgroepbeheer.' },
-                  { action:'Voeg groepen toe', detail:'Bv. accommodaties, transfers, excursies.' }
-                ], tip:'', warning:'Zonder productgroepen kun je niet calculeren.', screenshot_label:'Menu 3701 - Productgroepen' },
-                { title:'Fase 2 — Productcodes', subtitle:'Menu 3103 / 3104', explanation:'Voeg de individuele productcodes toe binnen de groepen.', substeps:[
-                  { action:'Open menu 3103 of 3104', detail:'Afhankelijk van type.' },
-                  { action:'Voeg codes toe', detail:'Koppel aan groep en gids.' }
-                ], tip:'', warning:'', screenshot_label:'Menu 3103/3104 - Codes' },
-                { title:'Fase 3 — Prijstabel opzetten', subtitle:'Menu 3702', explanation:'Maak de prijstabel aan waar de calculaties in landen.', substeps:[
-                  { action:'Open menu 3702', detail:'Kies je gids.' },
-                  { action:'Ga naar prijstabel', detail:'Nieuwe tabel aanmaken.' }
-                ], tip:'', warning:'', screenshot_label:'Prijstabel scherm' },
-                { title:'Fase 3 — Calculeren', subtitle:'Menu 9030 / 9011 / 10008', explanation:'Voer de daadwerkelijke calculatie uit.', substeps:[
-                  { action:'Open menu 9030 (of 9011/10008)', detail:'Afhankelijk van reistype.' },
-                  { action:'Draai de calculatie', detail:'Controleer de output.' },
-                  { action:'Corrigeer waar nodig', detail:'Kijk naar afwijkende prijzen.' }
-                ], tip:'', warning:'Als er iets afwijkt: nooit blind doorzetten.', screenshot_label:'Calculatie output' },
-                { title:'Fase 4 — Prijstabel in CMS', subtitle:'Bestaande of nieuwe reis', explanation:'Laad de prijstabel in het CMS zodat de prijzen op de site komen.', substeps:[
-                  { action:'Open CMS → reis', detail:'Bestaand of nieuw.' },
-                  { action:'Koppel de prijstabel', detail:'Selecteer de zojuist aangemaakte tabel.' },
-                  { action:'Controleer op de site', detail:'Kijk of de prijs juist verschijnt.' }
-                ], tip:'', warning:'Publiceer nooit zonder controle op de site.', screenshot_label:'CMS prijstabel koppeling' }
-              ],
-              quiz: { question:'Wat is de eerste fase van het calculatieproces?', options:['Prijstabel opzetten','Koerscode + gids aanmaken','Publicatie in CMS'], correct:1, explanation:'Zonder koerscode en gids kan er niets gecalculeerd worden — dit is de voorbereiding.' }
-            }
-          ]
-        },
-        {
-          id: 'traffic',
-          name: 'Traffic',
-          desc: 'Boekingen doorzetten, vluchten en transfers regelen, communicatie met partners.',
-          modules: [
-            {
-              id: 't1',
-              title: 'Boeking verwerken en doorzetten',
-              badge: 'Proces',
-              desc: 'Van bevestigde boeking naar bevestigde vluchten en transfers.',
-              intro: 'In deze module leer je hoe je een boeking van Verkoop overneemt en doorzet naar de leveranciers.',
-              duration: '15 minuten',
-              steps: [
-                { title:'Boeking controleren', subtitle:'', explanation:'Controleer of alle gegevens compleet zijn voor je doorzet.', substeps:[
-                  { action:'Open de boeking', detail:'In het reserveringssysteem.' },
-                  { action:'Check namen en paspoortgegevens', detail:'Deze moeten kloppen voor de vluchten.' }
-                ], tip:'', warning:'Verkeerde naam op ticket = kosten voor rebooking.', screenshot_label:'Boeking overzicht' },
-                { title:'Vluchten reserveren', subtitle:'', explanation:'Boek de vluchten via de juiste leverancier of GDS.', substeps:[
-                  { action:'Zoek beschikbaarheid', detail:'Filter op klasse en tijden.' },
-                  { action:'Bevestig de reservering', detail:'Noteer PNR-nummer bij de boeking.' }
-                ], tip:'', warning:'', screenshot_label:'Vlucht boekingsscherm' },
-                { title:'Transfers en overige diensten', subtitle:'', explanation:'Regel transfers, autohuur en overige diensten.', substeps:[
-                  { action:'Stuur transferverzoek naar DMC', detail:'Wees precies met tijden en aantallen.' },
-                  { action:'Bevestig autohuur', detail:'Voeg voucher toe aan boeking.' }
-                ], tip:'', warning:'', screenshot_label:'Transfer verzoek' }
-              ],
-              quiz: { question:'Wat controleer je altijd voor je vluchten boekt?', options:['Alleen de datum','Naam en paspoortgegevens','Prijsklasse'], correct:1, explanation:'Verkeerde namen op tickets kosten geld en gedoe voor de klant.' }
-            }
-          ]
-        }
-      ]
-    };
-
-    /* ── STATE ─────────────────────────────── */
-    var data = loadData();
-    var progress = loadProgress();
-    var adminMode = false;
-    var currentView = 'home';
-    var currentDeptId = null;
-    var currentModId = null;
-
-    function loadData(){
-      try {
-        var raw = localStorage.getItem(STORAGE_DATA);
-        if(raw) return JSON.parse(raw);
-      } catch(e){}
-      return JSON.parse(JSON.stringify(DEFAULT_DATA));
-    }
-    function saveData(){ localStorage.setItem(STORAGE_DATA, JSON.stringify(data)); }
-    function loadProgress(){
-      try {
-        var raw = localStorage.getItem(STORAGE_PROG);
-        if(raw) return JSON.parse(raw);
-      } catch(e){}
-      return { steps:{}, completed:{} };
-    }
-    function saveProgress(){ localStorage.setItem(STORAGE_PROG, JSON.stringify(progress)); }
-
-    /* ── AUTH ─────────────────────────────── */
-    function checkAuth(){
-      if(!localStorage.getItem('doets_token')){
-        window.location.href = '/dashboard.html';
+<script>
+// ════════════════════════════════════════════════════════
+// DEFAULT DATA
+// ════════════════════════════════════════════════════════
+const DEFAULT_DATA = {
+  verkoop: {
+    label:'Verkoop',
+    desc:'Klantcontact, offertes, boekingssystemen en verkoopprocessen. Je leert hoe je klanten adviseert, offertes opmaakt in C3 en klantgegevens beheert in het CRM.',
+    modules:[
+      {id:'v1',title:'Kennismaking met Doets Reizen',badge:'basis',desc:'Wie zijn wij, wat doen wij en hoe communiceren wij',
+       intro:'Voordat je de systemen induikt, is het belangrijk dat je begrijpt wie Doets Reizen is, wat ons onderscheidt en hoe wij met klanten omgaan.',
+       duration:'30 min',
+       steps:[
+         {title:'Lees het welkomstpakket',subtitle:'Bedrijfsintroductie en kernwaarden',
+          explanation:'Het welkomstpakket vertelt je alles over de geschiedenis van Doets Reizen, onze missie en de waarden die we uitdragen. Dit helpt je begrijpen waarom klanten juist voor ons kiezen.',
+          substeps:[
+            {action:'Open de gedeelde schijf',detail:'Ga naar de schijf via Verkenner → Doets Reizen (Z:) → Onboarding → Welkomstpakket.pdf',tip:''},
+            {action:'Lees hoofdstuk 1 t/m 3',detail:'Dit zijn de drie introductiehoofdstukken: Ons verhaal, Onze waarden en Onze klanten.',tip:''},
+            {action:'Noteer vragen',detail:'Schrijf vragen op die je hebt — je bespreekt deze met je begeleider.',tip:''}
+          ],
+          screenshotLabel:'Screenshot: gedeelde schijf met locatie welkomstpakket',
+          tip:'Neem echt de tijd voor dit pakket. Collega\'s merken het als je de Doets-manier goed begrijpt.',
+          warning:'',
+          videoLabel:'Rondleiding door het welkomstpakket (10 min)'}
+       ],
+       quiz:{question:'Wat is de kernwaarde van Doets Reizen in klantcommunicatie?',
+             options:[
+               {text:'Snel en zakelijk',correct:false,feedback:'Doets communiceert warm en persoonlijk, niet puur zakelijk.'},
+               {text:'Warm, persoonlijk en deskundig',correct:true,feedback:'Correct! Dit is de Doets tone of voice.'},
+               {text:'Formeel en professioneel',correct:false,feedback:'Te formeel past niet bij de Doets-stijl.'}
+             ]}
+      },
+      {id:'v2',title:'Inloggen in Outlook',badge:'systeem',desc:'Je werkmail instellen, mappen aanmaken en handtekening instellen',
+       intro:'Outlook is de basis van je dagelijkse communicatie bij Doets. Voordat je klanten kunt mailen, moet je account correct ingesteld zijn.',
+       duration:'20 min',
+       steps:[
+         {title:'Outlook openen en inloggen',subtitle:'Eerste login met je Doets-account',
+          explanation:'Je ontvangt van IT een tijdelijk wachtwoord per sms. Je logt hiermee in op Outlook en wijzigt direct je wachtwoord. Je Doets e-mailadres is altijd voornaam.achternaam@doetsreizen.nl.',
+          substeps:[
+            {action:'Open Outlook via de taakbalk',detail:'Klik op het blauwe envelop-icoon onderaan je scherm.',tip:''},
+            {action:'Voer je e-mailadres in',detail:'Format: voornaam.achternaam@doetsreizen.nl',tip:''},
+            {action:'Stel een nieuw wachtwoord in',detail:'Minimaal 10 tekens, 1 hoofdletter, 1 cijfer, 1 speciaal teken.',tip:'Schrijf het wachtwoord nergens digitaal op.'}
+          ],
+          screenshotLabel:'Screenshot: Outlook inlogscherm',
+          tip:'Lukt inloggen niet? Bel IT direct op intern nummer 201.',
+          warning:'',
+          videoLabel:'Screencast: eerste Outlook login (5 min)'},
+         {title:'Handtekening instellen',subtitle:'Professionele e-mailhandtekening in Doets-stijl',
+          explanation:'Elke medewerker gebruikt dezelfde handtekeningopmaak voor een consistente uitstraling naar klanten.',
+          substeps:[
+            {action:'Ga naar Bestand → Opties → E-mail → Handtekeningen',detail:'Klik linksboven op "Bestand", dan "Opties" in het menu.',tip:''},
+            {action:'Klik op Nieuw en maak een handtekening aan',detail:'Geef de handtekening de naam "Doets Standaard".',tip:''},
+            {action:'Kopieer de template van de gedeelde schijf',detail:'Gedeelde schijf → Onboarding → Handtekening-template.docx',tip:''}
+          ],
+          screenshotLabel:'Screenshot: Outlook handtekeninginstellingen',
+          tip:'',
+          warning:'Verander de lettertypes, kleuren of het logo niet. De huisstijl is verplicht.',
+          videoLabel:'Screencast: handtekening instellen (4 min)'}
+       ],
+       quiz:{question:'Wat is het juiste format voor je Doets e-mailadres?',
+             options:[
+               {text:'voornaam@doetsreizen.nl',correct:false,feedback:'Niet correct — je achternaam hoort er ook bij.'},
+               {text:'voornaam.achternaam@doetsreizen.nl',correct:true,feedback:'Correct! Dit is het standaard format bij Doets.'},
+               {text:'initialen@doetsreizen.nl',correct:false,feedback:'Doets gebruikt geen initialen in het e-mailadres.'}
+             ]}
       }
-    }
-
-    /* ── STATS ─────────────────────────────── */
-    function moduleProgressPct(mod){
-      var total = mod.steps.length + 1; // steps + completion
-      var done = 0;
-      mod.steps.forEach(function(_, i){
-        if(progress.steps[mod.id + '_' + i]) done++;
-      });
-      if(progress.completed[mod.id]) done++;
-      return Math.round((done/total)*100);
-    }
-    function deptProgressPct(dept){
-      if(!dept.modules.length) return 0;
-      var sum = 0;
-      dept.modules.forEach(function(m){ sum += moduleProgressPct(m); });
-      return Math.round(sum / dept.modules.length);
-    }
-    function totalProgressPct(){
-      var all = [];
-      data.departments.forEach(function(d){ d.modules.forEach(function(m){ all.push(moduleProgressPct(m)); }); });
-      if(!all.length) return 0;
-      var sum = 0; all.forEach(function(p){ sum += p; });
-      return Math.round(sum / all.length);
-    }
-
-    /* ── RENDER ─────────────────────────────── */
-    function renderSidebar(){
-      var nav = document.getElementById('deptNav');
-      nav.innerHTML = '';
-      var homeLink = document.createElement('a');
-      homeLink.innerHTML = 'Home';
-      homeLink.onclick = function(){ goHome(); };
-      if(currentView === 'home') homeLink.className = 'active';
-      nav.appendChild(homeLink);
-      data.departments.forEach(function(dept){
-        var a = document.createElement('a');
-        a.innerHTML = escapeHTML(dept.name);
-        a.onclick = function(){ goDept(dept.id); };
-        if(currentDeptId === dept.id) a.className = 'active';
-        nav.appendChild(a);
-      });
-      var tot = totalProgressPct();
-      document.getElementById('totalPct').textContent = tot + '%';
-      document.getElementById('totalFill').style.width = tot + '%';
-    }
-
-    function renderHome(){
-      currentView = 'home';
-      currentDeptId = null;
-      currentModId = null;
-      document.getElementById('topbarTitle').textContent = 'Doets Reizen — Onboarding Portaal';
-      var html = '';
-      html += '<div class="home-eyebrow">Onboarding</div>';
-      html += '<h1 class="home-title">Welkom bij Doets Reizen</h1>';
-      html += '<p class="home-sub">Kies hieronder de afdeling waarin je aan de slag gaat. Elke afdeling bevat modules met stappen, tips en een korte kennischeck.</p>';
-      html += '<div class="dept-grid">';
-      data.departments.forEach(function(dept){
-        var pct = deptProgressPct(dept);
-        html += '<div class="dept-card" onclick="goDept(\'' + dept.id + '\')">';
-        html += '  <div class="dept-name">' + escapeHTML(dept.name) + '</div>';
-        html += '  <div class="dept-desc">' + escapeHTML(dept.desc) + '</div>';
-        html += '  <div class="dept-meta">';
-        html += '    <span class="dept-count">' + dept.modules.length + ' modules</span>';
-        html += '    <div class="dept-progress-wrap"><div class="dept-progress-fill" style="width:' + pct + '%"></div></div>';
-        html += '    <span class="dept-progress-pct">' + pct + '%</span>';
-        html += '  </div>';
-        html += '</div>';
-      });
-      html += '</div>';
-      html += '<div class="admin-only" style="margin-top:32px">';
-      html += '<button class="btn-admin outline" onclick="addDepartment()">+ Nieuwe afdeling</button>';
-      html += '</div>';
-      document.getElementById('content').innerHTML = html;
-      renderSidebar();
-    }
-
-    function goHome(){ renderHome(); window.scrollTo(0,0); }
-
-    function goDept(id){
-      currentView = 'dept';
-      currentDeptId = id;
-      currentModId = null;
-      var dept = data.departments.find(function(d){ return d.id === id; });
-      if(!dept) return goHome();
-      document.getElementById('topbarTitle').textContent = 'Afdeling — ' + dept.name;
-      var html = '';
-      html += '<div class="breadcrumb"><a onclick="goHome()">Home</a> /' + escapeHTML(dept.name) + '</div>';
-      html += '<div class="dept-header">';
-      html += '  <div><h1 class="home-title">' + escapeHTML(dept.name) + '</h1><p class="home-sub">' + escapeHTML(dept.desc) + '</p></div>';
-      html += '</div>';
-
-      html += '<div class="ai-gen-wrap admin-only">';
-      html += '  <button class="ai-gen-btn" onclick="openAIGen()">AI-module genereren</button>';
-      html += '</div>';
-
-      html += '<div class="mod-list">';
-      dept.modules.forEach(function(mod, i){
-        var pct = moduleProgressPct(mod);
-        var done = progress.completed[mod.id];
-        html += '<div class="mod-card" onclick="goMod(\'' + mod.id + '\')">';
-        html += '  <div class="mod-num">' + (i+1) + '</div>';
-        html += '  <div class="mod-info">';
-        html += '    <div class="mod-badge">' + escapeHTML(mod.badge || '') + '</div>';
-        html += '    <div class="mod-title">' + escapeHTML(mod.title) + '</div>';
-        html += '    <div class="mod-desc">' + escapeHTML(mod.desc || '') + '</div>';
-        html += '    <div class="mod-meta"><span>' + escapeHTML(mod.duration || '') + '</span><span>' + mod.steps.length + ' stappen</span><span>' + pct + '% voltooid</span>';
-        if(done) html += '  <span class="mod-done">Voltooid</span>';
-        html += '    </div>';
-        html += '  </div>';
-        html += '</div>';
-      });
-      html += '</div>';
-
-      html += '<div class="admin-only admin-tools">';
-      html += '  <button class="btn-admin outline" onclick="addModule(\'' + dept.id + '\')">+ Nieuwe module</button>';
-      html += '  <button class="btn-admin danger" onclick="removeDepartment(\'' + dept.id + '\')">Afdeling verwijderen</button>';
-      html += '</div>';
-
-      document.getElementById('content').innerHTML = html;
-      renderSidebar();
-      window.scrollTo(0,0);
-    }
-
-    function goMod(id){
-      currentView = 'mod';
-      currentModId = id;
-      var dept, mod;
-      for(var i=0; i<data.departments.length; i++){
-        var m = data.departments[i].modules.find(function(x){ return x.id === id; });
-        if(m){ dept = data.departments[i]; mod = m; currentDeptId = dept.id; break; }
+    ]
+  },
+  productie: {
+    label:'Productie',
+    desc:'Het volledige productieproces van Doets Reizen: van hotels en excursies toevoegen tot reizen calculeren en online zetten in het CMS.',
+    modules:[
+      {id:'ph',title:'Nieuw hotel toevoegen in C3',badge:'systeem',desc:'Stap voor stap een nieuwe accommodatie aanmaken en publicatieklaar maken',
+       intro:'Het invoeren van een nieuw hotel in C3 is een van de meest voorkomende taken binnen productie. Fouten in C3 komen direct op de website terecht — werk dus altijd zorgvuldig.',
+       duration:'45 min',
+       steps:[
+         {title:'Controleer of het hotel al bestaat in C3',subtitle:'Altijd eerst zoeken voor je aanmaakt',
+          explanation:'Duplicaten in C3 veroorzaken verwarring bij boekingen en fouten op de website. Zoek altijd eerst op naam — ook op variaties zoals "Grand Hotel Bali", "The Grand Bali" en "Grand Bali Hotel".',
+          substeps:[
+            {action:'Open C3 en ga naar Accommodaties',detail:'Via het hoofdmenu — derde item van links.',tip:''},
+            {action:'Zoek op hotelnaam in het zoekveld',detail:'Typ de naam (of een deel) en zoek ook op locatie. Controleer alle resultaten goed.',tip:''},
+            {action:'Zoek ook op adres of leverancierscode',detail:'Sommige hotels staan geregistreerd op hun adres of code, niet op naam.',tip:''},
+            {action:'Bestaat het hotel niet? Ga door naar stap 2',detail:'Bestaat het al? Werk het bestaande record dan bij.',tip:'Bij twijfel: vraag een senior collega.'}
+          ],
+          screenshotLabel:'Screenshot: C3 accommodatiezoekscherm met zoekresultaten',
+          tip:'',warning:'Maak nooit een nieuw record aan als je niet 100% zeker bent. Meld duplicaten direct aan je teamleider.',videoLabel:'Screencast: zoeken op bestaande accommodaties in C3'},
+         {title:'Basisgegevens invoeren',subtitle:'Naam, locatie, classificatie en contactgegevens',
+          explanation:'De basisgegevens zijn de fundering van elk hotelrecord. Vul altijd in op basis van het leveranciersdocument — kopieer, typ niet over.',
+          substeps:[
+            {action:'Klik op "+ Nieuwe accommodatie"',detail:'Rechtsboven in het accommodatieoverzicht.',tip:''},
+            {action:'Vul de hotelnaam in',detail:'Gebruik de officiële naam exact zoals op het leveranciersdocument. Geen afkortingen.',tip:''},
+            {action:'Kies land en regio',detail:'Gebruik de dropdowns. Zo specifiek mogelijk — niet "Azië" maar "Bali — Seminyak".',tip:''},
+            {action:'Voer het volledige adres in',detail:'Inclusief postcode, ook bij buitenlandse adressen.',tip:''},
+            {action:'Kies de sterrenclassificatie',detail:'Gebruik de officiële classificatie. Bij twijfel: conservatief kiezen.',tip:''},
+            {action:'Voer contactgegevens van het hotel in',detail:'Naam contactpersoon, e-mail en telefoonnummer van het hotel zelf — niet van de leverancier.',tip:''}
+          ],
+          screenshotLabel:'Screenshot: C3 nieuw accommodatieformulier met ingevulde basisgegevens',
+          tip:'Kopieer gegevens altijd vanuit het leveranciersdocument om typfouten te vermijden.',warning:'',videoLabel:'Screencast: basisgegevens invullen in C3'},
+         {title:"Foto's uploaden",subtitle:"Beeldmateriaal toevoegen volgens de Doets-richtlijnen",
+          explanation:"Minimaal 10 foto's, minimaal 1200px breed, JPG of PNG, max 5 MB per stuk. Gebruik alleen door de leverancier goedgekeurde beelden.\n\nVolgorde: exterieur → lobby → kamer → faciliteiten. De eerste foto wordt de hoofdfoto op de website.",
+          substeps:[
+            {action:"Ga naar het tabblad Foto's binnen het hotelrecord",detail:"Verschijnt na het opslaan van de basisgegevens bovenaan het record.",tip:''},
+            {action:"Klik op Foto's uploaden",detail:"Meerdere foto's tegelijk selecteren via Ctrl+klik.",tip:''},
+            {action:"Stel de volgorde in",detail:"Sleep foto's: exterieur eerst, dan lobby, kamer, faciliteiten.",tip:"De eerste foto = hoofdfoto op de website."},
+            {action:"Sla op en controleer de preview",detail:"Klik Opslaan en controleer of alle foto's correct zijn geladen.",tip:''}
+          ],
+          screenshotLabel:"Screenshot: C3 foto-uploadscherm met geladen foto's",
+          tip:'',warning:"Upload nooit foto's van internet zonder toestemming. Gebruik alleen leveranciersmateriaal of rechtenvrije foto's.",videoLabel:"Screencast: foto's uploaden en ordenen in C3"}
+       ],
+       quiz:{question:"Je wilt een nieuw hotel toevoegen. Je zoekt op naam en ziet geen resultaten. Wat doe je?",
+             options:[
+               {text:'Direct klikken op "+ Nieuwe accommodatie"',correct:false,feedback:'Nog niet — zoek ook op adres of leverancierscode. Het hotel kan onder een andere naam staan.'},
+               {text:'Ook zoeken op adres en leverancierscode, dan pas aanmaken',correct:true,feedback:'Correct! Hotels kunnen op verschillende manieren geregistreerd staan. Altijd grondig controleren.'},
+               {text:'Een collega vragen het aan te maken',correct:false,feedback:'Je mag dit zelf — maar controleer eerst grondig of het hotel al bestaat.'}
+             ]}
+      },
+      {id:'pex',title:'Excursies toevoegen in C3 en CMS',badge:'systeem',desc:'Excursies aanmaken in C3 en koppelen aan reizen in het CMS',
+       intro:'Excursies zijn een belangrijk onderdeel van het Doets-aanbod. Je voegt ze toe in C3 als product en koppelt ze in het CMS aan de juiste reizen. Er zijn twee soorten: inbegrepen excursies (aanvinken) en optionele excursies (via jandoets.nl/excursies).',
+       duration:'30 min',
+       steps:[
+         {title:'Excursie aanmaken in C3',subtitle:'Nieuwe excursie als product invoeren via functie 3103',
+          explanation:'Een excursie is in C3 een apart product met een eigen productcode. Je maakt de excursie aan via functie 3103, net zoals je een reis aanmaakt. Gebruik een bestaande excursie van vorig jaar als basis om te kopiëren.',
+          substeps:[
+            {action:'Open C3 en ga naar functie 3103',detail:'Zoek een vergelijkbare excursie van vorig seizoen op als basis.',tip:''},
+            {action:'Kopieer de bestaande excursie naar een nieuwe code',detail:'Via tabblad Opties → Kopieren produkt. Geef de nieuwe code op en klik Verwerk.',tip:''},
+            {action:'Pas de naam en gegevens aan',detail:'Wijzig de naam naar het nieuwe seizoen onder tabblad Informatie.',tip:''},
+            {action:'Sla op via het diskette-icoontje',detail:'De excursie is nu aangemaakt als product in C3.',tip:''}
+          ],
+          screenshotLabel:'Screenshot: C3 3103 excursie aangemaakt met naam en productcode',
+          tip:'Gebruik altijd een vergelijkbare bestaande excursie als basis — dit bespaart tijd en voorkomt fouten.',warning:'',videoLabel:'Screencast: excursie aanmaken in C3'},
+         {title:'Inbegrepen excursies koppelen in CMS',subtitle:'Aanvinken welke excursies bij de reis horen',
+          explanation:'In het CMS koppel je de excursies aan de juiste reis. Inbegrepen excursies vink je aan — deze zijn in de reissom verwerkt. Voeg inbegrepen excursies altijd als eerste toe.',
+          substeps:[
+            {action:'Open de betreffende reis in het CMS',detail:'Navigeer via het menu naar de reis.',tip:''},
+            {action:'Ga naar het excursie-gedeelte',detail:'Dit is een aparte sectie in het reisformulier.',tip:''},
+            {action:'Vink de inbegrepen excursies aan',detail:'Selecteer alle excursies die inbegrepen zijn in de reissom.',tip:'Inbegrepen excursies altijd eerst toevoegen.'}
+          ],
+          screenshotLabel:'Screenshot: CMS excursie-sectie met aangevinkte inbegrepen excursies',
+          tip:'',warning:'',videoLabel:'Screencast: inbegrepen excursies aanvinken in CMS'},
+         {title:'Optionele excursies toevoegen via jandoets.nl',subtitle:'Extra excursies koppelen op basis van de reisroute',
+          explanation:'Optionele excursies voeg je toe via jandoets.nl/excursies. Volg altijd de route van de reis — voeg geen excursies toe van bestemmingen die niet op de route liggen. Houd rekening met het seizoen.',
+          substeps:[
+            {action:'Ga naar www.jandoets.nl/excursies',detail:'Hier zie je alle beschikbare excursies per bestemming.',tip:''},
+            {action:'Zoek excursies die passen bij de reisroute',detail:'Volg de route van de reis. Houd rekening met het seizoen.',tip:'Twijfel? Raadpleeg je teamleider.'},
+            {action:'Kopieer de excursiecode en plak in CMS',detail:'Elk excursie heeft een unieke code. Plak deze in het CMS-overzicht.',tip:''}
+          ],
+          screenshotLabel:'Screenshot: jandoets.nl/excursies met excursiecode en CMS-invoerveld',
+          tip:'Volg altijd de reisroute — geen excursies van bestemmingen buiten de route.',warning:'',videoLabel:'Screencast: optionele excursies toevoegen via jandoets.nl'}
+       ],
+       quiz:{question:'Je voegt excursies toe aan een nieuwe autorondreizen. Welke voeg je als eerste toe?',
+             options:[
+               {text:'De optionele excursies',correct:false,feedback:'Nee — inbegrepen excursies gaan altijd eerst.'},
+               {text:'De inbegrepen excursies',correct:true,feedback:'Correct! Inbegrepen excursies altijd eerst aanvinken, daarna de optionele toevoegen.'},
+               {text:'De volgorde maakt niet uit',correct:false,feedback:'De volgorde maakt wel uit — inbegrepen excursies horen als eerste in het overzicht.'}
+             ]}
+      },
+      {id:'pcalc',title:'Het calculatieproces (stap 1 t/m 9)',badge:'proces',desc:'Het volledige productieproces van koerscode tot online publicatie',
+       intro:'Dit is het volledige calculatieproces van Doets Reizen — van koerscodes aanmaken tot het online zetten van een reis in het CMS. Het proces bestaat uit 9 stappen die altijd in vaste volgorde worden doorlopen. Elke stap bouwt voort op de vorige.',
+       duration:'4-6 uur (volledig traject)',
+       steps:[
+         {title:'Fase 1 — Stap 1: Koerscode aanmaken (functie 7204)',subtitle:'Wisselkoersen vastleggen voor het nieuwe seizoen',
+          explanation:'Voordat je kunt calculeren moeten de koerscodes kloppen. Een koerscode legt vast welke wisselkoersen gelden voor een bepaald product en seizoen.\n\nCoderingslogica:\n• Letter = producttype (C = Camper, A = Auto)\n• Cijfer = laatste cijfer van het jaar\n• Zomer: letter vóór cijfer (C6 = Camper zomer 2016)\n• Winter: letter achter cijfer (6C = Camper winter 2016)\n\nDe koersen ontvang je van Elske. Wacht altijd op haar bevestiging.',
+          substeps:[
+            {action:'Open C3 en ga naar functie 7204',detail:'Typ 7204 in de functiebalk en druk Enter.',tip:''},
+            {action:'Klik op "Toevoegen"',detail:'Je ziet nu een leeg invoerformulier.',tip:''},
+            {action:'Voer de code in',detail:'Letter producttype + laatste cijfer jaar. Zomer = letter vóór, winter = letter achter. Bijv. C6.',tip:''},
+            {action:'Vul het veld "Tabel" in',detail:'Beknopte naam, bijv. "Camper zomer 2016".',tip:''},
+            {action:'Voer de koersen in onder tabblad "Koersinfo"',detail:'Vier valuta: Canadese dollar, Amerikaanse dollar, euro én Nederlandse gulden.',tip:'Wacht altijd op de koersen van Elske.'}
+          ],
+          screenshotLabel:'Screenshot: C3 functie 7204 koerscode invoerformulier met tabblad Koersinfo',
+          tip:'',warning:'Controleer altijd alle vier de valuta — inclusief de Nederlandse gulden.',videoLabel:'Screencast: koerscode aanmaken in functie 7204'},
+         {title:'Fase 1 — Stap 2: Gids aanmaken (functie 3702)',subtitle:'Seizoenscontainer aanmaken voor alle producten',
+          explanation:'Een gids is de overkoepelende container in C3 voor een productieseizoen. Open altijd een tweede C3-scherm met het vorige seizoen om gegevens over te nemen.\n\nVaste invulregels:\n• Brochurenummer: Jaartal + gidsnummer (overnemen van vorig jaar)\n• Brochure Valuta Code: altijd EUR\n• Brochurenaam: [Product] [Winter/Zomer] [Jaar]\n• Gidsverzending: laatste dag van het jaar invullen\n• Porto Kosten: 0,00 | Extern: Nee | Reminder: 0 | Sticker: Ja',
+          substeps:[
+            {action:'Open C3 en ga naar functie 3702',detail:'Open ook een tweede tabblad met het vorige seizoen om af te kijken.',tip:''},
+            {action:'Klik op "Nieuw toevoegen"',detail:'Je ziet nu een leeg formulier.',tip:''},
+            {action:'Vul alle velden in conform de invulregels',detail:'Brochurenummer, Valuta Code EUR, Naam, Gidsverzending, Vertrekperiode, Einddatum, Porto, Extern, Reminder, Sticker.',tip:''},
+            {action:'Neem de kosten over van vorig jaar',detail:'Automatisch staan er verkeerde kosten in. Altijd handmatig overnemen.',tip:''}
+          ],
+          screenshotLabel:'Screenshot: C3 functie 3702 volledig ingevuld formulier nieuwe gids',
+          tip:'',warning:'Neem de kosten altijd handmatig over van vorig jaar — automatisch staan er verkeerde kosten in!',videoLabel:'Screencast: gids aanmaken in functie 3702'},
+         {title:'Fase 2 — Stap 3: Productgroepen aanmaken (functie 3701)',subtitle:'Productgroepen per seizoen aanmaken met de juiste codering',
+          explanation:'Productgroepen zijn de tweede laag onder de gids. Elke productgroep heeft een vaste letter per producttype.\n\nCoderingsregels:\n• A = Auto, N = NYC&Cities, G = Golf, R = Camper\n• Zomer: letter + cijfer → A9 (Auto zomer 2019)\n• Winter: cijfer + letter → 9A (Auto winter 2019)\n• Reserveringskosten: altijd € 25,-\n\nNa het aanmaken voeg je vervoerbestemmingen toe via Opties → Vervoerbestemmingen. Bestaat een bestemming niet? Maak deze eerst aan in functie 7902.',
+          substeps:[
+            {action:'Open C3 en ga naar functie 3701',detail:'Typ 3701 in de functiebalk.',tip:''},
+            {action:'Klik op "Toevoegen" of druk Insert',detail:'Je ziet het invulscherm voor de nieuwe productgroep.',tip:''},
+            {action:'Vul code, naam, brochurenummer en reserveringskosten (€25) in',detail:'Overige gegevens exact overnemen van een vergelijkbare bestaande productgroep.',tip:''},
+            {action:'Sla op en voeg vervoerbestemmingen toe via tabblad Opties',detail:'Opties → Vervoerbestemmingen → Toevoegen. Gebruik de IATA-code.',tip:''}
+          ],
+          screenshotLabel:'Screenshot: C3 3701 productgroep aangemaakt met vervoerbestemmingen tabblad',
+          tip:'Bestaat een bestemming niet? Aanmaken in 7902, daarna toevoegen in 3701.',warning:'Reserveringskosten zijn altijd € 25,-.',videoLabel:'Screencast: productgroepen aanmaken in 3701'},
+         {title:'Fase 2 — Stap 4 & 5: Productcodes aanmaken en aanpassen (functie 3103)',subtitle:'Individuele reizen aanmaken via kopiëren en actualiseren',
+          explanation:'De productcode is de kleinste eenheid: één specifieke reis. Je maakt altijd een nieuwe code door een bestaande van vorig seizoen te kopiëren.\n\nCoderingslogica: productgroepcode + IATA-code + volgnummer\nVoorbeeld: R9YYC01 = Camperverhuur zomer 2019 / Calgary / eerste variant\n\nNa het kopiëren pas je aan:\n• Naam bijwerken\n• Categorie, leeftijd, bezetting controleren\n• Klasse: 1 = normaal hotel, 2 = luxer, 3 = meest luxe\n• Componenten controleren op volgorde\n• Einddatum toevoegen (verplicht!)\n\nUitprinten via functie 3104 voor de nacheck.',
+          substeps:[
+            {action:'Ga naar functie 3103 en zoek de vergelijkbare code van vorig seizoen',detail:'Klik op tabblad Opties → Kopieren produkt.',tip:''},
+            {action:'Vul de nieuwe productcode in en klik Verwerk',detail:'Code = productgroep + IATA + volgnummer. Bijv. R9YYC01.',tip:''},
+            {action:'Pas de naam aan onder tabblad Informatie',detail:'Alleen de naam wijzigen — de rest staat al correct.',tip:''},
+            {action:'Controleer categorie, leeftijd, bezetting en klasse (1/2/3)',detail:'Vervoers-/verblijfscategorie, minimale leeftijd, min/max bezetting, klasse.',tip:''},
+            {action:'Controleer componenten via Opties → Componenten koppelen',detail:'Juiste componenten in de juiste volgorde. Check ook kamertypes en overnachtingen.',tip:''},
+            {action:'Einddatum toevoegen via venster "Einddatum"',detail:'Klik Toevoegen, voer de datum in, klik Save. Verplicht — zonder einddatum geen calculatie.',tip:''},
+            {action:'Print de productbouw uit via functie 3104',detail:'Dit overzicht gaat in het nacheck-mapje.',tip:''}
+          ],
+          screenshotLabel:'Screenshot: C3 3103 gekopieerde productcode met bijgewerkte naam en ingevulde velden',
+          tip:'',warning:'De volgorde van componenten moet kloppen. Een verkeerde volgorde geeft fouten in de calculatie.',videoLabel:'Screencast: productcode kopiëren, aanpassen en uitprinten'},
+         {title:'Fase 3 — Stap 6: Prijstabel aanmaken (functie 3702)',subtitle:'Prijstabel aanmaken en productcodes koppelen via volgnummers',
+          explanation:'De prijstabel koppelt alle productcodes van een reis samen. Je maakt de tabel aan in functie 3702 en hangt de productcodes eronder via volgnummers.\n\nVolgnummers: eerste code = 10 (automatisch), daarna 20, 30, 40, 50, 60.\n\nNa het aanmaken: verplicht nakijken door collega PM. Print via F5 en doe in het nacheck-mapje samen met de productbouwen.',
+          substeps:[
+            {action:'Open C3 functie 3702 en zoek het gidsnummer op',detail:'Het gids dat hoort bij de te calculeren reis.',tip:''},
+            {action:'Maak een nieuwe prijstabel aan',detail:'Vul de tabelgegevens in en sla op.',tip:''},
+            {action:'Ga naar tabblad OPTIES en koppel de productcodes',detail:'Voeg codes toe via volgnummers: 10, 20, 30, 40, 50, 60.',tip:'De meeste autorondreizen hebben 6 productcodes.'},
+            {action:'Klik op TERUG en controleer het overzicht',detail:'Hangen alle productcodes correct onder de tabel?',tip:''},
+            {action:'Print via F5 en doe in nacheck-mapje',detail:'Samen met de productbouwen uit 3104 — ter nacheck door een collega PM.',tip:''}
+          ],
+          screenshotLabel:'Screenshot: C3 3702 prijstabel met gekoppelde productcodes en volgnummers',
+          tip:'',warning:'Start nooit met calculeren zonder nacheck door een collega PM.',videoLabel:'Screencast: prijstabel aanmaken en productcodes koppelen'},
+         {title:'Fase 3 — Stap 7: Reis calculeren (functies 3702, 9030, 9011, 10008)',subtitle:'Calculatie starten, verwerken, controleren en valideren via FTP-check',
+          explanation:'Na de nacheck start je de calculatie via vier functies:\n\n1. 3702 → Berekenen calculatieprijzen starten\n2. 9030 → Product selecteren en verwerken\n3. 9011 → Status controleren: AK = bezig, OK = klaar\n4. 10008 → FTP downloaden en controleren in Excel\n\nBij de FTP-check sorteer je kolom H van klein naar groot. Een 0 = fout. Uitzondering: Autohuur AVZ, Tiogapass en Beartooth Pass (informatiecomponenten).',
+          substeps:[
+            {action:'3702: Druk op "Berekenen calculatieprijzen" en bevestig met Ja',detail:'Navigeer naar de betreffende reis in 3702.',tip:''},
+            {action:'9030: Selecteer het product (vinkje) en klik Verwerk',detail:'Typ 9030 in de functiebalk. Vink de productcode aan.',tip:''},
+            {action:'9011: Wacht tot status van AK naar OK gaat',detail:'Ververs elke paar minuten. Ga niet verder tot status OK.',tip:'Een calculatie kan enkele minuten duren.'},
+            {action:'10008: Download FTPs en sla op op de PM-schijf',detail:'Selecteer alle productcodes van de tabel, druk download. Sla op: F:\\[Zomer/Winter jaar]\\[Gebied]\\FTPs',tip:''},
+            {action:'Open Excel en sorteer kolom H van klein naar groot',detail:'Sorteren & Filteren → Aangepast sorteren → Kolom H → Klein naar groot.',tip:''},
+            {action:'Controleer op nullen',detail:'Een 0 = ontbrekende prijs = fout. Uitzondering: Autohuur AVZ, Tiogapass, Beartooth Pass.',tip:''}
+          ],
+          screenshotLabel:'Screenshot: C3 9011 statusoverzicht AK/OK + Excel FTP gesorteerd op kolom H',
+          tip:'Als de FTP-check geen fouten toont is de calculatie klaar voor publicatie.',warning:'Ga nooit naar CMS als de FTP-check nullen toont (buiten de bekende uitzonderingen).',videoLabel:'Screencast: volledig calculatieproces 3702 → 9030 → 9011 → 10008'},
+         {title:'Fase 4 — Stap 8 & 9: Prijstabel laden in CMS',subtitle:'Gecalculeerde prijstabel online zetten bij een bestaande of nieuwe reis',
+          explanation:'De laatste fase: de gecalculeerde prijstabel laad je online via het CMS.\n\nBij een bestaande reis: eerst reisinfo controleren en bijwerken, dan prijstabel laden.\nBij een nieuwe reis: eerst alle content invullen (titel, algemeen, details, dagprogramma, fotos, videos, excursies), dan prijstabel laden.\n\nJe doorloopt altijd 5 tabbladen:\n1. C3 Prijstabel (groepcode, bestemmingscode, prijstabel uit 3702) + Synchroniseren\n2. Reisgegevens (vertrekluchthaven, vliegtuigmaatschappij)\n3. Vlucht — overslaan\n4. Toeslagen & kortingen (kortingen altijd met minteken -, P.P. aanvinken per persoon)\n5. Beschikbaarheid (data waarop reis NIET beschikbaar is)\n6. Overige kosten (ter plaatse, puur informatief)\n7. Aanbetaling (percentage en extra kosten indien van toepassing)\n\nVoor nieuwe reizen: fotos altijd eindigen in een complete rij van 3.',
+          substeps:[
+            {action:'Controleer en update de reisinfo in CMS',detail:'Loop alle teksten, fotos, videos en het dagprogramma na. Verwijder verouderde informatie.',tip:'Bij een nieuwe reis: vul eerst alle content in.'},
+            {action:'Klik op Prijzen → Prijstabel toevoegen',detail:'Je ziet nu vijf tabbladen.',tip:''},
+            {action:'C3 Prijstabel: vul Groepcode, Bestemmingscode en Prijstabel in',detail:'Haal op uit functie 3702 in C3. Klik daarna op Synchroniseren.',tip:''},
+            {action:'Reisgegevens: vertrekluchthaven en vliegtuigmaatschappij',detail:'Vink indien van toepassing AirTrade en/of Geen directe vluchten aan.',tip:''},
+            {action:'Toeslagen, Beschikbaarheid, Overige kosten en Aanbetaling invullen',detail:'Kortingen altijd met minteken (-). P.P. aanvinken als per persoon. Niet-beschikbare data invoeren.',tip:''},
+            {action:'Controleer de weergave op de website',detail:'Publiceer en bekijk de reis. Klopt alles? Dan is de reis klaar.',tip:''}
+          ],
+          screenshotLabel:'Screenshot: CMS tabblad C3 Prijstabel ingevuld + tabblad Toeslagen & kortingen',
+          tip:'Eindig bij fotos altijd in een complete rij van 3 — een onvolledige rij ziet er onafgewerkt uit.',warning:'Vergeet het minteken (-) niet bij kortingsbedragen — anders wordt het als toeslag verwerkt.',videoLabel:'Screencast: prijstabel laden in CMS van A tot Z'}
+       ],
+       quiz:{question:'Je bent klaar met calculeren en ziet in de FTP-check een 0 bij "Tiogapass". Wat doe je?',
+             options:[
+               {text:'De calculatie opnieuw starten',correct:false,feedback:'Niet nodig. Tiogapass is een informatiecomponent met een standaard 0.'},
+               {text:'Doorgaan — Tiogapass is een informatiecomponent met een standaard 0',correct:true,feedback:'Correct! Tiogapass, Autohuur AVZ en Beartooth Pass zijn bekende uitzonderingen.'},
+               {text:'Eerst een collega vragen voor je verder gaat',correct:false,feedback:'Niet nodig voor deze bekende uitzondering.'}
+             ]}
       }
-      if(!mod) return goHome();
-      document.getElementById('topbarTitle').textContent = mod.title;
-
-      var html = '';
-      html += '<div class="breadcrumb"><a onclick="goHome()">Home</a> / <a onclick="goDept(\'' + dept.id + '\')">' + escapeHTML(dept.name) + '</a> / ' + escapeHTML(mod.title) + '</div>';
-
-      html += '<div class="mod-intro">';
-      html += '  <div class="mod-badge">' + escapeHTML(mod.badge || '') + '</div>';
-      html += '  <h1>' + escapeHTML(mod.title) + '</h1>';
-      html += '  <p>' + escapeHTML(mod.intro || '') + '</p>';
-      html += '  <div class="mod-intro-meta"><span>' + escapeHTML(mod.duration || '') + '</span><span>' + mod.steps.length + ' stappen</span></div>';
-      html += '</div>';
-
-      mod.steps.forEach(function(step, si){
-        var stepKey = mod.id + '_' + si;
-        var checked = !!progress.steps[stepKey];
-        html += '<div class="step">';
-        html += '  <div class="step-num-col">';
-        html += '    <div>' + (si+1) + '</div>';
-        html += '    <div class="check ' + (checked ? 'on' : '') + '" onclick="toggleStep(\'' + stepKey + '\')">' + (checked ? '✓' : '') + '</div>';
-        html += '  </div>';
-        html += '  <div class="step-body">';
-        html += '    <div class="step-title">' + escapeHTML(step.title || '') + '</div>';
-        if(step.subtitle) html += '<div class="step-subtitle">' + escapeHTML(step.subtitle) + '</div>';
-        if(step.explanation) html += '<div class="step-explanation">' + escapeHTML(step.explanation) + '</div>';
-
-        if(step.substeps && step.substeps.length){
-          html += '<div class="substeps">';
-          step.substeps.forEach(function(sub, i){
-            html += '<div class="substep">';
-            html += '  <div class="substep-num">' + (i+1) + '</div>';
-            html += '  <div class="substep-body">';
-            html += '    <div class="substep-action">' + escapeHTML(sub.action || '') + '</div>';
-            if(sub.detail) html += '<div class="substep-detail">' + escapeHTML(sub.detail) + '</div>';
-            if(sub.tip) html += '<div class="substep-tip">Tip: ' + escapeHTML(sub.tip) + '</div>';
-            html += '  </div>';
-            html += '</div>';
-          });
-          html += '</div>';
-        }
-
-        if(step.tip) html += '<div class="box-tip"><b>Tip</b>' + escapeHTML(step.tip) + '</div>';
-        if(step.warning) html += '<div class="box-warn"><b>Let op</b>' + escapeHTML(step.warning) + '</div>';
-
-        // Screenshot
-        var imgKey = 'doets_img_' + mod.id + '_' + si;
-        var img = localStorage.getItem(imgKey) || '';
-        html += '<div class="shot-block">';
-        html += '  <div class="shot-label">' + escapeHTML(step.screenshot_label || 'Screenshot') + '</div>';
-        html += '  <label class="shot-upload">Upload screenshot<input type="file" accept="image/*" onchange="uploadImg(this, \'' + imgKey + '\', \'' + mod.id + '_' + si + '\')"></label>';
-        if(img) html += '<img class="shot-img" id="img_' + mod.id + '_' + si + '" src="' + img + '" onclick="zoom(this.src)">';
-        else html += '<img class="shot-img" id="img_' + mod.id + '_' + si + '" style="display:none;" onclick="zoom(this.src)">';
-        html += '</div>';
-
-        // Video (optional)
-        html += '<div class="video-block">';
-        html += '  <div class="video-toggle" onclick="this.nextElementSibling.classList.toggle(\'open\')">Video (optioneel) <span>+</span></div>';
-        html += '  <div class="video-content">';
-        html += '    <input type="text" placeholder="YouTube/Loom URL" onchange="embedVideo(this)">';
-        html += '    <div class="video-embed"></div>';
-        html += '  </div>';
-        html += '</div>';
-
-        html += '  </div>';
-        html += '</div>';
-      });
-
-      // Quiz
-      if(mod.quiz && mod.quiz.question){
-        html += '<div class="quiz">';
-        html += '  <div class="quiz-label">Kennischeck</div>';
-        html += '  <div class="quiz-q">' + escapeHTML(mod.quiz.question) + '</div>';
-        html += '  <div class="quiz-opts">';
-        (mod.quiz.options || []).forEach(function(opt, i){
-          html += '<div class="quiz-opt" onclick="answerQuiz(this, ' + i + ', ' + mod.quiz.correct + ', \'' + mod.id + '\')">' + escapeHTML(opt) + '</div>';
-        });
-        html += '  </div>';
-        html += '  <div class="quiz-feedback" id="fb_' + mod.id + '">' + escapeHTML(mod.quiz.explanation || '') + '</div>';
-        html += '</div>';
+    ]
+  },
+  traffic: {
+    label:'Traffic',
+    desc:'Vluchten zoeken en boeken, ticketing verwerken, en omgaan met verstoringen. Je leert hoe de logistieke kant van reizen bij Doets in zijn werk gaat.',
+    modules:[
+      {id:'t1',title:'Introductie traffic & terminologie',badge:'basis',desc:'IATA-codes, PNR, ticketing en luchtvaartpartners',
+       intro:'Traffic zorgt dat klanten daadwerkelijk op hun bestemming komen. Je werkt met vluchten, tickets, transfers en soms ook visa. Een goed begrip van luchtvaartterminologie is essentieel.',
+       duration:'30 min',
+       steps:[
+         {title:'Leer de basisterminologie',subtitle:'IATA-codes, PNR, cabineklassen en meer',
+          explanation:'De luchtvaartwereld heeft zijn eigen taal. Je zult deze termen dagelijks tegenkomen.\n\n• PNR — uniek reserveringsnummer bij de luchtvaartmaatschappij\n• IATA-code — drielettercodes voor luchthavens (AMS, JNB, BKK)\n• Cabineklasse — Economy (Y), Business (C), First (F)',
+          substeps:[
+            {action:'Download het traffic-glossary',detail:'Gedeelde schijf → Traffic → Onboarding → Glossary-luchtvaart.pdf',tip:''},
+            {action:'Leer de 20 meest gebruikte IATA-codes',detail:'Pagina 3-4 van het glossary. Maak zelf een notitie.',tip:'Maak een spiekbriefje van de meest gebruikte codes.'},
+            {action:'Lees de sectie over PNR\'s',detail:'Pagina 8-10 — begrijp wat een PNR is en waarom elk PNR uniek is.',tip:''}
+          ],
+          screenshotLabel:'Screenshot: C3 vluchtoverzicht met IATA-codes',
+          tip:'',
+          warning:'',
+          videoLabel:'Introductievideo luchtvaartterminologie (15 min)'}
+       ],
+       quiz:{question:'Wat is een PNR?',
+             options:[
+               {text:'Het vluchtnummer van een vlucht',correct:false,feedback:'Een vluchtnummer is iets anders, bijv. KL-841.'},
+               {text:'Het unieke reserveringsnummer van een passagier bij de luchtvaartmaatschappij',correct:true,feedback:'Correct! PNR staat voor Passenger Name Record.'},
+               {text:'De IATA-code van de vertrekhaven',correct:false,feedback:'IATA-codes zijn drielettercodes voor luchthavens.'}
+             ]}
       }
+    ]
+  }
+};
 
-      // Footer
-      var pct = moduleProgressPct(mod);
-      var isDone = !!progress.completed[mod.id];
-      html += '<div class="mod-footer">';
-      html += '  <div class="mod-footer-prog">';
-      html += '    <div class="mod-footer-label">Voortgang: ' + pct + '%</div>';
-      html += '    <div class="mod-footer-bar"><div class="mod-footer-fill" style="width:' + pct + '%"></div></div>';
-      html += '  </div>';
-      html += '  <button class="btn-done ' + (isDone ? 'done' : '') + '" onclick="toggleComplete(\'' + mod.id + '\')">' + (isDone ? '✓ Voltooid' : 'Markeer als voltooid') + '</button>';
-      html += '</div>';
+// ════════════════════════════════════════════════════════
+// STATE & PERSISTENCE
+// ════════════════════════════════════════════════════════
+const LS_DATA = 'doets_ob_data_v5';
+const LS_PROG = 'doets_ob_prog_v5';
+const ADMIN_PW = 'doets2025';
 
-      // Admin tools
-      html += '<div class="admin-only admin-tools" style="margin-top:24px">';
-      html += '  <button class="btn-admin outline" onclick="editModuleMeta(\'' + mod.id + '\')">Module bewerken</button>';
-      html += '  <button class="btn-admin outline" onclick="addStep(\'' + mod.id + '\')">+ Stap toevoegen</button>';
-      html += '  <button class="btn-admin danger" onclick="removeModule(\'' + mod.id + '\')">Module verwijderen</button>';
-      html += '</div>';
+let DEPTS = {};
+let progress = { steps:{}, modules:{} };
+let adminMode = false;
+let currentDept = null;
+let currentModId = null;
+let adminEditingDept = null;
+let adminEditingMod = null;
+let adminEditingStep = null;
 
-      document.getElementById('content').innerHTML = html;
-      renderSidebar();
-      window.scrollTo(0,0);
-    }
+function loadAll() {
+  try { const d = localStorage.getItem(LS_DATA); if(d) DEPTS = JSON.parse(d); else DEPTS = JSON.parse(JSON.stringify(DEFAULT_DATA)); } catch(e) { DEPTS = JSON.parse(JSON.stringify(DEFAULT_DATA)); }
+  try { const p = localStorage.getItem(LS_PROG); if(p) progress = JSON.parse(p); } catch(e) {}
+}
+function saveData() { try { localStorage.setItem(LS_DATA, JSON.stringify(DEPTS)); } catch(e) {} showToast(); }
+function saveProg() { try { localStorage.setItem(LS_PROG, JSON.stringify(progress)); } catch(e) {} }
+function resetProgress() {
+  if(!confirm('Weet je zeker dat je alle voortgang wilt wissen?')) return;
+  progress = {steps:{},modules:{}};
+  saveProg(); updateSidebarProgress(); showHome();
+}
 
-    /* ── INTERACTIONS ─────────────────────────────── */
-    function toggleStep(key){
-      progress.steps[key] = !progress.steps[key];
-      saveProgress();
-      if(currentModId) goMod(currentModId);
-    }
+function showToast() {
+  const t = document.getElementById('saved-toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
 
-    function toggleComplete(id){
-      progress.completed[id] = !progress.completed[id];
-      saveProgress();
-      goMod(id);
-    }
+// ════════════════════════════════════════════════════════
+// ADMIN MODE
+// ════════════════════════════════════════════════════════
+function openPwModal() {
+  if(adminMode) { exitAdminMode(); return; }
+  document.getElementById('pw-modal').classList.add('open');
+  document.getElementById('pw-input').value='';
+  document.getElementById('pw-error').style.display='none';
+  setTimeout(()=>document.getElementById('pw-input').focus(),100);
+}
+function closePwModal() { document.getElementById('pw-modal').classList.remove('open'); }
+function checkPw() {
+  const val = document.getElementById('pw-input').value;
+  if(val === ADMIN_PW) { closePwModal(); enterAdminMode(); }
+  else { document.getElementById('pw-error').style.display='block'; document.getElementById('pw-input').select(); }
+}
+function enterAdminMode() {
+  adminMode = true;
+  document.getElementById('main-area').classList.add('admin-mode');
+  document.getElementById('sidebar').classList.add('admin-mode');
+  document.getElementById('topbar-tag').textContent='Beheer';
+  document.getElementById('topbar-tag').classList.add('admin-tag');
+  document.getElementById('admin-toggle-btn').textContent='Beheermodus verlaten';
+  document.getElementById('admin-add-dept-wrap').style.display='';
+  document.getElementById('dept-edit-hint').style.display='';
+  if(document.getElementById('view-dept').style.display!=='none') {
+    document.getElementById('btn-add-module').style.display='';
+    var aiBtn = document.getElementById('btn-ai-module'); if(aiBtn) aiBtn.style.display='';
+    document.getElementById('dept-edit-hint').style.display='';
+  }
+  if(document.getElementById('view-module').style.display!=='none') {
+    document.getElementById('btn-edit-module-meta').style.display='';
+    document.getElementById('btn-add-step').style.display='';
+  }
+  renderDeptGrid();
+}
+function exitAdminMode() {
+  adminMode = false;
+  closeAdminPanel();
+  document.getElementById('main-area').classList.remove('admin-mode');
+  document.getElementById('sidebar').classList.remove('admin-mode');
+  document.getElementById('topbar-tag').textContent='Intern';
+  document.getElementById('topbar-tag').classList.remove('admin-tag');
+  document.getElementById('admin-toggle-btn').textContent='Beheermodus';
+  document.getElementById('admin-add-dept-wrap').style.display='none';
+  document.getElementById('dept-edit-hint').style.display='none';
+  document.getElementById('btn-add-module').style.display='none';
+  var aiBtn2 = document.getElementById('btn-ai-module'); if(aiBtn2) aiBtn2.style.display='none';
+  document.getElementById('btn-edit-module-meta').style.display='none';
+  document.getElementById('btn-add-step').style.display='none';
+  renderDeptGrid();
+}
+function openAdminPanel(title, sub, html) {
+  document.getElementById('ap-title').textContent=title;
+  document.getElementById('ap-sub').textContent=sub;
+  document.getElementById('admin-body').innerHTML=html;
+  document.getElementById('admin-overlay').classList.add('open');
+}
+function closeAdminPanel() { document.getElementById('admin-overlay').classList.remove('open'); }
 
-    function answerQuiz(el, chosen, correct, modId){
-      var opts = el.parentElement.children;
-      for(var i=0; i<opts.length; i++){
-        opts[i].classList.remove('correct','wrong');
-      }
-      if(chosen === correct){
-        el.classList.add('correct');
-      } else {
-        el.classList.add('wrong');
-        opts[correct].classList.add('correct');
-      }
-      document.getElementById('fb_' + modId).classList.add('show');
-    }
+// ════════════════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════════════════
+function setView(id) {
+  ['view-home','view-dept','view-module'].forEach(v => {
+    const el=document.getElementById(v);
+    el.style.display = v===id ? (v==='view-home'?'block':'flex') : 'none';
+  });
+}
+function setNav(id) {
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  const el=document.getElementById('nav-'+id);
+  if(el) el.classList.add('active');
+}
 
-    function uploadImg(input, key, dispId){
-      var f = input.files[0];
-      if(!f) return;
-      var r = new FileReader();
-      r.onload = function(e){
-        try {
-          localStorage.setItem(key, e.target.result);
-          var img = document.getElementById('img_' + dispId);
-          if(img){ img.src = e.target.result; img.style.display = 'block'; }
-        } catch(err){
-          notif('Kon foto niet opslaan (te groot?)');
-        }
-      };
-      r.readAsDataURL(f);
-    }
+function showHome() {
+  currentDept=null; currentModId=null;
+  setView('view-home'); setNav('home');
+  renderDeptGrid(); renderSidebarDepts();
+  updateSidebarProgress();
+}
 
-    function zoom(src){
-      if(!src) return;
-      document.getElementById('zoomImg').src = src;
-      document.getElementById('zoomOverlay').classList.add('show');
-    }
+function showDept(dk) {
+  currentDept=dk;
+  const d=DEPTS[dk];
+  setView('view-dept'); setNav(dk);
+  document.getElementById('bc-dept').textContent=d.label;
+  document.getElementById('dept-eyebrow').textContent='Afdeling';
+  document.getElementById('dept-title').textContent=d.label;
+  document.getElementById('dept-desc').textContent=d.desc;
+  if(adminMode) {
+    document.getElementById('btn-add-module').style.display='';
+    document.getElementById('dept-edit-hint').style.display='';
+  }
+  renderModuleList(dk);
+}
+function backToDept() { if(currentDept) showDept(currentDept); }
 
-    function embedVideo(input){
-      var url = input.value.trim();
-      var embed = input.parentElement.querySelector('.video-embed');
-      embed.innerHTML = '';
-      if(!url) return;
-      var m = url.match(/(?:youtu\.be\/|v=)([\w-]+)/);
-      if(m){ embed.innerHTML = '<iframe src="https://www.youtube.com/embed/' + m[1] + '" allowfullscreen></iframe>'; return; }
-      var lm = url.match(/loom\.com\/share\/([\w-]+)/);
-      if(lm){ embed.innerHTML = '<iframe src="https://www.loom.com/embed/' + lm[1] + '" allowfullscreen></iframe>'; return; }
-      embed.innerHTML = '<div style="font-size:12px;color:#8B8B8B">URL niet herkend (YouTube of Loom).</div>';
-    }
+function showModule(mid) {
+  currentModId=mid;
+  const dk=currentDept||Object.keys(DEPTS).find(k=>DEPTS[k].modules.find(m=>m.id===mid));
+  currentDept=dk;
+  const d=DEPTS[dk];
+  const mod=d.modules.find(m=>m.id===mid);
+  const idx=d.modules.indexOf(mod);
+  setView('view-module');
+  document.getElementById('bc-mod-dept').textContent=d.label;
+  document.getElementById('bc-mod-name').textContent=mod.title;
+  if(adminMode) {
+    document.getElementById('btn-edit-module-meta').style.display='';
+    document.getElementById('btn-add-step').style.display='';
+  }
+  renderModuleDetail(mod, idx, d);
+}
 
-    /* ── ADMIN ─────────────────────────────── */
-    function toggleAdmin(){
-      if(adminMode){
-        adminMode = false;
-        document.body.classList.remove('admin');
-        document.getElementById('adminBtn').classList.remove('admin-on');
-        document.getElementById('adminBtn').textContent = 'Beheermodus';
-        return;
-      }
-      openModal({
-        title:'Beheermodus',
-        html:'<p>Voer het beheerderwachtwoord in.</p><input type="password" id="admPw" placeholder="Wachtwoord">',
-        submit:'Ontgrendel',
-        onSubmit:function(){
-          var v = document.getElementById('admPw').value;
-          if(v === ADMIN_PW){
-            adminMode = true;
-            document.body.classList.add('admin');
-            document.getElementById('adminBtn').classList.add('admin-on');
-            document.getElementById('adminBtn').textContent = '✓ Beheer actief';
-            closeModal();
-            rerender();
-            notif('Beheermodus actief');
-          } else {
-            notif('Wachtwoord onjuist');
-          }
-        }
-      });
-    }
+// ════════════════════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════════════════════
+function renderSidebarDepts() {
+  const el=document.getElementById('sidebar-dept-links');
+  el.innerHTML=Object.entries(DEPTS).map(([dk,d])=>
+    `<div class="nav-item" id="nav-${dk}" onclick="showDept('${dk}')"><div class="nav-dot"></div>${d.label}</div>`
+  ).join('');
+}
 
-    function rerender(){
-      if(currentView === 'home') renderHome();
-      else if(currentView === 'dept') goDept(currentDeptId);
-      else if(currentView === 'mod') goMod(currentModId);
-    }
+function renderDeptGrid() {
+  const grid=document.getElementById('dept-grid');
+  grid.innerHTML=Object.entries(DEPTS).map(([dk,d])=>{
+    const total=d.modules.length;
+    const done=d.modules.filter(m=>progress.modules[m.id]).length;
+    const pct=total?Math.round(done/total*100):0;
+    return `<div class="dept-card" onclick="showDept('${dk}')">
+      ${adminMode?`<button class="dept-card-edit" onclick="event.stopPropagation();openEditDeptPanel('${dk}')">✎ Bewerken</button>`:''}
+      <div class="dept-card-label">Afdeling</div>
+      <h3>${d.label}</h3>
+      <p>${d.desc.substring(0,95)}…</p>
+      <div class="dept-bar"><div class="dept-bar-fill" style="width:${pct}%"></div></div>
+      <div class="dept-card-meta">
+        <div class="dept-card-count">${total} module${total!==1?'s':''}</div>
+        <div class="dept-card-pct">${done}/${total} voltooid</div>
+      </div>
+    </div>`;
+  }).join('');
+}
 
-    function addDepartment(){
-      openModal({
-        title:'Nieuwe afdeling',
-        html:'<input id="fldName" placeholder="Naam"><textarea id="fldDesc" placeholder="Korte beschrijving"></textarea>',
-        submit:'Toevoegen',
-        onSubmit:function(){
-          var name = document.getElementById('fldName').value.trim();
-          var desc = document.getElementById('fldDesc').value.trim();
-          if(!name) return;
-          data.departments.push({ id:'dept_' + Date.now(), name:name, desc:desc, modules:[] });
-          saveData(); closeModal(); rerender();
-        }
-      });
-    }
-    function removeDepartment(id){
-      if(!confirm('Deze afdeling en alle modules verwijderen?')) return;
-      data.departments = data.departments.filter(function(d){ return d.id !== id; });
-      saveData(); goHome();
-    }
+function renderModuleList(dk) {
+  const d=DEPTS[dk];
+  const list=document.getElementById('module-list');
+  list.innerHTML=d.modules.map((m,i)=>{
+    const done=progress.modules[m.id];
+    const sc=m.steps.filter((_,si)=>progress.steps[m.id+'_'+si]).length;
+    const partial=sc>0&&!done;
+    return `<div class="module-row" onclick="showModule('${m.id}')">
+      <div class="mod-check${done?' done':partial?' partial':''}"></div>
+      <div class="mod-info">
+        <div class="mod-title">${m.title}${adminMode?` <span style="color:var(--admin);font-size:0.65rem;cursor:pointer;" onclick="event.stopPropagation();openEditModulePanel('${dk}','${m.id}')">✎</span>`:''}
+        </div>
+        <div class="mod-desc">${m.desc}</div>
+      </div>
+      <div class="mod-badge ${m.badge}">${m.badge}</div>
+      <div class="mod-arrow">→</div>
+    </div>`;
+  }).join('');
+}
 
-    function addModule(deptId){
-      openModal({
-        title:'Nieuwe module',
-        html:'<input id="mTitle" placeholder="Titel"><input id="mBadge" placeholder="Badge (bv. Systeem)"><input id="mDur" placeholder="Duur (bv. 15 minuten)"><textarea id="mDesc" placeholder="Korte beschrijving"></textarea><textarea id="mIntro" placeholder="Uitgebreide intro"></textarea>',
-        submit:'Toevoegen',
-        onSubmit:function(){
-          var title = document.getElementById('mTitle').value.trim();
-          if(!title) return;
-          var dept = data.departments.find(function(d){ return d.id === deptId; });
-          if(!dept) return;
-          dept.modules.push({
-            id: 'mod_' + Date.now(),
-            title: title,
-            badge: document.getElementById('mBadge').value.trim(),
-            duration: document.getElementById('mDur').value.trim(),
-            desc: document.getElementById('mDesc').value.trim(),
-            intro: document.getElementById('mIntro').value.trim(),
-            steps: [],
-            quiz: { question:'', options:[], correct:0, explanation:'' }
-          });
-          saveData(); closeModal(); goDept(deptId);
-        }
-      });
-    }
-    function editModuleMeta(id){
-      var mod = findMod(id); if(!mod) return;
-      openModal({
-        title:'Module bewerken',
-        html:'<input id="mTitle" placeholder="Titel" value="' + escapeAttr(mod.title) + '"><input id="mBadge" placeholder="Badge" value="' + escapeAttr(mod.badge||'') + '"><input id="mDur" placeholder="Duur" value="' + escapeAttr(mod.duration||'') + '"><textarea id="mDesc" placeholder="Korte beschrijving">' + escapeAttr(mod.desc||'') + '</textarea><textarea id="mIntro" placeholder="Intro">' + escapeAttr(mod.intro||'') + '</textarea>',
-        submit:'Opslaan',
-        onSubmit:function(){
-          mod.title = document.getElementById('mTitle').value.trim() || mod.title;
-          mod.badge = document.getElementById('mBadge').value.trim();
-          mod.duration = document.getElementById('mDur').value.trim();
-          mod.desc = document.getElementById('mDesc').value.trim();
-          mod.intro = document.getElementById('mIntro').value.trim();
-          saveData(); closeModal(); goMod(id);
-        }
-      });
-    }
-    function removeModule(id){
-      if(!confirm('Deze module verwijderen?')) return;
-      data.departments.forEach(function(d){
-        d.modules = d.modules.filter(function(m){ return m.id !== id; });
-      });
-      saveData(); goDept(currentDeptId);
-    }
-    function addStep(modId){
-      var mod = findMod(modId); if(!mod) return;
-      openModal({
-        title:'Nieuwe stap',
-        html:'<input id="sTitle" placeholder="Titel"><input id="sSub" placeholder="Subtitel (optioneel)"><textarea id="sExpl" placeholder="Uitleg"></textarea><textarea id="sTip" placeholder="Tip (optioneel)"></textarea><textarea id="sWarn" placeholder="Waarschuwing (optioneel)"></textarea>',
-        submit:'Toevoegen',
-        onSubmit:function(){
-          var title = document.getElementById('sTitle').value.trim();
-          if(!title) return;
-          mod.steps.push({
-            title: title,
-            subtitle: document.getElementById('sSub').value.trim(),
-            explanation: document.getElementById('sExpl').value.trim(),
-            substeps: [],
-            tip: document.getElementById('sTip').value.trim(),
-            warning: document.getElementById('sWarn').value.trim(),
-            screenshot_label: 'Screenshot'
-          });
-          saveData(); closeModal(); goMod(modId);
-        }
-      });
-    }
+function renderModuleDetail(mod, idx, d) {
+  const doneAll=progress.modules[mod.id];
+  const sc=mod.steps.filter((_,si)=>progress.steps[mod.id+'_'+si]).length;
+  document.getElementById('mod-footer-meta').innerHTML=`Module ${idx+1} van ${d.modules.length} &nbsp;·&nbsp; <em>${sc}/${mod.steps.length}</em> stappen afgerond`;
+  const btn=document.getElementById('complete-btn');
+  if(doneAll){btn.textContent='✓ Voltooid';btn.className='complete-btn done';}
+  else{btn.textContent='Markeer module als voltooid';btn.className='complete-btn';}
 
-    function openAIGen(){
-      openModal({
-        title:'AI-module genereren',
-        html:'<p>Plak hieronder de inhoud van een inwerkdocument. Claude maakt er automatisch een module van (titel, stappen, substappen, tips en een kennischeck).</p><textarea id="aiTxt" placeholder="Plak inwerktekst hier..." style="min-height:220px"></textarea>',
-        submit:'Genereren',
-        submitClass:'admin',
-        onSubmit:async function(){
-          var txt = document.getElementById('aiTxt').value.trim();
-          if(txt.length < 20){ notif('Geef minstens 20 tekens tekst'); return; }
-          var btn = document.querySelector('.modal-submit');
-          btn.disabled = true; btn.textContent = 'Bezig...';
-          try {
-            var res = await fetch(API_URL + '/api/generate-module', {
-              method:'POST',
-              headers:{'Content-Type':'application/json','Authorization':'Bearer ' + localStorage.getItem('doets_token')},
-              body: JSON.stringify({ tekst: txt })
-            });
-            var body = await res.json();
-            if(!res.ok){ notif(body.error || 'Fout'); btn.disabled=false; btn.textContent='Genereren'; return; }
-            var mod = body.module;
-            mod.id = 'mod_' + Date.now();
-            var dept = data.departments.find(function(d){ return d.id === currentDeptId; });
-            if(!dept){ notif('Geen afdeling actief'); return; }
-            dept.modules.push(mod);
-            saveData();
-            closeModal();
-            notif('Module toegevoegd: ' + mod.title);
-            goDept(currentDeptId);
-          } catch(e){
-            notif('Netwerkfout');
-            btn.disabled=false; btn.textContent='Genereren';
-          }
-        }
-      });
-    }
+  const content=document.getElementById('mod-detail-content');
+  content.innerHTML=`
+    <div class="mod-intro-block">
+      <div class="mod-intro-eyebrow">${d.label} — Module ${idx+1}</div>
+      <div class="mod-intro-title">${mod.title}</div>
+      <div class="mod-intro-body">${mod.intro}</div>
+      <div class="mod-intro-meta">
+        <div class="mod-meta-item"><strong>Geschatte tijd:</strong>&nbsp;${mod.duration}</div>
+        <div class="mod-meta-item"><strong>Stappen:</strong>&nbsp;${mod.steps.length}</div>
+        <div class="mod-meta-item"><strong>Type:</strong>&nbsp;${mod.badge}</div>
+      </div>
+    </div>
+    <div class="steps-container">${mod.steps.map((s,si)=>renderStep(mod.id,s,si)).join('')}</div>
+  `;
 
-    function findMod(id){
-      for(var i=0; i<data.departments.length; i++){
-        var m = data.departments[i].modules.find(function(x){ return x.id === id; });
-        if(m) return m;
-      }
-      return null;
-    }
+  const kcBlock=document.getElementById('kc-block');
+  if(mod.quiz){kcBlock.style.display='';kcBlock.innerHTML=renderQuiz(mod.quiz,mod.id);}
+  else kcBlock.style.display='none';
+  document.getElementById('mod-detail-scroll').scrollTop=0;
+  loadSavedScreenshots();
+}
 
-    /* ── MODAL ─────────────────────────────── */
-    function openModal(o){
-      var box = document.getElementById('modalBox');
-      box.innerHTML = '<h3>' + escapeHTML(o.title) + '</h3>' + (o.html || '') +
-        '<div class="modal-actions"><button class="modal-cancel" onclick="closeModal()">Annuleren</button>' +
-        '<button class="modal-submit ' + (o.submitClass||'') + '" onclick="__modalSubmit()">' + escapeHTML(o.submit || 'OK') + '</button></div>';
-      window.__modalSubmit = o.onSubmit;
-      document.getElementById('modalOverlay').classList.add('show');
-    }
-    function closeModal(){
-      document.getElementById('modalOverlay').classList.remove('show');
-      document.getElementById('modalBox').innerHTML = '';
-    }
-    document.getElementById('modalOverlay').addEventListener('click', function(e){
-      if(e.target === this) closeModal();
+function renderStep(modId,s,si) {
+  const done=progress.steps[modId+'_'+si];
+  return `<div class="step-card${done?' completed':''}" id="sc-${modId}-${si}">
+    <div class="step-header">
+      <div class="step-num-block">
+        <div class="step-num-label">Stap</div>
+        <div class="step-num-n">${si+1}</div>
+      </div>
+      <div class="step-title-block">
+        <div class="step-title">${s.title}${adminMode?` <span style="color:var(--admin);font-size:0.65rem;cursor:pointer;font-weight:400;" onclick="openEditStepPanel('${modId}',${si})">✎ bewerken</span>`:''}</div>
+        <div class="step-subtitle">${s.subtitle}</div>
+      </div>
+      <div class="step-check-block">
+        <div class="step-checkbox${done?' checked':''}" onclick="toggleStep('${modId}',${si})"></div>
+      </div>
+    </div>
+    <div class="step-body"><div class="step-body-inner">
+      <div class="step-explanation">${s.explanation.replace(/\n/g,'<br>')}</div>
+      ${s.substeps&&s.substeps.length?`<div class="substeps">${s.substeps.map((ss,ssi)=>`
+        <div class="substep">
+          <div class="substep-num">${ssi+1}</div>
+          <div class="substep-body">
+            <div class="substep-action">${ss.action}</div>
+            <div class="substep-detail">${ss.detail.replace(/\n/g,'<br>')}</div>
+            ${ss.tip?`<div class="substep-tip">Tip — ${ss.tip}</div>`:''}
+          </div>
+        </div>`).join('')}</div>`:''}
+      <div class="screenshot-block">
+        <div class="screenshot-header">
+          <div class="screenshot-label">Screenshot / Afbeelding</div>
+          <div style="display:flex;gap:0.5rem;align-items:center;">
+            <label style="font-size:0.62rem;font-weight:600;color:var(--gold);cursor:pointer;border:1px solid var(--gold-border);padding:2px 8px;background:var(--gold-bg);letter-spacing:0.06em;text-transform:uppercase;">
+              Uploaden
+              <input type="file" accept="image/*" style="display:none;" onchange="uploadScreenshot(this,'${modId}',${si})">
+            </label>
+            <span style="font-size:0.62rem;color:var(--ink-faint);">of plak een URL</span>
+          </div>
+        </div>
+        <div class="screenshot-area" id="ssa-${modId}-${si}">
+          <div class="screenshot-empty">
+            <div class="screenshot-icon">🖼</div>
+            <div class="screenshot-text">${s.screenshotLabel||'Voeg een screenshot toe'}<br><span style="font-size:0.68rem;opacity:0.7">Upload een bestand of voer een URL in</span></div>
+          </div>
+        </div>
+        <input class="screenshot-input" type="text" placeholder="https://i.imgur.com/..." oninput="loadScreenshot(this,'${modId}',${si})">
+      </div>
+      ${s.tip?`<div class="tip-box"><div class="tip-box-label">Tip</div><div class="tip-box-text">${s.tip}</div></div>`:''}
+      ${s.warning?`<div class="warning-box"><div class="warning-box-label">Let op</div><div class="warning-box-text">${s.warning}</div></div>`:''}
+      <div class="video-block">
+        <div class="video-toggle" onclick="toggleVideo('vb-${modId}-${si}',this)">
+          <div class="video-toggle-left"><span>▶</span>${s.videoLabel||'Bekijk de uitlegvideo'}</div>
+          <span class="video-toggle-arrow" id="arr-${modId}-${si}">›</span>
+        </div>
+        <div class="video-body" id="vb-${modId}-${si}">
+          <div class="video-inner">
+            <div class="video-placeholder" id="vp-${modId}-${si}">
+              <div class="video-placeholder-icon">▶</div>
+              <div class="video-placeholder-text">Plak een YouTube- of Loom-link hieronder</div>
+            </div>
+            <input class="video-url-input" type="text" placeholder="https://www.youtube.com/watch?v=... of https://www.loom.com/share/..." oninput="loadVideo(this,'${modId}',${si})">
+            <div class="video-hint">YouTube- en Loom-links worden automatisch geëmbed.</div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+  </div>`;
+}
+
+function renderQuiz(quiz,modId) {
+  return `<div class="kc-header"><div class="kc-title">Kennischeck</div><div class="kc-sub">Test of je de stof goed hebt begrepen</div></div>
+  <div class="kc-body"><div class="kc-question">${quiz.question}</div>
+  <div class="kc-options">${quiz.options.map((o,oi)=>`
+    <div class="kc-option" id="kco-${modId}-${oi}" onclick="answerQuiz('${modId}',${oi},${o.correct},'${o.feedback.replace(/'/g,"\\'")}')">
+      <div class="kc-radio" id="kcr-${modId}-${oi}"></div>${o.text}
+    </div>
+    <div class="kc-feedback" id="kcf-${modId}-${oi}">${o.feedback}</div>
+  `).join('')}</div></div>`;
+}
+
+// ════════════════════════════════════════════════════════
+// ADMIN EDIT PANELS
+// ════════════════════════════════════════════════════════
+function openEditDeptPanel(dk) {
+  adminEditingDept=dk;
+  const d=DEPTS[dk];
+  openAdminPanel('Afdeling bewerken', d.label, `
+    <div class="admin-section">
+      <div class="admin-section-title">Afdelingsgegevens</div>
+      <div class="admin-field"><label class="admin-label">Naam afdeling</label>
+        <input class="admin-input" id="ae-dept-label" value="${esc(d.label)}"></div>
+      <div class="admin-field"><label class="admin-label">Beschrijving (zichtbaar op homepagina en afdelingspagina)</label>
+        <textarea class="admin-textarea" id="ae-dept-desc">${esc(d.desc)}</textarea></div>
+      <button class="admin-save-btn" onclick="saveEditDept()">Opslaan</button>
+    </div>
+    <div class="admin-section">
+      <div class="admin-section-title">Gevaar</div>
+      <button class="admin-danger-btn" onclick="deleteDept('${dk}')">Afdeling verwijderen</button>
+    </div>
+  `);
+}
+
+function saveEditDept() {
+  const dk=adminEditingDept;
+  DEPTS[dk].label=document.getElementById('ae-dept-label').value.trim();
+  DEPTS[dk].desc=document.getElementById('ae-dept-desc').value.trim();
+  saveData(); closeAdminPanel();
+  renderDeptGrid(); renderSidebarDepts();
+  if(currentDept===dk) showDept(dk);
+}
+
+function deleteDept(dk) {
+  if(!confirm(`Afdeling "${DEPTS[dk].label}" en alle modules verwijderen? Dit kan niet ongedaan worden gemaakt.`)) return;
+  delete DEPTS[dk];
+  saveData(); closeAdminPanel(); showHome();
+}
+
+function openAddDeptPanel() {
+  openAdminPanel('Nieuwe afdeling', 'Voeg een afdeling toe', `
+    <div class="admin-section">
+      <div class="admin-section-title">Nieuwe afdeling</div>
+      <div class="admin-field"><label class="admin-label">Naam afdeling</label>
+        <input class="admin-input" id="ae-new-dept-label" placeholder="Bijv. Marketing"></div>
+      <div class="admin-field"><label class="admin-label">Beschrijving</label>
+        <textarea class="admin-textarea" id="ae-new-dept-desc" placeholder="Korte omschrijving van de afdeling en haar taken..."></textarea></div>
+      <button class="admin-save-btn" onclick="saveNewDept()">Afdeling aanmaken</button>
+    </div>
+  `);
+}
+
+function saveNewDept() {
+  const label=document.getElementById('ae-new-dept-label').value.trim();
+  const desc=document.getElementById('ae-new-dept-desc').value.trim();
+  if(!label){alert('Vul een naam in.');return;}
+  const key=label.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+  DEPTS[key]={label,desc,modules:[]};
+  saveData(); closeAdminPanel(); renderDeptGrid(); renderSidebarDepts();
+}
+
+function editDeptMeta() {
+  if(!adminMode||!currentDept) return;
+  openEditDeptPanel(currentDept);
+}
+
+function openAddModulePanel() {
+  const dk=currentDept;
+  openAdminPanel('Module toevoegen', DEPTS[dk].label, `
+    <div class="admin-section">
+      <div class="admin-section-title">Nieuwe module</div>
+      <div class="admin-field"><label class="admin-label">Titel</label>
+        <input class="admin-input" id="ae-mod-title" placeholder="Bijv. Inloggen in C3"></div>
+      <div class="admin-field"><label class="admin-label">Korte beschrijving (zichtbaar in de lijst)</label>
+        <input class="admin-input" id="ae-mod-desc" placeholder="Bijv. Eerste login en accountinstellingen"></div>
+      <div class="admin-field"><label class="admin-label">Introductietekst (zichtbaar bovenaan de module)</label>
+        <textarea class="admin-textarea" id="ae-mod-intro" placeholder="Uitgebreide introductie — wat gaat de medewerker leren en waarom is dit belangrijk?"></textarea></div>
+      <div class="admin-field"><label class="admin-label">Geschatte tijd</label>
+        <input class="admin-input" id="ae-mod-dur" placeholder="Bijv. 30 min"></div>
+      <div class="admin-field"><label class="admin-label">Type</label>
+        <select class="admin-select" id="ae-mod-badge">
+          <option value="basis">Basis</option>
+          <option value="systeem">Systeem</option>
+          <option value="proces">Proces</option>
+        </select></div>
+      <button class="admin-save-btn" onclick="saveNewModule()">Module aanmaken</button>
+    </div>
+  `);
+}
+
+function saveNewModule() {
+  const dk=currentDept;
+  const title=document.getElementById('ae-mod-title').value.trim();
+  const desc=document.getElementById('ae-mod-desc').value.trim();
+  const intro=document.getElementById('ae-mod-intro').value.trim();
+  const duration=document.getElementById('ae-mod-dur').value.trim()||'?';
+  const badge=document.getElementById('ae-mod-badge').value;
+  if(!title){alert('Vul een titel in.');return;}
+  const id=dk[0]+(Date.now()%100000);
+  DEPTS[dk].modules.push({id,title,badge,desc,intro,duration,steps:[],quiz:null});
+  saveData(); closeAdminPanel(); showDept(dk);
+}
+
+function openEditModulePanel(dk,mid) {
+  adminEditingDept=dk; adminEditingMod=mid;
+  const mod=DEPTS[dk].modules.find(m=>m.id===mid);
+  openAdminPanel('Module bewerken',mod.title,`
+    <div class="admin-section">
+      <div class="admin-section-title">Module-informatie</div>
+      <div class="admin-field"><label class="admin-label">Titel</label>
+        <input class="admin-input" id="ae-em-title" value="${esc(mod.title)}"></div>
+      <div class="admin-field"><label class="admin-label">Korte beschrijving</label>
+        <input class="admin-input" id="ae-em-desc" value="${esc(mod.desc)}"></div>
+      <div class="admin-field"><label class="admin-label">Introductietekst</label>
+        <textarea class="admin-textarea" id="ae-em-intro">${esc(mod.intro)}</textarea></div>
+      <div class="admin-field"><label class="admin-label">Geschatte tijd</label>
+        <input class="admin-input" id="ae-em-dur" value="${esc(mod.duration)}"></div>
+      <div class="admin-field"><label class="admin-label">Type</label>
+        <select class="admin-select" id="ae-em-badge">
+          <option value="basis"${mod.badge==='basis'?' selected':''}>Basis</option>
+          <option value="systeem"${mod.badge==='systeem'?' selected':''}>Systeem</option>
+          <option value="proces"${mod.badge==='proces'?' selected':''}>Proces</option>
+        </select></div>
+      <button class="admin-save-btn" onclick="saveEditModule()">Opslaan</button>
+    </div>
+    <div class="admin-section">
+      <div class="admin-section-title">Gevaar</div>
+      <button class="admin-danger-btn" onclick="deleteModule('${dk}','${mid}')">Module verwijderen</button>
+    </div>
+  `);
+}
+
+function openEditModuleMetaPanel() {
+  if(currentDept&&currentModId) openEditModulePanel(currentDept,currentModId);
+}
+
+function saveEditModule() {
+  const mod=DEPTS[adminEditingDept].modules.find(m=>m.id===adminEditingMod);
+  mod.title=document.getElementById('ae-em-title').value.trim();
+  mod.desc=document.getElementById('ae-em-desc').value.trim();
+  mod.intro=document.getElementById('ae-em-intro').value.trim();
+  mod.duration=document.getElementById('ae-em-dur').value.trim();
+  mod.badge=document.getElementById('ae-em-badge').value;
+  saveData(); closeAdminPanel();
+  if(currentModId===adminEditingMod) showModule(adminEditingMod);
+  else showDept(adminEditingDept);
+}
+
+function deleteModule(dk,mid) {
+  if(!confirm('Module verwijderen? Dit kan niet ongedaan worden gemaakt.')) return;
+  DEPTS[dk].modules=DEPTS[dk].modules.filter(m=>m.id!==mid);
+  saveData(); closeAdminPanel(); showDept(dk);
+}
+
+function openAddStepPanel() {
+  adminEditingDept=currentDept; adminEditingMod=currentModId;
+  openAdminPanel('Stap toevoegen','Nieuwe stap aan de module toevoegen',`
+    <div class="admin-section">
+      <div class="admin-section-title">Stapinformatie</div>
+      <div class="admin-field"><label class="admin-label">Staptitel</label>
+        <input class="admin-input" id="ae-st-title" placeholder="Bijv. Inloggen in C3"></div>
+      <div class="admin-field"><label class="admin-label">Subtitel</label>
+        <input class="admin-input" id="ae-st-sub" placeholder="Bijv. Eerste login en accountinstellingen"></div>
+      <div class="admin-field"><label class="admin-label">Uitleg (mag meerdere paragrafen bevatten)</label>
+        <textarea class="admin-textarea" style="min-height:120px;" id="ae-st-exp" placeholder="Uitgebreide uitleg van deze stap — geef context en achtergrond..."></textarea></div>
+      <div class="admin-field"><label class="admin-label">Tip (optioneel)</label>
+        <input class="admin-input" id="ae-st-tip" placeholder="Handig om te weten..."></div>
+      <div class="admin-field"><label class="admin-label">Waarschuwing (optioneel)</label>
+        <input class="admin-input" id="ae-st-warn" placeholder="Let op..."></div>
+      <div class="admin-field"><label class="admin-label">Screenshot label</label>
+        <input class="admin-input" id="ae-st-ss" placeholder="Bijv. Screenshot: C3 inlogscherm"></div>
+      <div class="admin-field"><label class="admin-label">Video label</label>
+        <input class="admin-input" id="ae-st-vid" placeholder="Bijv. Screencast: inloggen in C3 (5 min)"></div>
+      <div class="admin-section-title" style="margin-top:1rem;">Substappen</div>
+      <div id="ae-substeps-list"></div>
+      <button class="admin-add-btn" onclick="addSubstepField()">+ Substap toevoegen</button>
+      <button class="admin-save-btn" onclick="saveNewStep()" style="margin-top:1rem;">Stap toevoegen</button>
+    </div>
+  `);
+}
+
+let tempSubsteps=[];
+function addSubstepField() {
+  const list=document.getElementById('ae-substeps-list');
+  if(!list) return;
+  const i=list.children.length;
+  const div=document.createElement('div');
+  div.className='admin-substep-block';
+  div.innerHTML=`<div class="admin-substep-header"><span>Substap ${i+1}</span><button class="admin-substep-remove" onclick="this.closest('.admin-substep-block').remove()">Verwijderen</button></div>
+  <div class="admin-substep-body">
+    <div class="admin-field"><label class="admin-label">Actie (kort)</label><input class="admin-input ae-ss-action" placeholder="Bijv. Open C3"></div>
+    <div class="admin-field"><label class="admin-label">Detail (uitleg)</label><textarea class="admin-textarea ae-ss-detail" style="min-height:60px;" placeholder="Bijv. Ga naar c3.doetsreizen.nl in Chrome"></textarea></div>
+    <div class="admin-field"><label class="admin-label">Tip (optioneel)</label><input class="admin-input ae-ss-tip" placeholder=""></div>
+  </div>`;
+  list.appendChild(div);
+}
+
+function saveNewStep() {
+  const mod=DEPTS[adminEditingDept].modules.find(m=>m.id===adminEditingMod);
+  const substeps=[...document.querySelectorAll('#ae-substeps-list .admin-substep-block')].map(b=>({
+    action:b.querySelector('.ae-ss-action').value.trim(),
+    detail:b.querySelector('.ae-ss-detail').value.trim(),
+    tip:b.querySelector('.ae-ss-tip').value.trim()
+  })).filter(s=>s.action);
+  mod.steps.push({
+    title:document.getElementById('ae-st-title').value.trim()||'Nieuwe stap',
+    subtitle:document.getElementById('ae-st-sub').value.trim(),
+    explanation:document.getElementById('ae-st-exp').value.trim(),
+    tip:document.getElementById('ae-st-tip').value.trim(),
+    warning:document.getElementById('ae-st-warn').value.trim(),
+    screenshotLabel:document.getElementById('ae-st-ss').value.trim(),
+    videoLabel:document.getElementById('ae-st-vid').value.trim(),
+    substeps
+  });
+  saveData(); closeAdminPanel(); showModule(adminEditingMod);
+}
+
+function openEditStepPanel(modId,si) {
+  adminEditingDept=currentDept; adminEditingMod=modId; adminEditingStep=si;
+  const mod=DEPTS[currentDept].modules.find(m=>m.id===modId);
+  const s=mod.steps[si];
+  const ssHtml=s.substeps.map((ss,ssi)=>`
+    <div class="admin-substep-block">
+      <div class="admin-substep-header"><span>Substap ${ssi+1}</span><button class="admin-substep-remove" onclick="this.closest('.admin-substep-block').remove()">Verwijderen</button></div>
+      <div class="admin-substep-body">
+        <div class="admin-field"><label class="admin-label">Actie</label><input class="admin-input ae-ss-action" value="${esc(ss.action)}"></div>
+        <div class="admin-field"><label class="admin-label">Detail</label><textarea class="admin-textarea ae-ss-detail" style="min-height:60px;">${esc(ss.detail)}</textarea></div>
+        <div class="admin-field"><label class="admin-label">Tip</label><input class="admin-input ae-ss-tip" value="${esc(ss.tip||'')}"></div>
+      </div>
+    </div>`).join('');
+  openAdminPanel(`Stap ${si+1} bewerken`,mod.title,`
+    <div class="admin-section">
+      <div class="admin-section-title">Stapinhoud</div>
+      <div class="admin-field"><label class="admin-label">Titel</label><input class="admin-input" id="ae-es-title" value="${esc(s.title)}"></div>
+      <div class="admin-field"><label class="admin-label">Subtitel</label><input class="admin-input" id="ae-es-sub" value="${esc(s.subtitle)}"></div>
+      <div class="admin-field"><label class="admin-label">Uitleg</label><textarea class="admin-textarea" style="min-height:120px;" id="ae-es-exp">${esc(s.explanation)}</textarea></div>
+      <div class="admin-field"><label class="admin-label">Tip</label><input class="admin-input" id="ae-es-tip" value="${esc(s.tip||'')}"></div>
+      <div class="admin-field"><label class="admin-label">Waarschuwing</label><input class="admin-input" id="ae-es-warn" value="${esc(s.warning||'')}"></div>
+      <div class="admin-field"><label class="admin-label">Screenshot label</label><input class="admin-input" id="ae-es-ss" value="${esc(s.screenshotLabel||'')}"></div>
+      <div class="admin-field"><label class="admin-label">Video label</label><input class="admin-input" id="ae-es-vid" value="${esc(s.videoLabel||'')}"></div>
+      <div class="admin-section-title" style="margin-top:1rem;">Substappen</div>
+      <div id="ae-substeps-list">${ssHtml}</div>
+      <button class="admin-add-btn" onclick="addSubstepField()">+ Substap toevoegen</button>
+      <button class="admin-save-btn" onclick="saveEditStep()" style="margin-top:1rem;">Opslaan</button>
+    </div>
+    <div class="admin-section">
+      <div class="admin-section-title">Gevaar</div>
+      <button class="admin-danger-btn" onclick="deleteStep('${modId}',${si})">Stap verwijderen</button>
+    </div>
+  `);
+}
+
+function saveEditStep() {
+  const mod=DEPTS[adminEditingDept].modules.find(m=>m.id===adminEditingMod);
+  const s=mod.steps[adminEditingStep];
+  s.title=document.getElementById('ae-es-title').value.trim();
+  s.subtitle=document.getElementById('ae-es-sub').value.trim();
+  s.explanation=document.getElementById('ae-es-exp').value.trim();
+  s.tip=document.getElementById('ae-es-tip').value.trim();
+  s.warning=document.getElementById('ae-es-warn').value.trim();
+  s.screenshotLabel=document.getElementById('ae-es-ss').value.trim();
+  s.videoLabel=document.getElementById('ae-es-vid').value.trim();
+  s.substeps=[...document.querySelectorAll('#ae-substeps-list .admin-substep-block')].map(b=>({
+    action:b.querySelector('.ae-ss-action').value.trim(),
+    detail:b.querySelector('.ae-ss-detail').value.trim(),
+    tip:b.querySelector('.ae-ss-tip').value.trim()
+  })).filter(s=>s.action);
+  saveData(); closeAdminPanel(); showModule(adminEditingMod);
+}
+
+function deleteStep(modId,si) {
+  if(!confirm('Stap verwijderen?')) return;
+  const mod=DEPTS[adminEditingDept].modules.find(m=>m.id===modId);
+  mod.steps.splice(si,1);
+  saveData(); closeAdminPanel(); showModule(modId);
+}
+
+// ════════════════════════════════════════════════════════
+// INTERACTIONS
+// ════════════════════════════════════════════════════════
+function toggleStep(modId,si) {
+  const key=modId+'_'+si;
+  progress.steps[key]=!progress.steps[key];
+  saveProg();
+  const card=document.getElementById(`sc-${modId}-${si}`);
+  if(card){
+    const done=progress.steps[key];
+    card.className=`step-card${done?' completed':''}`;
+    const cb=card.querySelector('.step-checkbox');
+    if(cb) cb.className=`step-checkbox${done?' checked':''}`;
+  }
+  const mod=Object.values(DEPTS).flatMap(d=>d.modules).find(m=>m.id===modId);
+  if(mod){
+    const sc=mod.steps.filter((_,i)=>progress.steps[modId+'_'+i]).length;
+    const d=DEPTS[currentDept];
+    const idx=d.modules.indexOf(mod);
+    document.getElementById('mod-footer-meta').innerHTML=`Module ${idx+1} van ${d.modules.length} &nbsp;·&nbsp; <em>${sc}/${mod.steps.length}</em> stappen afgerond`;
+  }
+  updateSidebarProgress();
+}
+
+function markModuleDone() {
+  if(!currentModId||progress.modules[currentModId]) return;
+  progress.modules[currentModId]=true;
+  const mod=Object.values(DEPTS).flatMap(d=>d.modules).find(m=>m.id===currentModId);
+  if(mod) mod.steps.forEach((_,i)=>{progress.steps[currentModId+'_'+i]=true;});
+  saveProg(); updateSidebarProgress();
+  const btn=document.getElementById('complete-btn');
+  btn.textContent='✓ Voltooid'; btn.className='complete-btn done';
+  if(mod){
+    const d=DEPTS[currentDept];
+    const idx=d.modules.indexOf(mod);
+    document.getElementById('mod-footer-meta').innerHTML=`Module ${idx+1} van ${d.modules.length} &nbsp;·&nbsp; <em>${mod.steps.length}/${mod.steps.length}</em> stappen afgerond`;
+    mod.steps.forEach((_,si)=>{
+      const card=document.getElementById(`sc-${currentModId}-${si}`);
+      if(card){card.className='step-card completed';const cb=card.querySelector('.step-checkbox');if(cb)cb.className='step-checkbox checked';}
     });
+  }
+}
 
-    /* ── NOTIF ─────────────────────────────── */
-    function notif(msg){
-      var n = document.getElementById('notif');
-      n.textContent = msg;
-      n.classList.add('show');
-      setTimeout(function(){ n.classList.remove('show'); }, 2600);
+function answerQuiz(modId,oi,correct,feedback) {
+  document.querySelectorAll(`[id^="kco-${modId}-"]`).forEach(el=>{el.style.pointerEvents='none';el.style.cursor='default';});
+  document.getElementById(`kco-${modId}-${oi}`).classList.add(correct?'correct':'wrong');
+  const fb=document.getElementById(`kcf-${modId}-${oi}`);
+  fb.classList.add('show',correct?'correct':'wrong');
+}
+
+function toggleVideo(id,toggleEl) {
+  const body=document.getElementById(id);
+  const arrow=toggleEl.querySelector('.video-toggle-arrow');
+  const open=body.classList.toggle('open');
+  arrow.classList.toggle('open',open);
+}
+
+function showScreenshotImg(area, src) {
+  area.innerHTML=`<img src="${src}" style="width:100%;height:auto;max-height:520px;object-fit:contain;display:block;cursor:zoom-in;" onclick="zoomScreenshot(this)" title="Klik om te vergroten">`;
+}
+
+function zoomScreenshot(img) {
+  if(img.classList.contains('zoomed')) {
+    img.classList.remove('zoomed');
+    document.body.style.overflow='';
+  } else {
+    img.classList.add('zoomed');
+    document.body.style.overflow='hidden';
+    img.onclick=function(){zoomScreenshot(img);};
+  }
+}
+
+function loadScreenshot(input,modId,si) {
+  const url=input.value.trim();
+  const area=document.getElementById(`ssa-${modId}-${si}`);
+  if(!url){
+    area.innerHTML=`<div class="screenshot-empty"><div class="screenshot-icon">🖼</div><div class="screenshot-text">Voeg een URL in of upload een bestand</div></div>`;
+    return;
+  }
+  showScreenshotImg(area, url);
+}
+
+function uploadScreenshot(input,modId,si) {
+  const file=input.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(e) {
+    const area=document.getElementById(`ssa-${modId}-${si}`);
+    showScreenshotImg(area, e.target.result);
+    try {
+      localStorage.setItem(`doets_img_${modId}_${si}`, e.target.result);
+    } catch(err) {}
+  };
+  reader.readAsDataURL(file);
+}
+
+function loadSavedScreenshots() {
+  setTimeout(()=>{
+    for(let k in localStorage) {
+      if(k.startsWith('doets_img_')) {
+        const parts=k.replace('doets_img_','').split('_');
+        const si=parts.pop();
+        const modId=parts.join('_');
+        const area=document.getElementById(`ssa-${modId}-${si}`);
+        if(area) {
+          const data=localStorage.getItem(k);
+          if(data) showScreenshotImg(area, data);
+        }
+      }
     }
+  },50);
+}
 
-    /* ── HELPERS ─────────────────────────────── */
-    function escapeHTML(s){
-      if(s == null) return '';
-      return String(s).replace(/[&<>"']/g, function(c){
-        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
-      });
+function loadVideo(input,modId,si) {
+  const url=input.value.trim(); if(!url) return;
+  let embed=url;
+  const yt=url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
+  if(yt) embed=`https://www.youtube.com/embed/${yt[1]}`;
+  const lo=url.match(/loom\.com\/share\/([^?&\s]+)/);
+  if(lo) embed=`https://www.loom.com/embed/${lo[1]}`;
+  document.getElementById(`vp-${modId}-${si}`).innerHTML=`<iframe src="${embed}" width="100%" height="220" frameborder="0" allowfullscreen style="display:block;"></iframe>`;
+}
+
+function updateSidebarProgress() {
+  const total=Object.values(DEPTS).reduce((a,d)=>a+d.modules.length,0);
+  const done=Object.values(DEPTS).reduce((a,d)=>a+d.modules.filter(m=>progress.modules[m.id]).length,0);
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById('sp-fill').style.width=pct+'%';
+  document.getElementById('sp-done').textContent=done;
+  document.getElementById('sp-total').textContent=total;
+}
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════
+loadAll();
+updateSidebarProgress();
+renderSidebarDepts();
+showHome();
+
+document.getElementById('pw-input').addEventListener('keydown',e=>{if(e.key==='Enter')checkPw();});
+
+// ════════════════════════════════════════════════════════
+// AI-MODULE GENERATOR
+// ════════════════════════════════════════════════════════
+function openAIGenerator() {
+  if(!currentDept) { alert('Kies eerst een afdeling'); return; }
+  openAdminPanel('AI-module genereren', DEPTS[currentDept].label, `
+    <div class="admin-section">
+      <div class="admin-section-title">Broninhoud</div>
+      <div class="admin-field">
+        <label class="admin-label">Plak hier een bestaand inwerkdocument</label>
+        <textarea class="admin-textarea" id="ai-input" placeholder="Plak de tekst van een bestaande handleiding, procedure of instructiedocument..." style="min-height:200px;"></textarea>
+      </div>
+      <div class="admin-field" style="font-size:0.75rem; color:var(--ink-muted); line-height:1.6;">
+        Claude leest je tekst en bouwt automatisch een complete module met stappen, substappen, tips en een kennischeck. Je kunt de gegenereerde module daarna handmatig aanpassen.
+      </div>
+      <div id="ai-status" style="display:none; padding:0.75rem 1rem; background:var(--gold-bg); border:1px solid var(--gold-border); font-size:0.8rem; margin-bottom:1rem;"></div>
+      <button class="admin-save-btn" onclick="generateAIModule()" id="ai-generate-btn">Genereer module</button>
+    </div>
+  `);
+}
+
+async function generateAIModule() {
+  var txt = document.getElementById('ai-input').value.trim();
+  if(txt.length < 20) { alert('Geef minstens 20 tekens tekst'); return; }
+  var btn = document.getElementById('ai-generate-btn');
+  var status = document.getElementById('ai-status');
+  btn.disabled = true; btn.textContent = 'Bezig met genereren...';
+  status.style.display = 'block';
+  status.textContent = 'Claude leest de tekst en bouwt de module op — dit duurt ongeveer 10-15 seconden...';
+  try {
+    var res = await fetch(API_URL + '/api/generate-module', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('doets_token')
+      },
+      body: JSON.stringify({ tekst: txt })
+    });
+    var body = await res.json();
+    if(!res.ok) {
+      status.textContent = 'Fout: ' + (body.error || 'Onbekende fout');
+      btn.disabled = false; btn.textContent = 'Genereer module';
+      return;
     }
-    function escapeAttr(s){ return escapeHTML(s); }
+    var mod = body.module;
+    // Converteer AI-formaat naar het formaat van dit portaal
+    var newMod = {
+      id: 'mod_' + Date.now(),
+      title: mod.title || 'Nieuwe module',
+      badge: mod.badge || 'AI-gegenereerd',
+      desc: mod.desc || '',
+      intro: mod.intro || '',
+      duration: mod.duration || '15 minuten',
+      steps: (mod.steps || []).map(function(s) {
+        return {
+          title: s.title || '',
+          subtitle: s.subtitle || '',
+          explanation: s.explanation || '',
+          substeps: (s.substeps || []).map(function(sub) {
+            return {
+              action: sub.action || '',
+              detail: sub.detail || '',
+              tip: sub.tip || ''
+            };
+          }),
+          tip: s.tip || '',
+          warning: s.warning || '',
+          screenshotLabel: s.screenshot_label || 'Screenshot',
+          videoLabel: 'Video (optioneel)'
+        };
+      }),
+      quiz: mod.quiz ? {
+        question: mod.quiz.question || '',
+        options: (mod.quiz.options || []).map(function(opt, i) {
+          return {
+            text: opt,
+            correct: i === mod.quiz.correct,
+            feedback: i === mod.quiz.correct ? (mod.quiz.explanation || 'Juist!') : 'Niet helemaal, probeer opnieuw.'
+          };
+        })
+      } : null
+    };
+    DEPTS[currentDept].modules.push(newMod);
+    saveData();
+    closeAdminPanel();
+    showDept(currentDept);
+    alert('Module "' + newMod.title + '" toegevoegd. Bekijk hem en pas hem naar wens aan.');
+  } catch(e) {
+    status.textContent = 'Netwerkfout: ' + e.message;
+    btn.disabled = false; btn.textContent = 'Genereer module';
+  }
+}
 
-    /* ── INIT ─────────────────────────────── */
-    checkAuth();
-    renderHome();
-  </script>
+</script>
 </body>
 </html>

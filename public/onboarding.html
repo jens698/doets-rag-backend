@@ -1115,14 +1115,10 @@ function saveNewModule() {
   DEPTS[dk].modules.push(newMod);
   saveData();
   closeAdminPanel();
-  // Force complete re-render
-  setTimeout(function(){
-    showDept(dk);
-    // Extra render zeker weten
-    renderModuleList(dk);
-    renderSidebarDepts();
-    updateSidebarProgress();
-  }, 50);
+  // Force complete reload — garandeert dat de nieuwe module in beeld komt
+  var targetDept = dk;
+  try { sessionStorage.setItem('doets_return_dept', targetDept); } catch(e){}
+  setTimeout(function(){ window.location.reload(); }, 250);
 }
 
 function openEditModulePanel(dk,mid) {
@@ -1439,7 +1435,15 @@ function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
 loadAll();
 updateSidebarProgress();
 renderSidebarDepts();
-showHome();
+try {
+  var retDept = sessionStorage.getItem('doets_return_dept');
+  if(retDept){
+    sessionStorage.removeItem('doets_return_dept');
+    if(DEPTS[retDept]) showDept(retDept); else showHome();
+  } else {
+    showHome();
+  }
+} catch(e){ showHome(); }
 
 document.getElementById('pw-input').addEventListener('keydown',e=>{if(e.key==='Enter')checkPw();});
 

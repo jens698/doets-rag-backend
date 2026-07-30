@@ -713,7 +713,20 @@ function loadAll() {
   try { const d = localStorage.getItem(LS_DATA); if(d) DEPTS = JSON.parse(d); else DEPTS = JSON.parse(JSON.stringify(DEFAULT_DATA)); } catch(e) { DEPTS = JSON.parse(JSON.stringify(DEFAULT_DATA)); }
   try { const p = localStorage.getItem(LS_PROG); if(p) progress = JSON.parse(p); } catch(e) {}
 }
-function saveData() { try { localStorage.setItem(LS_DATA, JSON.stringify(DEPTS)); } catch(e) {} showToast(); }
+function saveData() {
+  try {
+    localStorage.setItem(LS_DATA, JSON.stringify(DEPTS));
+    showToast();
+    return true;
+  } catch(e) {
+    alert('Let op — de wijziging kon NIET worden opgeslagen.\n\n'
+      + 'Het lokale geheugen van de browser is vol. Dit komt bijna altijd door '
+      + 'geüploade screenshots, die veel ruimte innemen.\n\n'
+      + 'Wat je nu op het scherm ziet is dus tijdelijk en verdwijnt bij een herlaadactie (F5). '
+      + 'Verwijder een paar screenshots om ruimte vrij te maken en probeer opnieuw.');
+    return false;
+  }
+}
 function saveProg() { try { localStorage.setItem(LS_PROG, JSON.stringify(progress)); } catch(e) {} }
 function resetProgress() {
   if(!confirm('Weet je zeker dat je alle voortgang wilt wissen?')) return;
@@ -1115,10 +1128,10 @@ function saveNewModule() {
   DEPTS[dk].modules.push(newMod);
   saveData();
   closeAdminPanel();
-  // Force complete reload — garandeert dat de nieuwe module in beeld komt
-  var targetDept = dk;
-  try { sessionStorage.setItem('doets_return_dept', targetDept); } catch(e){}
-  setTimeout(function(){ window.location.reload(); }, 250);
+  // Toon de nieuwe module direct vanuit het werkgeheugen — geen page-reload nodig.
+  // (Zo verschijnt de module altijd meteen; saveData waarschuwt zelf als opslaan mislukt.)
+  showDept(dk);
+  updateSidebarProgress();
 }
 
 function openEditModulePanel(dk,mid) {

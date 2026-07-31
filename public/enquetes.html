@@ -150,6 +150,9 @@
   .month.open .chev{transform:rotate(180deg);color:var(--gold)}
   .month-detail{display:none}
   .month.open .month-detail{display:block;padding-bottom:4px}
+  .badge-sm.plus{font-size:17px;line-height:1;padding:5px 11px;color:var(--gold)}
+  .newbox-inner{padding:8px 16px 16px}
+  .newbox-p{color:var(--muted);font-size:12.5px;max-width:64ch;margin:8px 0 14px;line-height:1.55}
 
   @media(max-width:820px){ .app{grid-template-columns:1fr} .rail{position:static;height:auto} .rail .foot{display:none}
     .grid3{grid-template-columns:1fr} .feat .hd{flex-direction:column}
@@ -192,24 +195,38 @@
         <p class="intro">Elke maand analyseren we de reisbeleving-enquête. Per periode het rapport met opgezochte boekingen &amp; reizen en — na feedback van het team — de uitgewerkte eindversie.</p>
 
         <!-- ——— Nieuwe maand analyseren ——— -->
-        <section class="newbox">
-          <div class="nh">Nieuwe analyse</div>
-          <h2>Maand analyseren</h2>
-          <p>Upload de <b>Survio-Excel</b> (<code>survey-data-…​.xlsx</code>). De cijfers worden exact berekend en Claude bepaalt welke reacties aandacht nodig hebben. De Columbus-lookup (boekingsnummer → reisnaam) doe je daarna zelf, ingelogd.</p>
-          <label class="drop" id="drop">
-            <input type="file" id="file" accept=".xlsx" hidden />
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 16V4m0 0 4 4m-4-4-4 4M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-            <div class="dt" id="drop-title">Sleep de Survio-Excel hierheen of klik om te kiezen</div>
-            <div class="ds" id="drop-sub">Alleen .xlsx · uitsluitend intern gebruik</div>
-          </label>
-          <div class="row">
-            <button class="btn primary" id="go" disabled>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
-              Analyseren
-            </button>
+        <div class="months" style="margin-bottom:22px">
+          <div class="month newbar">
+            <div class="month-bar" onclick="toggleMonth(this)">
+              <span class="badge-sm plus">+</span>
+              <span class="month-main">
+                <span class="mtitle">Nieuwe maand analyseren</span>
+                <span class="minfo">Survio-Excel uploaden en de analyse genereren</span>
+              </span>
+              <span class="chev">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+              </span>
+            </div>
+            <div class="month-detail">
+              <div class="newbox-inner">
+                <p class="newbox-p">Upload de <b>Survio-Excel</b> (<code>survey-data-…​.xlsx</code>). De cijfers worden exact berekend en Claude bepaalt welke reacties aandacht nodig hebben. De Columbus-lookup (boekingsnummer → reisnaam) doe je daarna zelf, ingelogd.</p>
+                <label class="drop" id="drop">
+                  <input type="file" id="file" accept=".xlsx" hidden />
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 16V4m0 0 4 4m-4-4-4 4M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+                  <div class="dt" id="drop-title">Sleep de Survio-Excel hierheen of klik om te kiezen</div>
+                  <div class="ds" id="drop-sub">Alleen .xlsx · uitsluitend intern gebruik</div>
+                </label>
+                <div class="row">
+                  <button class="btn primary" id="go" disabled>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+                    Analyseren
+                  </button>
+                </div>
+                <div class="status" id="status"></div>
+              </div>
+            </div>
           </div>
-          <div class="status" id="status"></div>
-        </section>
+        </div>
 
         <div class="flabel" id="periodes">Analyses per maand</div>
         <div class="months">

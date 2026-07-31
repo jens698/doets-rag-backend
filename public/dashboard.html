@@ -791,7 +791,14 @@ body::after{
       <circle pathLength="1" cx="17" cy="24" r="3.2"/>
       <circle pathLength="1" cx="33" cy="33" r="3.2"/>
     </g>
-    <!-- 07. Design: kompasster -->
+    <!-- 07. Enquête-analyse: staafdiagram -->
+    <g id="g-enquete">
+      <path pathLength="1" d="M10 9 L10 38 L39 38"/>
+      <rect pathLength="1" x="15" y="27" width="5" height="11"/>
+      <rect pathLength="1" x="23" y="19" width="5" height="19"/>
+      <rect pathLength="1" x="31" y="24" width="5" height="14"/>
+    </g>
+    <!-- 08. Design: kompasster -->
     <g id="g-ster">
       <path pathLength="1" d="M24 5 L27.5 20.5 L43 24 L27.5 27.5 L24 43 L20.5 27.5 L5 24 L20.5 20.5 Z"/>
       <circle pathLength="1" cx="24" cy="24" r="2.6"/>
@@ -876,7 +883,7 @@ body::after{
     <div class="index-head">
       <span class="smallcaps">De index</span>
       <span class="rule"></span>
-      <span class="count">zeven werkplekken</span>
+      <span class="count">acht werkplekken</span>
     </div>
 
     <ul class="index">
@@ -947,8 +954,19 @@ body::after{
         </a>
       </li>
       <li class="entry">
+        <a href="/enquetes.html">
+          <span class="no"><i>07</i><span class="hair"></span><small>Analyse</small></span>
+          <span class="body">
+            <h2>Enquête-analyse</h2>
+            <p>De reisbeleving-enqu&ecirc;te gebundeld &mdash; cijfers, thema&rsquo;s en acties per maand.</p>
+          </span>
+          <span class="glyph"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#g-enquete" class="base"/><use href="#g-enquete" class="ink"/></svg></span>
+          <span class="go">Openen <span class="arr"></span></span>
+        </a>
+      </li>
+      <li class="entry">
         <a href="https://claude.ai/design" target="_blank" rel="noopener">
-          <span class="no"><i>07</i><span class="hair"></span><small>Atelier</small></span>
+          <span class="no"><i>08</i><span class="hair"></span><small>Atelier</small></span>
           <span class="body">
             <h2>Design</h2>
             <p>Visueel werk met Claude &mdash; het atelier buiten de deur.</p>
@@ -1287,7 +1305,7 @@ body::after{
     location.reload();
   });
 
-  /* ---------- sneltoetsen: 1–7 opent een werkplek ---------- */
+  /* ---------- sneltoetsen: 1–8 opent een werkplek ---------- */
 
   document.addEventListener('keydown', function(ev){
     if (!document.getElementById('app').classList.contains('visible')) return;
@@ -1295,7 +1313,7 @@ body::after{
     if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
     if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
     var n = parseInt(ev.key, 10);
-    if (n >= 1 && n <= 7){
+    if (n >= 1 && n <= 8){
       var links = document.querySelectorAll('.index .entry a');
       var a = links[n - 1];
       if (!a) return;

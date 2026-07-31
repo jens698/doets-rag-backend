@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Doets Reizen — Enquête-analyse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#faf9f6; --rail:#0e1e37; --rail-2:#16294698; --surface:#ffffff; --ink:#141c2b; --muted:#666e7d; --faint:#9aa0ac;
+    --line:#eceae3; --line-2:#f4f2ec; --gold:#b5892c; --gold-2:#caa03f; --gold-soft:#f7f0dd;
+    --ok:#2f7d5b; --ok-bg:#e9f3ed; --wait:#9c6f16; --wait-bg:#f8f0d9;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Inter",system-ui,sans-serif;color:var(--ink);background:var(--bg);
+    line-height:1.5;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+  a{color:inherit;text-decoration:none}
+  .app{display:grid;grid-template-columns:244px 1fr;min-height:100vh}
+
+  /* ——— Rail ——— */
+  .rail{background:var(--rail);color:#dbe2ee;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;
+    background-image:radial-gradient(420px 200px at 20% -5%, rgba(181,137,44,.16), transparent 60%)}
+  .brand{padding:24px 22px 22px;border-bottom:1px solid rgba(255,255,255,.07)}
+  .brand .nm{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:22px;color:#fff;letter-spacing:.2px}
+  .brand .nm span{color:var(--gold-2)}
+  .brand .sub{font-size:10px;letter-spacing:2.2px;text-transform:uppercase;color:#8492ad;margin-top:5px}
+  .nav{padding:16px 14px;display:flex;flex-direction:column;gap:3px}
+  .nav .lbl{font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:#5c6a86;padding:8px 10px 6px}
+  .nav a{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:9px;font-size:14px;color:#b9c3d6;
+    position:relative;transition:.13s}
+  .nav a svg{width:17px;height:17px;opacity:.8;flex:none}
+  .nav a:hover{background:rgba(255,255,255,.05);color:#fff}
+  .nav a.on{background:rgba(181,137,44,.14);color:#fff}
+  .nav a.on::before{content:"";position:absolute;left:-14px;top:8px;bottom:8px;width:3px;background:var(--gold-2);border-radius:0 3px 3px 0}
+  .nav a.on svg{opacity:1;color:var(--gold-2)}
+  .nav a.portal{color:#8492ad;margin-bottom:6px}
+  .nav a.portal:hover{color:#fff}
+  .rail .foot{margin-top:auto;padding:18px 22px;border-top:1px solid rgba(255,255,255,.07);font-size:11.5px;color:#7a879f;line-height:1.6}
+  .rail .foot b{color:#c3cdde;font-weight:600}
+  .rail .foot .who{color:#c3cdde;font-weight:600}
+
+  /* ——— Main ——— */
+  .main{padding:0}
+  .bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px clamp(24px,4vw,44px);
+    border-bottom:1px solid var(--line);background:rgba(250,249,246,.85);backdrop-filter:blur(6px);position:sticky;top:0;z-index:5}
+  .bar .crumb{font-size:12.5px;color:var(--faint)}
+  .bar .crumb b{color:var(--ink);font-weight:600}
+  .search{position:relative}
+  .search input{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:8px 14px 8px 33px;
+    font:inherit;font-size:13px;width:200px;color:var(--ink);outline:none;transition:.15s}
+  .search input:focus{border-color:var(--gold)}
+  .search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);opacity:.4}
+
+  .content{padding:clamp(26px,3.5vw,40px) clamp(24px,4vw,44px) 60px;max-width:1000px}
+  h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:32px;letter-spacing:-.01em;color:var(--ink)}
+  .intro{color:var(--muted);font-size:14.5px;margin:5px 0 30px;max-width:60ch}
+
+  /* Upload / nieuwe analyse */
+  .newbox{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px 24px;margin-bottom:34px;
+    box-shadow:0 1px 2px rgba(20,28,43,.04)}
+  .newbox .nh{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:6px}
+  .newbox h2{font-family:"Fraunces",serif;font-weight:600;font-size:19px;color:var(--ink);margin-bottom:4px}
+  .newbox p{color:var(--muted);font-size:13px;max-width:64ch;margin-bottom:16px}
+  .drop{border:1.5px dashed var(--line);border-radius:12px;padding:22px;text-align:center;background:var(--bg);
+    transition:.15s;cursor:pointer}
+  .drop:hover,.drop.hover{border-color:var(--gold);background:var(--gold-soft)}
+  .drop svg{opacity:.4;margin-bottom:8px}
+  .drop .dt{font-size:13.5px;color:var(--ink);font-weight:600}
+  .drop .ds{font-size:12px;color:var(--faint);margin-top:3px}
+  .drop.has{border-style:solid;border-color:var(--gold);background:var(--gold-soft)}
+  .newbox .row{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:16px}
+  .status{font-size:12.5px;color:var(--muted);margin-top:14px;padding:11px 14px;border-radius:9px;background:var(--bg);
+    border:1px solid var(--line);display:none;line-height:1.55}
+  .status.show{display:block}
+  .status.err{background:#fdf1ee;border-color:#f0d5cd;color:#a24631}
+  .status.ok{background:var(--ok-bg);border-color:#cfe6da;color:#1f6b4f}
+
+  /* Featured latest */
+  .flabel{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:12px}
+  .flabel::after{content:"";flex:1;height:1px;background:var(--line)}
+  .feat{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;
+    box-shadow:0 1px 2px rgba(20,28,43,.04),0 18px 44px rgba(20,28,43,.06)}
+  .feat .hd{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:24px 26px 0}
+  .feat .mo{display:flex;gap:16px;align-items:center}
+  .mo .badge{width:58px;height:58px;border-radius:14px;background:linear-gradient(160deg,var(--gold-soft),#fff);
+    border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--gold);flex:none}
+  .mo .badge .m{font-family:"Fraunces",serif;font-weight:700;font-size:17px;line-height:1} .mo .badge .y{font-size:10px;opacity:.75;margin-top:2px}
+  .mo .t{display:inline-block;font-family:"Fraunces",serif;font-weight:600;font-size:23px;color:var(--ink);line-height:1.1;
+    border-bottom:1.5px solid transparent;transition:.14s}
+  a.t:hover{color:var(--gold);border-bottom-color:var(--gold-soft)}
+  .mo .d{color:var(--faint);font-size:13px;margin-top:3px}
+  .pill{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;padding:6px 13px;border-radius:999px;background:var(--wait-bg);color:var(--wait);white-space:nowrap}
+  .pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:22px 26px 6px}
+  .cell{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .cell .v{font-size:28px;font-weight:700;color:var(--ink);line-height:1}
+  .cell.accent .v{color:var(--gold)}
+  .cell .k{font-size:11.5px;color:var(--muted);margin-top:6px}
+
+  .barrow{padding:12px 26px 4px}
+  .barrow .caption{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-bottom:7px}
+  .prop{height:9px;border-radius:6px;overflow:hidden;display:flex;background:var(--line)}
+  .prop i{display:block;height:100%}
+  .prop .a{background:linear-gradient(90deg,var(--gold),var(--gold-2))}
+  .prop .b{background:var(--ok)}
+  .legend{display:flex;gap:18px;margin-top:9px;font-size:11.5px;color:var(--muted)}
+  .legend .d{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px;vertical-align:middle}
+
+  .themes{padding:18px 26px 4px}
+  .themes .h{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:11px}
+  .tags{display:flex;flex-wrap:wrap;gap:8px}
+  .tag{font-size:12.5px;color:var(--ink);background:var(--gold-soft);border:1px solid #ecdcb4;border-radius:8px;padding:6px 11px}
+  .tag b{color:var(--gold);font-weight:700;margin-left:5px}
+
+  .acts{display:flex;gap:9px;flex-wrap:wrap;padding:20px 26px 24px;margin-top:8px;border-top:1px solid var(--line-2)}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;padding:10px 16px;border-radius:10px;transition:.13s;cursor:pointer;border:none;font-family:inherit}
+  .btn.primary{background:var(--ink);color:#fff}
+  .btn.primary:hover{background:#26324a}
+  .btn.primary:disabled{opacity:.5;cursor:default}
+  .btn.ghost{border:1px solid var(--line);color:var(--muted);background:var(--surface)}
+  .btn.ghost.off{border-style:dashed;color:var(--faint);pointer-events:none}
+
+  .earlier{margin-top:38px}
+  .earlier .h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .earlier .h h2{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .empty{border:1px dashed var(--line);border-radius:14px;padding:26px;text-align:center;color:var(--faint);font-size:13.5px;background:var(--line-2)}
+
+  @media(max-width:820px){ .app{grid-template-columns:1fr} .rail{position:static;height:auto} .rail .foot{display:none}
+    .grid3{grid-template-columns:1fr} .feat .hd{flex-direction:column} }
+</style>
+</head>
+<body>
+  <div class="app">
+    <aside class="rail">
+      <div class="brand"><div class="nm">Doets <span>Reizen</span></div><div class="sub">Enquête-analyse</div></div>
+      <nav class="nav">
+        <a class="portal" href="/dashboard.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 12H5m6-6-6 6 6 6"/></svg>
+          Portaal</a>
+        <div class="lbl">Menu</div>
+        <a class="on" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+          Overzicht</a>
+        <a href="#periodes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          Periodes</a>
+        <a href="https://app.survio.com" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3"/></svg>
+          Survio</a>
+      </nav>
+      <div class="foot">Verwerking gebeurt samen met de <b>assistent</b>.<br>Intern · uitsluitend teamgebruik.</div>
+    </aside>
+
+    <main class="main">
+      <div class="bar">
+        <div class="crumb">Enquête-analyse · <b>Overzicht</b></div>
+        <div class="search">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="search" placeholder="Zoek periode…" />
+        </div>
+      </div>
+
+      <div class="content">
+        <h1>Overzicht</h1>
+        <p class="intro">Elke maand analyseren we de reisbeleving-enquête. Per periode het rapport met opgezochte boekingen &amp; reizen en — na feedback van het team — de uitgewerkte eindversie.</p>
+
+        <!-- ——— Nieuwe maand analyseren ——— -->
+        <section class="newbox">
+          <div class="nh">Nieuwe analyse</div>
+          <h2>Maand analyseren</h2>
+          <p>Upload de <b>Survio-Excel</b> (<code>survey-data-…​.xlsx</code>). De cijfers worden exact berekend en Claude bepaalt welke reacties aandacht nodig hebben. De Columbus-lookup (boekingsnummer → reisnaam) doe je daarna zelf, ingelogd.</p>
+          <label class="drop" id="drop">
+            <input type="file" id="file" accept=".xlsx" hidden />
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 16V4m0 0 4 4m-4-4-4 4M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+            <div class="dt" id="drop-title">Sleep de Survio-Excel hierheen of klik om te kiezen</div>
+            <div class="ds" id="drop-sub">Alleen .xlsx · uitsluitend intern gebruik</div>
+          </label>
+          <div class="row">
+            <button class="btn primary" id="go" disabled>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+              Analyseren
+            </button>
+          </div>
+          <div class="status" id="status"></div>
+        </section>
+
+        <div class="flabel">Meest recente analyse</div>
+        <section class="feat">
+          <div class="hd">
+            <div class="mo">
+              <div class="badge"><span class="m">JUL</span><span class="y">2026</span></div>
+              <div><a class="t" href="analyse-2026-07.html">Juli 2026</a><div class="d">Reisbeleving-enquête · t/m 27 juli 2026</div></div>
+            </div>
+            <span class="pill">Wacht op feedback team</span>
+          </div>
+
+          <div class="grid3">
+            <div class="cell"><div class="v">113</div><div class="k">Reacties</div></div>
+            <div class="cell accent"><div class="v">91</div><div class="k">Aandacht nodig</div></div>
+            <div class="cell"><div class="v">18</div><div class="k">Geen actie</div></div>
+          </div>
+
+          <div class="barrow">
+            <div class="caption"><span>Verhouding reacties</span><span>113 totaal</span></div>
+            <div class="prop"><i class="a" style="width:80.5%"></i><i class="b" style="width:15.9%"></i></div>
+            <div class="legend">
+              <span><span class="d" style="background:linear-gradient(90deg,#b5892c,#caa03f)"></span>Aandacht · 91</span>
+              <span><span class="d" style="background:#2f7d5b"></span>Geen actie · 18</span>
+              <span><span class="d" style="background:#eceae3"></span>Zonder boeking · 4</span>
+            </div>
+          </div>
+
+          <div class="themes">
+            <div class="h">Terugkerende thema's</div>
+            <div class="tags">
+              <span class="tag">Hotelbeschrijvingen kloppen niet <b>17×</b></span>
+              <span class="tag">Camperkwaliteit &amp; camperpartners <b>12×</b></span>
+              <span class="tag">Excursies die tegenvallen <b>11×</b></span>
+              <span class="tag">Sanitair campings verouderd <b>9×</b></span>
+              <span class="tag">Verzekeringen opgedrongen aan de balie <b>8×</b></span>
+            </div>
+          </div>
+
+          <div class="acts">
+            <a class="btn primary" href="analyse-2026-07.html">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+              Analyse openen</a>
+            <a class="btn ghost" href="enquetes/2026-07-juli-rapport-met-boekingen.docx" download>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14"/></svg>
+              Rapport (Word)</a>
+          </div>
+        </section>
+
+        <div class="earlier" id="periodes">
+          <div class="h"><h2>Eerdere periodes</h2></div>
+          <div class="empty">Zodra je een volgende maand analyseert, verschijnt die hier in het archief.</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // ——— Upload-paneel ———
+    var fileInput = document.getElementById('file');
+    var drop = document.getElementById('drop');
+    var go = document.getElementById('go');
+    var status = document.getElementById('status');
+    var chosen = null;
+
+    function setStatus(msg, kind){
+      status.className = 'status show' + (kind ? ' ' + kind : '');
+      status.innerHTML = msg;
+    }
+    ['dragenter','dragover'].forEach(function(ev){
+      drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.add('hover'); });
+    });
+    ['dragleave','drop'].forEach(function(ev){
+      drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.remove('hover'); });
+    });
+    drop.addEventListener('drop', function(e){
+      if(e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', function(){
+      if(fileInput.files.length) handleFile(fileInput.files[0]);
+    });
+
+    function handleFile(f){
+      if(!/\.xlsx$/i.test(f.name)){ setStatus('Dat is geen .xlsx-bestand. Download uit Survio de Excel-export.', 'err'); return; }
+      chosen = f;
+      drop.classList.add('has');
+      document.getElementById('drop-title').textContent = f.name;
+      document.getElementById('drop-sub').textContent = Math.round(f.size/1024) + ' KB · klik om een ander bestand te kiezen';
+      go.disabled = false;
+      status.className = 'status';
+    }
+
+    go.addEventListener('click', async function(){
+      if(!chosen) return;
+      go.disabled = true;
+      setStatus('Bezig met inlezen en analyseren — dit duurt ongeveer een halve minuut…');
+      try{
+        var buf = await chosen.arrayBuffer();
+        var b64 = btoa(String.fromCharCode.apply(null, new Uint8Array(buf)));
+        var res = await fetch('/api/analyse-enquete', {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + localStorage.getItem('doets_token') },
+          body: JSON.stringify({ filename: chosen.name, data: b64 })
+        });
+        var body = await res.json().catch(function(){ return {}; });
+        if(!res.ok){
+          setStatus('Er ging iets mis: ' + (body.error || ('serverfout ' + res.status)) + '<br><span style="color:var(--faint)">De analyse-motor (Fase 2) staat mogelijk nog niet live.</span>', 'err');
+          go.disabled = false;
+          return;
+        }
+        setStatus('Analyse gereed — ' + (body.n || '?') + ' reacties verwerkt. De uitwerking volgt in Fase 3.', 'ok');
+      }catch(err){
+        setStatus('Netwerkfout: ' + err.message, 'err');
+        go.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

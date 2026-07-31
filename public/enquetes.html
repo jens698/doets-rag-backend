@@ -126,10 +126,34 @@
   .earlier{margin-top:38px}
   .earlier .h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
   .earlier .h h2{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
-  .empty{border:1px dashed var(--line);border-radius:14px;padding:26px;text-align:center;color:var(--faint);font-size:13.5px;background:var(--line-2)}
+  .empty{border:1px dashed var(--line);border-radius:14px;padding:22px;text-align:center;color:var(--faint);font-size:13px;background:var(--line-2);margin-top:12px}
+
+  /* ——— Inklapbare maandbalken ——— */
+  .months{display:flex;flex-direction:column;gap:10px}
+  .month{border:1px solid var(--line);border-radius:13px;background:var(--surface);overflow:hidden;transition:box-shadow .15s,border-color .15s}
+  .month.open{border-color:#e3d9c2;box-shadow:0 1px 2px rgba(20,28,43,.04),0 14px 34px rgba(20,28,43,.06)}
+  .month-bar{display:flex;align-items:center;gap:14px;width:100%;padding:12px 15px;cursor:pointer;user-select:none;transition:background .13s}
+  .month-bar:hover{background:var(--bg)}
+  .month.open .month-bar{border-bottom:1px solid var(--line-2)}
+  .badge-sm{font-family:"Fraunces",serif;font-weight:700;font-size:12.5px;color:var(--gold);background:var(--gold-soft);
+    border:1px solid #ecdcb4;border-radius:8px;padding:6px 10px;letter-spacing:.03em;white-space:nowrap;flex:none}
+  .month-main{display:flex;flex-direction:column;min-width:0;flex:1}
+  .mtitle{font-family:"Fraunces",serif;font-weight:600;font-size:16.5px;color:var(--ink);line-height:1.2}
+  .minfo{font-size:12px;color:var(--muted);margin-top:1px;font-variant-numeric:tabular-nums}
+  .mstatus{flex:none;font-size:11px;font-weight:600;padding:5px 11px;border-radius:999px;background:var(--wait-bg);color:var(--wait);
+    display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .mstatus::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
+  .mini-dl{flex:none;display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;
+    border:1px solid var(--line);color:var(--muted);background:var(--surface);transition:.13s}
+  .mini-dl:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
+  .chev{flex:none;color:var(--faint);display:inline-flex;transition:transform .2s}
+  .month.open .chev{transform:rotate(180deg);color:var(--gold)}
+  .month-detail{display:none}
+  .month.open .month-detail{display:block;padding-bottom:4px}
 
   @media(max-width:820px){ .app{grid-template-columns:1fr} .rail{position:static;height:auto} .rail .foot{display:none}
-    .grid3{grid-template-columns:1fr} .feat .hd{flex-direction:column} }
+    .grid3{grid-template-columns:1fr} .feat .hd{flex-direction:column}
+    .month-bar{flex-wrap:wrap} .mstatus{order:5} }
 </style>
 </head>
 <body>
@@ -187,62 +211,74 @@
           <div class="status" id="status"></div>
         </section>
 
-        <div class="flabel">Meest recente analyse</div>
-        <section class="feat">
-          <div class="hd">
-            <div class="mo">
-              <div class="badge"><span class="m">JUL</span><span class="y">2026</span></div>
-              <div><a class="t" href="analyse-2026-07.html">Juli 2026</a><div class="d">Reisbeleving-enquête · t/m 27 juli 2026</div></div>
+        <div class="flabel" id="periodes">Analyses per maand</div>
+        <div class="months">
+
+          <div class="month">
+            <div class="month-bar" onclick="toggleMonth(this)">
+              <span class="badge-sm">JUL &rsquo;26</span>
+              <span class="month-main">
+                <span class="mtitle">Juli 2026</span>
+                <span class="minfo">113 reacties &middot; 91 aandacht &middot; score 4,67 &middot; NPS +66</span>
+              </span>
+              <span class="mstatus">Wacht op feedback team</span>
+              <a class="mini-dl" href="enquetes/2026-07-juli-rapport-met-boekingen.docx" download title="Word-rapport downloaden" onclick="event.stopPropagation()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14"/></svg>
+              </a>
+              <span class="chev">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+              </span>
             </div>
-            <span class="pill">Wacht op feedback team</span>
-          </div>
 
-          <div class="grid3">
-            <div class="cell"><div class="v">113</div><div class="k">Reacties</div></div>
-            <div class="cell accent"><div class="v">91</div><div class="k">Aandacht nodig</div></div>
-            <div class="cell"><div class="v">18</div><div class="k">Geen actie</div></div>
-          </div>
+            <div class="month-detail">
+              <div class="grid3">
+                <div class="cell"><div class="v">113</div><div class="k">Reacties</div></div>
+                <div class="cell accent"><div class="v">91</div><div class="k">Aandacht nodig</div></div>
+                <div class="cell"><div class="v">18</div><div class="k">Geen actie</div></div>
+              </div>
 
-          <div class="barrow">
-            <div class="caption"><span>Verhouding reacties</span><span>113 totaal</span></div>
-            <div class="prop"><i class="a" style="width:80.5%"></i><i class="b" style="width:15.9%"></i></div>
-            <div class="legend">
-              <span><span class="d" style="background:linear-gradient(90deg,#b5892c,#caa03f)"></span>Aandacht · 91</span>
-              <span><span class="d" style="background:#2f7d5b"></span>Geen actie · 18</span>
-              <span><span class="d" style="background:#eceae3"></span>Zonder boeking · 4</span>
+              <div class="barrow">
+                <div class="caption"><span>Verhouding reacties</span><span>113 totaal</span></div>
+                <div class="prop"><i class="a" style="width:80.5%"></i><i class="b" style="width:15.9%"></i></div>
+                <div class="legend">
+                  <span><span class="d" style="background:linear-gradient(90deg,#b5892c,#caa03f)"></span>Aandacht · 91</span>
+                  <span><span class="d" style="background:#2f7d5b"></span>Geen actie · 18</span>
+                  <span><span class="d" style="background:#eceae3"></span>Zonder boeking · 4</span>
+                </div>
+              </div>
+
+              <div class="themes">
+                <div class="h">Terugkerende thema's</div>
+                <div class="tags">
+                  <span class="tag">Hotelbeschrijvingen kloppen niet <b>17×</b></span>
+                  <span class="tag">Camperkwaliteit &amp; camperpartners <b>12×</b></span>
+                  <span class="tag">Excursies die tegenvallen <b>11×</b></span>
+                  <span class="tag">Sanitair campings verouderd <b>9×</b></span>
+                  <span class="tag">Verzekeringen opgedrongen aan de balie <b>8×</b></span>
+                </div>
+              </div>
+
+              <div class="acts">
+                <a class="btn primary" href="analyse-2026-07.html">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+                  Analyse openen</a>
+                <a class="btn ghost" href="enquetes/2026-07-juli-rapport-met-boekingen.docx" download>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14"/></svg>
+                  Rapport (Word)</a>
+              </div>
             </div>
           </div>
 
-          <div class="themes">
-            <div class="h">Terugkerende thema's</div>
-            <div class="tags">
-              <span class="tag">Hotelbeschrijvingen kloppen niet <b>17×</b></span>
-              <span class="tag">Camperkwaliteit &amp; camperpartners <b>12×</b></span>
-              <span class="tag">Excursies die tegenvallen <b>11×</b></span>
-              <span class="tag">Sanitair campings verouderd <b>9×</b></span>
-              <span class="tag">Verzekeringen opgedrongen aan de balie <b>8×</b></span>
-            </div>
-          </div>
-
-          <div class="acts">
-            <a class="btn primary" href="analyse-2026-07.html">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
-              Analyse openen</a>
-            <a class="btn ghost" href="enquetes/2026-07-juli-rapport-met-boekingen.docx" download>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14"/></svg>
-              Rapport (Word)</a>
-          </div>
-        </section>
-
-        <div class="earlier" id="periodes">
-          <div class="h"><h2>Eerdere periodes</h2></div>
-          <div class="empty">Zodra je een volgende maand analyseert, verschijnt die hier in het archief.</div>
         </div>
+        <div class="empty">Zodra je een volgende maand analyseert, verschijnt die hier als nieuwe balk.</div>
       </div>
     </main>
   </div>
 
   <script>
+    // ——— Maandbalk in-/uitklappen ———
+    function toggleMonth(bar){ bar.parentElement.classList.toggle('open'); }
+
     // ——— Upload-paneel ———
     var fileInput = document.getElementById('file');
     var drop = document.getElementById('drop');

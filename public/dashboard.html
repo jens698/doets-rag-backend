@@ -502,6 +502,11 @@ body::after{
   font-family:'Fraunces', serif; font-style:italic;
   font-size:.85rem; color:var(--ink-muted); flex-shrink:0;
 }
+.dept-back{
+  font-size:.68rem; font-weight:600; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--ink-muted); text-decoration:none; flex-shrink:0; transition:color .2s;
+}
+.dept-back:hover{ color:var(--gold); }
 
 .index{ list-style:none; margin-top:.4rem; }
 .entry{ border-bottom:1px solid var(--line); }
@@ -880,10 +885,54 @@ body::after{
       <h1 id="mastGreeting">Goedendag.</h1>
     </header>
 
+    <div id="deptOverview">
+      <div class="index-head">
+        <span class="smallcaps">Afdelingen</span>
+        <span class="rule"></span>
+        <span class="count">drie afdelingen</span>
+      </div>
+      <ul class="index">
+        <li class="entry">
+          <a href="#" onclick="openDept('verkoop');return false;">
+            <span class="no"><i>01</i><span class="hair"></span><small>Verkoop</small></span>
+            <span class="body">
+              <h2>Verkoop &amp; advies</h2>
+              <p>Kennisdatabank, klantprofiel, reiskaart en fotobibliotheek.</p>
+            </span>
+            <span class="glyph"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#g-globe" class="base"/><use href="#g-globe" class="ink"/></svg></span>
+            <span class="go">Openen <span class="arr"></span></span>
+          </a>
+        </li>
+        <li class="entry">
+          <a href="#" onclick="openDept('inwerken');return false;">
+            <span class="no"><i>02</i><span class="hair"></span><small>Team</small></span>
+            <span class="body">
+              <h2>Inwerken &amp; kwaliteit</h2>
+              <p>Het inwerkprogramma en de enqu&ecirc;te-analyse.</p>
+            </span>
+            <span class="glyph"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#g-pad" class="base"/><use href="#g-pad" class="ink"/></svg></span>
+            <span class="go">Openen <span class="arr"></span></span>
+          </a>
+        </li>
+        <li class="entry">
+          <a href="#" onclick="openDept('beheer');return false;">
+            <span class="no"><i>03</i><span class="hair"></span><small>Beheer</small></span>
+            <span class="body">
+              <h2>Beheer &amp; creatie</h2>
+              <p>Admin &amp; scrape, design en de externe Claude-projecten.</p>
+            </span>
+            <span class="glyph"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#g-admin" class="base"/><use href="#g-admin" class="ink"/></svg></span>
+            <span class="go">Openen <span class="arr"></span></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div id="dept-verkoop" class="dept-view" style="display:none">
     <div class="index-head">
       <span class="smallcaps">Verkoop &amp; advies</span>
       <span class="rule"></span>
-      <span class="count">vier werkplekken</span>
+      <a class="dept-back" href="#" onclick="backToDepts();return false;">&larr; Afdelingen</a>
     </div>
 
     <ul class="index">
@@ -932,16 +981,18 @@ body::after{
         </a>
       </li>
     </ul>
+    </div>
 
+    <div id="dept-inwerken" class="dept-view" style="display:none">
     <div class="index-head">
       <span class="smallcaps">Inwerken &amp; kwaliteit</span>
       <span class="rule"></span>
-      <span class="count">twee werkplekken</span>
+      <a class="dept-back" href="#" onclick="backToDepts();return false;">&larr; Afdelingen</a>
     </div>
     <ul class="index">
       <li class="entry">
         <a href="/onboarding.html">
-          <span class="no"><i>05</i><span class="hair"></span><small>Route</small></span>
+          <span class="no"><i>01</i><span class="hair"></span><small>Route</small></span>
           <span class="body">
             <h2>Onboarding</h2>
             <p>Het inwerkprogramma &mdash; de route voor nieuwe collega&rsquo;s.</p>
@@ -952,7 +1003,7 @@ body::after{
       </li>
       <li class="entry">
         <a href="/enquetes.html">
-          <span class="no"><i>06</i><span class="hair"></span><small>Analyse</small></span>
+          <span class="no"><i>02</i><span class="hair"></span><small>Analyse</small></span>
           <span class="body">
             <h2>Enquête-analyse</h2>
             <p>De reisbeleving-enqu&ecirc;te gebundeld &mdash; cijfers, thema&rsquo;s en acties per maand.</p>
@@ -962,16 +1013,18 @@ body::after{
         </a>
       </li>
     </ul>
+    </div>
 
+    <div id="dept-beheer" class="dept-view" style="display:none">
     <div class="index-head">
       <span class="smallcaps">Beheer &amp; creatie</span>
       <span class="rule"></span>
-      <span class="count">twee werkplekken</span>
+      <a class="dept-back" href="#" onclick="backToDepts();return false;">&larr; Afdelingen</a>
     </div>
     <ul class="index">
       <li class="entry">
         <a href="/admin.html">
-          <span class="no"><i>07</i><span class="hair"></span><small>Beheer</small></span>
+          <span class="no"><i>01</i><span class="hair"></span><small>Beheer</small></span>
           <span class="body">
             <h2>Admin &amp; Scrape tool</h2>
             <p>Achter de schermen &mdash; content bijhouden en binnenhalen.</p>
@@ -982,7 +1035,7 @@ body::after{
       </li>
       <li class="entry">
         <a href="https://claude.ai/design" target="_blank" rel="noopener">
-          <span class="no"><i>08</i><span class="hair"></span><small>Atelier</small></span>
+          <span class="no"><i>02</i><span class="hair"></span><small>Atelier</small></span>
           <span class="body">
             <h2>Design</h2>
             <p>Visueel werk met Claude &mdash; het atelier buiten de deur.</p>
@@ -1028,7 +1081,7 @@ body::after{
 
     <section class="stubs">
       <div class="index-head">
-        <span class="smallcaps">Beheer</span>
+        <span class="smallcaps">Facturatie</span>
         <span class="rule"></span>
       </div>
       <div class="stub-row">
@@ -1042,10 +1095,11 @@ body::after{
         </a>
       </div>
     </section>
+    </div>
 
     <footer class="colophon">
       <span>Doets Reizen &middot; sinds 1989</span>
-      <span class="hint">Tip: toets <kbd>1</kbd>&ndash;<kbd>8</kbd> voor een werkplek</span>
+      <span class="hint">Tip: <kbd>1</kbd>&ndash;<kbd>3</kbd> kiest een afdeling &middot; <kbd>Esc</kbd> terug</span>
       <span><em>Anno <span id="yearNow">2026</span></em></span>
     </footer>
   </main>
@@ -1338,20 +1392,46 @@ body::after{
     location.reload();
   });
 
-  /* ---------- sneltoetsen: 1–8 opent een werkplek ---------- */
+  /* ---------- afdelingen: overzicht <-> tools ---------- */
+
+  window.openDept = function(id){
+    var ov = document.getElementById('deptOverview');
+    if (ov) ov.style.display = 'none';
+    var views = document.querySelectorAll('.dept-view');
+    for (var i = 0; i < views.length; i++){ views[i].style.display = 'none'; }
+    var v = document.getElementById('dept-' + id);
+    if (v) v.style.display = '';
+    window.scrollTo(0, 0);
+  };
+  window.backToDepts = function(){
+    var views = document.querySelectorAll('.dept-view');
+    for (var i = 0; i < views.length; i++){ views[i].style.display = 'none'; }
+    var ov = document.getElementById('deptOverview');
+    if (ov) ov.style.display = '';
+    window.scrollTo(0, 0);
+  };
+  function currentView(){
+    var ov = document.getElementById('deptOverview');
+    if (ov && ov.style.display !== 'none') return ov;
+    var views = document.querySelectorAll('.dept-view');
+    for (var i = 0; i < views.length; i++){ if (views[i].style.display !== 'none') return views[i]; }
+    return ov;
+  }
+
+  /* ---------- sneltoetsen: 1–N binnen de huidige weergave, Esc terug ---------- */
 
   document.addEventListener('keydown', function(ev){
     if (!document.getElementById('app').classList.contains('visible')) return;
     var t = ev.target;
     if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
     if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
+    if (ev.key === 'Escape'){ backToDepts(); return; }
     var n = parseInt(ev.key, 10);
-    if (n >= 1 && n <= 8){
-      var links = document.querySelectorAll('.index .entry a');
-      var a = links[n - 1];
-      if (!a) return;
-      if (a.target === '_blank'){ window.open(a.href, '_blank', 'noopener'); }
-      else { window.location.href = a.href; }
+    if (n >= 1){
+      var view = currentView();
+      if (!view) return;
+      var links = view.querySelectorAll('.entry a');
+      if (n <= links.length){ links[n - 1].click(); }
     }
   });
 

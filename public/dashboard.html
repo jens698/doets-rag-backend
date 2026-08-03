@@ -235,13 +235,14 @@ body::after{
    ============================================================ */
 
 #app{
+  position:relative;
   grid-template-columns: 330px 1fr;
   min-height:100vh;
 }
 
 /* ---- het navy zijpaneel: de wereld buiten ---- */
 .rail{
-  position:sticky; top:0; height:100vh;
+  position:sticky; top:0; height:100vh; z-index:2;
   background:
     radial-gradient(140% 60% at 110% 0%, var(--navy-soft) 0%, transparent 60%),
     linear-gradient(172deg, var(--navy) 0%, var(--navy-deepest) 100%);
@@ -452,22 +453,22 @@ body::after{
 /* ---- de hal: rechterkant ---- */
 .hall{
   position:relative;
+  z-index:1;
   padding:4.4rem clamp(2.5rem, 6vw, 6.5rem) 4rem;
   max-width:1150px;
-  overflow-x:clip;
 }
 /* wereldbol met werelddelen, subtiel in de hoek als een kaart onder het papier */
 .hall-globe{
-  position:absolute; right:-160px; top:-150px;
-  width:600px; height:600px;
+  position:absolute; right:-320px; top:-190px;
+  width:min(1180px, 88vw); height:min(1180px, 88vw);
   pointer-events:none; z-index:0;
-  -webkit-mask-image:radial-gradient(circle, black 60%, transparent 82%);
-          mask-image:radial-gradient(circle, black 60%, transparent 82%);
+  -webkit-mask-image:radial-gradient(circle, black 64%, transparent 92%);
+          mask-image:radial-gradient(circle, black 64%, transparent 92%);
 }
 .hall > .masthead, .hall > div{ position:relative; z-index:1; }
-.hall-globe .g-grat{ fill:none; stroke:var(--navy); stroke-opacity:.10; stroke-width:.6; }
-.hall-globe .g-land{ fill:rgba(13,31,60,.075); stroke:rgba(13,31,60,.20); stroke-width:.5; }
-.hall-globe .g-sphere{ fill:rgba(201,168,76,.03); stroke:var(--gold); stroke-opacity:.32; stroke-width:1.1; }
+.hall-globe .g-grat{ fill:none; stroke:var(--navy); stroke-opacity:.09; stroke-width:.5; }
+.hall-globe .g-land{ fill:rgba(13,31,60,.07); stroke:rgba(13,31,60,.18); stroke-width:.4; }
+.hall-globe .g-sphere{ fill:rgba(201,168,76,.025); stroke:var(--gold); stroke-opacity:.3; stroke-width:.9; }
 
 .masthead{ position:relative; }
 .masthead .smallcaps{
@@ -851,6 +852,11 @@ body::after{
 
 <!-- ============================== PORTAAL ============================== -->
 <div id="app">
+  <svg class="hall-globe" id="hallGlobe" viewBox="0 0 600 600" aria-hidden="true">
+    <circle class="g-sphere" cx="300" cy="300" r="280"/>
+    <path class="g-grat" id="globe-grat"/>
+    <path class="g-land" id="globe-land"/>
+  </svg>
   <aside class="rail">
     <div class="rail-stars" id="railStars" aria-hidden="true"></div>
 
@@ -884,11 +890,6 @@ body::after{
   </aside>
 
   <main class="hall">
-    <svg class="hall-globe" id="hallGlobe" viewBox="0 0 600 600" aria-hidden="true">
-      <circle class="g-sphere" cx="300" cy="300" r="280"/>
-      <path class="g-grat" id="globe-grat"/>
-      <path class="g-land" id="globe-land"/>
-    </svg>
     <header class="masthead">
       <span class="smallcaps" id="mastEyebrow">&mdash;</span>
       <h1 id="mastGreeting">Goedendag.</h1>

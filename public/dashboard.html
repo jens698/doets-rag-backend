@@ -456,17 +456,18 @@ body::after{
   max-width:1150px;
   overflow-x:clip;
 }
-/* topografische contouren, als een kaart onder het papier */
-.hall::before{
-  content:'';
-  position:absolute; right:-180px; top:-140px;
-  width:640px; height:640px;
-  background-image:repeating-radial-gradient(circle at center, transparent 0 34px, rgba(13,31,60,.05) 34px 35px);
-  border-radius:50%;
-  pointer-events:none;
-  -webkit-mask-image:radial-gradient(circle, black 30%, transparent 72%);
-          mask-image:radial-gradient(circle, black 30%, transparent 72%);
+/* wereldbol met werelddelen, subtiel in de hoek als een kaart onder het papier */
+.hall-globe{
+  position:absolute; right:-160px; top:-150px;
+  width:600px; height:600px;
+  pointer-events:none; z-index:0;
+  -webkit-mask-image:radial-gradient(circle, black 60%, transparent 82%);
+          mask-image:radial-gradient(circle, black 60%, transparent 82%);
 }
+.hall > .masthead, .hall > div{ position:relative; z-index:1; }
+.hall-globe .g-grat{ fill:none; stroke:var(--navy); stroke-opacity:.10; stroke-width:.6; }
+.hall-globe .g-land{ fill:rgba(13,31,60,.075); stroke:rgba(13,31,60,.20); stroke-width:.5; }
+.hall-globe .g-sphere{ fill:rgba(201,168,76,.03); stroke:var(--gold); stroke-opacity:.32; stroke-width:1.1; }
 
 .masthead{ position:relative; }
 .masthead .smallcaps{
@@ -883,6 +884,11 @@ body::after{
   </aside>
 
   <main class="hall">
+    <svg class="hall-globe" id="hallGlobe" viewBox="0 0 600 600" aria-hidden="true">
+      <circle class="g-sphere" cx="300" cy="300" r="280"/>
+      <path class="g-grat" id="globe-grat"/>
+      <path class="g-land" id="globe-land"/>
+    </svg>
     <header class="masthead">
       <span class="smallcaps" id="mastEyebrow">&mdash;</span>
       <h1 id="mastGreeting">Goedendag.</h1>
@@ -1464,6 +1470,27 @@ body::after{
   setInterval(tick, 15000);
   loadWeather();
   setInterval(loadWeather, 30 * 60 * 1000); /* elk half uur vers weer */
+})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+<script>
+(function(){
+  var svg = document.getElementById('hallGlobe');
+  if (!svg || !window.d3 || !d3.geoOrthographic) return;
+  var projection = d3.geoOrthographic().scale(280).translate([300,300]).rotate([-15,-20]).clipAngle(90).precision(0.6);
+  var path = d3.geoPath(projection);
+  var grat = document.getElementById('globe-grat');
+  if (grat) grat.setAttribute('d', path(d3.geoGraticule().step([20,20])()) || '');
+  fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json')
+    .then(function(r){ return r.json(); })
+    .then(function(world){
+      if (!window.topojson) return;
+      var land = topojson.feature(world, world.objects.land);
+      var el = document.getElementById('globe-land');
+      if (el) el.setAttribute('d', path(land) || '');
+    })
+    .catch(function(){});
 })();
 </script>
 </body>

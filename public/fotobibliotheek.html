@@ -624,8 +624,8 @@
         <input type="text" id="mTags" placeholder="ijsland, hotel, winter...">
       </div>
       <div class="modal-caption">
-        <label class="field-lbl">Beschrijving</label>
-        <textarea id="mCaption" placeholder="Beschrijving of context..."></textarea>
+        <label class="field-lbl">Naam</label>
+        <input type="text" id="mCaption" placeholder="Geef deze foto een herkenbare naam" onkeydown="if(event.key==='Enter')saveMeta()">
       </div>
       <div class="modal-actions">
         <button class="btn" onclick="saveMeta()">Opslaan</button>
@@ -856,7 +856,7 @@ function renderGrid() {
       + '<div class="tile-check" onclick="event.stopPropagation(); toggleSelect(\'' + esc(p.public_id) + '\')"></div>'
       + '<div class="tile-img" onclick="openPhoto(\'' + esc(p.public_id) + '\')"><img loading="lazy" src="' + esc(p.thumb_url) + '" alt=""></div>'
       + '<div class="tile-info">'
-      + '<div class="tile-name" title="' + esc(p.filename) + '">' + esc(p.filename) + '</div>'
+      + '<div class="tile-name" title="' + esc(p.caption || p.filename) + '">' + esc(p.caption || p.filename) + '</div>'
       + '<div class="tile-meta">' + (p.width || '?') + '×' + (p.height || '?') + ' &middot; ' + humanBytes(p.bytes) + '</div>'
       + '</div></div>';
   }).join('');
@@ -888,7 +888,7 @@ function openPhoto(id) {
   var p = photos.find(function(x){ return x.public_id === id; });
   if (!p) return;
   currentPhoto = p;
-  document.getElementById('mTitle').textContent = p.filename;
+  document.getElementById('mTitle').textContent = p.caption || p.filename;
   document.getElementById('modalImg').src = p.preview_url;
   document.getElementById('mDim').textContent = (p.width || '?') + '×' + (p.height || '?') + ' px';
   document.getElementById('mSize').textContent = humanBytes(p.bytes);
@@ -919,17 +919,26 @@ async function saveMeta() {
     currentPhoto.caption = caption;
     var idx = photos.findIndex(function(x){ return x.public_id === currentPhoto.public_id; });
     if (idx >= 0) { photos[idx].tags = tags; photos[idx].caption = caption; }
-    toast('Opgeslagen');
+    document.getElementById('mTitle').textContent = caption || currentPhoto.filename;
+    renderGrid();
+    toast('Naam opgeslagen');
   } catch (e) { toast('Netwerkfout'); }
 }
 
+/* Cloudinary fl_attachment dwingt de download-bestandsnaam af — ook bij een ander
+   domein, waar het gewone download-attribuut wordt genegeerd. Gebruikt de door de
+   gebruiker gegeven naam (caption), anders de originele bestandsnaam. */
+function attachmentUrl(p) {
+  var url = p.secure_url || '';
+  var raw = (p.caption || p.filename || 'foto');
+  var base = raw.replace(/\.[^.]+$/, '').replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-');
+  if (!base) base = 'foto';
+  return url.replace('/upload/', '/upload/fl_attachment:' + base + '/');
+}
 function downloadOriginal() {
   if (!currentPhoto) return;
-  var url = currentPhoto.secure_url;
   var a = document.createElement('a');
-  a.href = url;
-  a.download = currentPhoto.filename;
-  a.target = '_blank';
+  a.href = attachmentUrl(currentPhoto);
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -1007,9 +1016,7 @@ function bulkDownload() {
     var p = photos.find(function(x){ return x.public_id === id; });
     if (!p) return;
     var a = document.createElement('a');
-    a.href = p.secure_url;
-    a.download = p.filename;
-    a.target = '_blank';
+    a.href = attachmentUrl(p);
     a.rel = 'noopener';
     document.body.appendChild(a);
     a.click();
@@ -1058,6 +1065,34 @@ function handleDrop(e) {
   if (e.dataTransfer.files.length) uploadFiles(e.dataTransfer.files);
 }
 
+/* Grote foto's in de browser verkleinen zodat ze onder de serverlimiet (~4,5 MB) blijven.
+   Kleine bestanden blijven onaangeroerd, zodat de originele kwaliteit behouden blijft. */
+function prepareForUpload(file) {
+  return new Promise(function(resolve){
+    var LIMIT = 3.8 * 1024 * 1024;
+    if (!file.type || file.type.indexOf('image/') !== 0 || file.size <= LIMIT) { resolve(file); return; }
+    var img = new Image();
+    var url = URL.createObjectURL(file);
+    img.onload = function(){
+      URL.revokeObjectURL(url);
+      var maxDim = 2400;
+      var scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+      var w = Math.max(1, Math.round(img.width * scale));
+      var h = Math.max(1, Math.round(img.height * scale));
+      var canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      canvas.toBlob(function(blob){
+        if (!blob) { resolve(file); return; }
+        var base = file.name.replace(/\.[^.]+$/, '');
+        resolve(new File([blob], base + '.jpg', { type: 'image/jpeg' }));
+      }, 'image/jpeg', 0.85);
+    };
+    img.onerror = function(){ URL.revokeObjectURL(url); resolve(file); };
+    img.src = url;
+  });
+}
+
 async function uploadFiles(files) {
   var arr = Array.from(files).filter(function(f){ return f.type.startsWith('image/'); });
   if (!arr.length) { toast('Geen afbeeldingen geselecteerd'); return; }
@@ -1066,29 +1101,38 @@ async function uploadFiles(files) {
   var text = document.getElementById('uploadText');
   status.classList.add('on');
   var uploaded = 0;
+  var failed = [];
 
   for (var i = 0; i < arr.length; i++) {
     var f = arr[i];
     text.textContent = 'Uploaden ' + (i+1) + ' van ' + arr.length + ': ' + f.name;
     bar.style.width = (i/arr.length*100) + '%';
+    var toSend = f;
+    try { toSend = await prepareForUpload(f); } catch (e) { toSend = f; }
     var fd = new FormData();
-    fd.append('file', f);
+    fd.append('file', toSend, toSend.name);
     fd.append('folder', currentFolder);
     fd.append('uploader', user);
     try {
       var res = await fetch(API + '/api/photos', { method: 'POST', headers: authHeaders(), body: fd });
       if (res.ok) uploaded++;
       else {
+        failed.push(f.name);
         var err = await res.json().catch(function(){return{};});
-        console.error('Upload error:', err);
+        console.error('Upload error:', f.name, err);
       }
-    } catch (e) { console.error(e); }
+    } catch (e) { failed.push(f.name); console.error(e); }
   }
 
   bar.style.width = '100%';
-  text.textContent = uploaded + ' van ' + arr.length + ' geupload';
+  text.textContent = uploaded + ' van ' + arr.length + ' geüpload';
   setTimeout(function(){ status.classList.remove('on'); }, 1400);
-  toast(uploaded + ' foto\'s geupload');
+  if (failed.length) {
+    toast(uploaded + ' geüpload, ' + failed.length + ' mislukt');
+    alert('Deze ' + failed.length + ' foto\'s konden niet worden geplaatst:\n\n' + failed.join('\n') + '\n\nDe overige zijn wél geüpload. Lukt een bestand herhaaldelijk niet, laat het me weten.');
+  } else {
+    toast(uploaded + ' foto\'s geüpload');
+  }
   loadPhotos();
   document.getElementById('fileInput').value = '';
 }

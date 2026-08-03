@@ -503,10 +503,13 @@ body::after{
   font-size:.85rem; color:var(--ink-muted); flex-shrink:0;
 }
 .dept-back{
-  font-size:.68rem; font-weight:600; letter-spacing:.12em; text-transform:uppercase;
-  color:var(--ink-muted); text-decoration:none; flex-shrink:0; transition:color .2s;
+  display:inline-flex; align-items:center; gap:.55rem;
+  font-size:.74rem; font-weight:600; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--navy); text-decoration:none; flex-shrink:0;
+  border:1px solid var(--line); border-radius:7px;
+  padding:.55rem 1.15rem; background:#fff; transition:all .2s;
 }
-.dept-back:hover{ color:var(--gold); }
+.dept-back:hover{ color:var(--gold); border-color:var(--gold); background:rgba(201,168,76,.08); }
 
 .index{ list-style:none; margin-top:.4rem; }
 .entry{ border-bottom:1px solid var(--line); }
@@ -1394,7 +1397,7 @@ body::after{
 
   /* ---------- afdelingen: overzicht <-> tools ---------- */
 
-  window.openDept = function(id){
+  function renderDept(id){
     var ov = document.getElementById('deptOverview');
     if (ov) ov.style.display = 'none';
     var views = document.querySelectorAll('.dept-view');
@@ -1402,14 +1405,35 @@ body::after{
     var v = document.getElementById('dept-' + id);
     if (v) v.style.display = '';
     window.scrollTo(0, 0);
-  };
-  window.backToDepts = function(){
+  }
+  function renderOverview(){
     var views = document.querySelectorAll('.dept-view');
     for (var i = 0; i < views.length; i++){ views[i].style.display = 'none'; }
     var ov = document.getElementById('deptOverview');
     if (ov) ov.style.display = '';
     window.scrollTo(0, 0);
+  }
+  window.openDept = function(id){
+    renderDept(id);
+    try { history.pushState({ view:'dept', dept:id }, '', '#' + id); } catch(e){}
   };
+  window.backToDepts = function(){
+    if (history.state && history.state.view === 'dept'){ history.back(); }
+    else { renderOverview(); }
+  };
+  window.addEventListener('popstate', function(ev){
+    var st = ev.state;
+    if (st && st.view === 'dept' && st.dept){ renderDept(st.dept); }
+    else { renderOverview(); }
+  });
+  /* diep-link / herladen op een afdeling opvangen */
+  (function(){
+    var h = (location.hash || '').replace('#','');
+    if (h && document.getElementById('dept-' + h)){
+      renderDept(h);
+      try { history.replaceState({ view:'dept', dept:h }, '', '#' + h); } catch(e){}
+    }
+  })();
   function currentView(){
     var ov = document.getElementById('deptOverview');
     if (ov && ov.style.display !== 'none') return ov;

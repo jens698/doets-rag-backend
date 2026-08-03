@@ -1479,19 +1479,42 @@ body::after{
 (function(){
   var svg = document.getElementById('hallGlobe');
   if (!svg || !window.d3 || !d3.geoOrthographic) return;
-  var projection = d3.geoOrthographic().scale(280).translate([300,300]).rotate([-15,-20]).clipAngle(90).precision(0.6);
+  var projection = d3.geoOrthographic().scale(280).translate([300,300]).clipAngle(90).precision(1);
   var path = d3.geoPath(projection);
-  var grat = document.getElementById('globe-grat');
-  if (grat) grat.setAttribute('d', path(d3.geoGraticule().step([20,20])()) || '');
+  var gratEl = document.getElementById('globe-grat');
+  var landEl = document.getElementById('globe-land');
+  var graticule = d3.geoGraticule().step([20,20])();
+  var landFeature = null;
+  var lon = 20, tilt = -16;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function render(){
+    projection.rotate([-lon, tilt]);
+    if (gratEl) gratEl.setAttribute('d', path(graticule) || '');
+    if (landEl && landFeature) landEl.setAttribute('d', path(landFeature) || '');
+  }
+  render();
+
   fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json')
     .then(function(r){ return r.json(); })
     .then(function(world){
-      if (!window.topojson) return;
-      var land = topojson.feature(world, world.objects.land);
-      var el = document.getElementById('globe-land');
-      if (el) el.setAttribute('d', path(land) || '');
+      if (window.topojson) landFeature = topojson.feature(world, world.objects.land);
+      render();
+      if (!reduce) requestAnimationFrame(frame);
     })
     .catch(function(){});
+
+  var last = 0, SPEED = 3; /* graden per seconde — volledige draai in 2 minuten */
+  function frame(t){
+    if (!last) last = t;
+    var dt = t - last;
+    if (dt > 80){ /* ~12 fps: rustig en zuinig */
+      lon = (lon + SPEED * dt / 1000) % 360;
+      render();
+      last = t;
+    }
+    requestAnimationFrame(frame);
+  }
 })();
 </script>
 </body>

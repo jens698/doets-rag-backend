@@ -459,16 +459,16 @@ body::after{
 }
 /* wereldbol met werelddelen, subtiel in de hoek als een kaart onder het papier */
 .hall-globe{
-  position:absolute; right:-320px; top:-190px;
-  width:min(1180px, 88vw); height:min(1180px, 88vw);
-  pointer-events:none; z-index:0;
-  -webkit-mask-image:radial-gradient(circle, black 64%, transparent 92%);
-          mask-image:radial-gradient(circle, black 64%, transparent 92%);
+  position:absolute; right:-300px; top:-170px;
+  width:min(1040px, 84vw); height:min(1040px, 84vw);
+  pointer-events:none; z-index:0; opacity:.5;
+  -webkit-mask-image:radial-gradient(circle, black 58%, transparent 90%);
+          mask-image:radial-gradient(circle, black 58%, transparent 90%);
 }
 .hall > .masthead, .hall > div{ position:relative; z-index:1; }
-.hall-globe .g-grat{ fill:none; stroke:var(--navy); stroke-opacity:.09; stroke-width:.5; }
-.hall-globe .g-land{ fill:rgba(13,31,60,.07); stroke:rgba(13,31,60,.18); stroke-width:.4; }
-.hall-globe .g-sphere{ fill:rgba(201,168,76,.025); stroke:var(--gold); stroke-opacity:.3; stroke-width:.9; }
+.hall-globe .g-grat{ fill:none; stroke:var(--navy); stroke-opacity:.06; stroke-width:.5; }
+.hall-globe .g-land{ fill:rgba(13,31,60,.05); stroke:rgba(13,31,60,.12); stroke-width:.4; }
+.hall-globe .g-sphere{ fill:rgba(201,168,76,.02); stroke:var(--gold); stroke-opacity:.2; stroke-width:.8; }
 
 .masthead{ position:relative; }
 .masthead .smallcaps{

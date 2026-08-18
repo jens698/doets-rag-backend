@@ -201,13 +201,8 @@ blockquote.pull .s{display:block;font-family:var(--mono);font-size:.62rem;letter
       <div><h3 class="q" style="color:var(--green)">Wat goed gaat</h3><div id="goods"></div></div>
       <div><h3 class="q" style="color:var(--brick)">Aandachtspunten</h3><div id="bumps"></div></div>
     </div>
-    <h3 class="q">Meest genoemde termen</h3>
-    <div id="praise"></div>
 
-    <h2 class="p"><em>9</em><span>Citaten</span></h2>
-    <div class="qlist" id="quotes"></div>
-
-    <h2 class="p"><em>10</em><span>Opvolging &amp; acties</span></h2>
+    <h2 class="p"><em>9</em><span>Opvolging &amp; acties</span></h2>
     <p class="t">Na de bespreking met het team (Elske met productie en customer service) is per aandachtspunt actie uitgezet. Veel individuele klantcases zijn door customer service al naar tevredenheid afgehandeld; hieronder staan de <b>structurele</b> acties die eruit voortkomen.</p>
 
     <h3 class="q">Accommodaties &mdash; herzieningen voor productie 2027</h3>
@@ -523,8 +518,6 @@ window.DR = (function(){
   DR.verwachting('tabs','exp','ins',E.matrix,E.matrixInzicht);
   $('eg').innerHTML=DR.excLijst(E.excGood); $('eb').innerHTML=DR.excLijst(E.excBad);
   $('goods').innerHTML=DR.vondsten(E.goods,null); $('bumps').innerHTML=DR.vondsten(E.bumps,'n');
-  $('praise').innerHTML=DR.praiseRijen(E.praise);
-  $('quotes').innerHTML=E.quotes.map(q=>`<blockquote class="pull">“${q.t}”<span class="s">${q.s}</span></blockquote>`).join('');
   $('docS').textContent=`${E.doc.n} opmerkingen, ${E.doc.gemarkeerd} van ${E.meta.n} reacties gemarkeerd.`;
   $('docA').href=E.doc.href;
 

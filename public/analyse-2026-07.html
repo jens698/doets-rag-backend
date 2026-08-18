@@ -129,6 +129,11 @@ blockquote.pull .s{display:block;font-family:var(--mono);font-size:.62rem;letter
 .sig .l{font-family:var(--mono);font-size:.66rem;color:var(--ink-3);line-height:1.8}
 .dl{padding:.65rem 1.15rem;background:var(--navy);color:#fff;font-family:var(--mono);font-size:.7rem;
   letter-spacing:.04em;text-transform:uppercase}
+.formula{background:var(--sand-p);border:1px solid var(--line);border-left:3px solid var(--gold);padding:1rem 1.15rem;margin:1.1rem 0 0}
+.formula .ft{font-family:var(--serif);font-size:1.1rem;color:var(--navy);margin-bottom:.45rem}
+.formula .eq{font-family:var(--mono);font-weight:600;font-size:.86rem;color:var(--navy);background:#fff;border:1px solid var(--line);padding:.5rem .8rem;margin:.55rem 0;display:inline-block}
+.formula p{font-size:.82rem;color:var(--ink-2);line-height:1.7;margin:.4rem 0 0}
+.formula p:first-of-type{margin-top:0} .formula b{color:var(--ink);font-weight:600}
 @media(max-width:820px){ .kv,.charts,.two{grid-template-columns:1fr}
   .kv .i+.i{padding-left:0;border-left:none;border-top:1px solid var(--line-2)}
   .ex{grid-template-columns:1fr;gap:.2rem} h2.p{grid-template-columns:1.8rem 1fr} }
@@ -156,20 +161,36 @@ blockquote.pull .s{display:block;font-family:var(--mono);font-size:.62rem;letter
     <h2 class="p"><em>2</em><span>Verloop over de meetperiodes</span></h2>
     <div class="charts">
       <div><h3 class="q">Gemiddelde reisscore · as 4,0–5,0</h3><svg id="cScore" viewBox="0 0 330 116"></svg></div>
-      <div><h3 class="q">Aanbevelingsscore · schaal 0–100</h3><svg id="cNps" viewBox="0 0 330 116"></svg></div>
+      <div><h3 class="q">Aanbevelingsscore</h3><svg id="cNps" viewBox="0 0 330 116"></svg></div>
     </div>
     <h3 class="q">Cijfers per periode</h3>
-    <table><thead><tr><th>Periode</th><th>Reacties</th><th>Score</th><th>Δ</th><th>Aanbeveling</th></tr></thead><tbody id="hist"></tbody></table>
-    <p class="note">Eerdere periodes komen uit de Survio-exports van 2025 en het rapport van week 49 t/m 13. Die liepen per aantal weken; <b>vanaf nu meten we per maand</b>.</p>
+    <table><thead><tr><th>Periode</th><th>Reacties</th><th>Score</th><th>Δ</th><th>Aanbev.score</th></tr></thead><tbody id="hist"></tbody></table>
+    <p class="note"><b>Let op:</b> de aanbevelingsscore is een index van <b>−100 tot +100</b> (aandeel promotors min aandeel detractors), geen aantal — daarom kan 'ie hoger zijn dan het aantal reacties. Eerdere periodes komen uit de Survio-exports van 2025 en het rapport van week 49 t/m 13. Die liepen per aantal weken; <b>vanaf nu meten we per maand</b>.</p>
+
+    <div class="formula">
+      <div class="ft">Zo werkt de aanbevelingsscore</div>
+      <p>Reizigers beantwoorden één vraag &mdash; <i>&ldquo;Hoe waarschijnlijk is het dat je Doets aanbeveelt?&rdquo;</i> &mdash; op een schaal van 0 tot 10. De antwoorden vallen in drie groepen: <b>promotors</b> (9&ndash;10), <b>passief</b> (7&ndash;8) en <b>detractors</b> (0&ndash;6).</p>
+      <div class="eq">Aanbevelingsscore = % promotors &minus; % detractors</div>
+      <p><b>Deze maand:</b> 75 promotors en 3 detractors van de 109 reizigers die de vraag beantwoordden &rarr; 69% &minus; 3% = <b>+66</b>.</p>
+      <p><b>Wat het aantoont:</b> hoeveel méér enthousiaste ambassadeurs je hebt dan ontevreden reizigers. De schaal loopt van &minus;100 (iedereen ontevreden) tot +100 (iedereen ambassadeur); boven +50 geldt als uitstekend. Een score van <b>+66 wijst op een zeer sterke, loyale klantenbasis</b> die Doets actief aanbeveelt.</p>
+    </div>
+
+    <div class="formula">
+      <div class="ft">Zo werkt de reisscore</div>
+      <p>Elke reiziger geeft de reis als geheel een rapportcijfer in <b>sterren</b>, van 1 tot 5. De reisscore is simpelweg het gemiddelde daarvan.</p>
+      <div class="eq">Reisscore = som van alle sterren &divide; aantal reizigers</div>
+      <p><b>Deze maand:</b> gemiddeld <b>4,67 van 5</b>. 97% gaf 4 of 5 sterren (80&times; vijf sterren, 29&times; vier), niemand gaf 1 of 2.</p>
+      <p><b>Wat het aantoont:</b> de algehele tevredenheid over de reis zelf. Dit verschilt van de aanbevelingsscore: je kunt je reis een dikke voldoende geven én tóch een detail benoemen dat beter kon &mdash; daarom kijken we ook naar de opmerkingen, niet alleen naar dit cijfer.</p>
+    </div>
 
     <h2 class="p"><em>3</em><span>Herkomst van de boeking</span></h2>
     <div id="redenen"></div>
 
     <h2 class="p"><em>4</em><span>Bestemmingen en reistypen</span></h2>
-    <table><thead><tr><th>Bestemming</th><th>Reacties</th><th>Score</th><th>Aanbeveling</th><th>Opnieuw</th><th>Aandacht</th><th>Camper</th></tr></thead><tbody id="perf"></tbody></table>
+    <table><thead><tr><th>Bestemming</th><th>Reacties</th><th>Score</th><th>Aanbev.score</th><th>Opnieuw</th><th>Aandacht</th><th>Camper</th></tr></thead><tbody id="perf"></tbody></table>
     <p class="note" id="perfNote"></p>
     <h3 class="q">Naar reistype</h3>
-    <table><thead><tr><th>Reistype</th><th>Reacties</th><th>Score</th><th>Aanbeveling</th><th>Opnieuw</th><th>Aandacht</th></tr></thead><tbody id="rt"></tbody></table>
+    <table><thead><tr><th>Reistype</th><th>Reacties</th><th>Score</th><th>Aanbev.score</th><th>Opnieuw</th><th>Aandacht</th></tr></thead><tbody id="rt"></tbody></table>
     <p class="note" id="rtNote"></p>
 
     <h2 class="p"><em>5</em><span>Reacties afzonderlijk</span></h2>
@@ -177,6 +198,11 @@ blockquote.pull .s{display:block;font-family:var(--mono);font-size:.62rem;letter
     <div class="dots" id="dots"></div><div class="dlg" id="dlg"></div>
 
     <h2 class="p"><em>6</em><span>Verwachtingen per onderdeel</span></h2>
+    <div class="formula">
+      <div class="ft">Zo lees je deze matrix</div>
+      <p>Per onderdeel van de reis &mdash; route, verhuurstation, accommodatie en excursies &mdash; geeft de reiziger aan of de verwachting is <b>overtroffen</b>, <b>waargemaakt</b> of <b>niet waargemaakt</b> (of niet van toepassing).</p>
+      <p><b>Wat het aantoont:</b> geen los cijfer, maar de <b>verhouding</b> per onderdeel. Veel groen (overtroffen) laat zien waar Doets uitblinkt; veel terracotta (niet waargemaakt) wijst op een zwak punt. Zo zie je in één oogopslag dat bijvoorbeeld de service van het verhuurstation vaker tegenvalt (1 op de 5 niet waargemaakt), terwijl de diversiteit aan bezienswaardigheden juist het vaakst wordt overtroffen.</p>
+    </div>
     <div class="tabs" role="tablist" id="tabs"></div>
     <div id="exp"></div>
     <div class="exlg"><span><i style="background:var(--green)"></i>Overtroffen</span>

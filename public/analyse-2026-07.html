@@ -156,20 +156,20 @@ blockquote.pull .s{display:block;font-family:var(--mono);font-size:.62rem;letter
     <h2 class="p"><em>2</em><span>Verloop over de meetperiodes</span></h2>
     <div class="charts">
       <div><h3 class="q">Gemiddelde reisscore · as 4,0–5,0</h3><svg id="cScore" viewBox="0 0 330 116"></svg></div>
-      <div><h3 class="q">Net Promoter Score · as 0–100</h3><svg id="cNps" viewBox="0 0 330 116"></svg></div>
+      <div><h3 class="q">Aanbevelingsscore · schaal 0–100</h3><svg id="cNps" viewBox="0 0 330 116"></svg></div>
     </div>
     <h3 class="q">Cijfers per periode</h3>
-    <table><thead><tr><th>Periode</th><th>Reacties</th><th>Score</th><th>Δ</th><th>NPS</th></tr></thead><tbody id="hist"></tbody></table>
+    <table><thead><tr><th>Periode</th><th>Reacties</th><th>Score</th><th>Δ</th><th>Aanbeveling</th></tr></thead><tbody id="hist"></tbody></table>
     <p class="note">Eerdere periodes komen uit de Survio-exports van 2025 en het rapport van week 49 t/m 13. Die liepen per aantal weken; <b>vanaf nu meten we per maand</b>.</p>
 
     <h2 class="p"><em>3</em><span>Herkomst van de boeking</span></h2>
     <div id="redenen"></div>
 
     <h2 class="p"><em>4</em><span>Bestemmingen en reistypen</span></h2>
-    <table><thead><tr><th>Bestemming</th><th>Reacties</th><th>Score</th><th>NPS</th><th>Opnieuw</th><th>Aandacht</th><th>Camper</th></tr></thead><tbody id="perf"></tbody></table>
+    <table><thead><tr><th>Bestemming</th><th>Reacties</th><th>Score</th><th>Aanbeveling</th><th>Opnieuw</th><th>Aandacht</th><th>Camper</th></tr></thead><tbody id="perf"></tbody></table>
     <p class="note" id="perfNote"></p>
     <h3 class="q">Naar reistype</h3>
-    <table><thead><tr><th>Reistype</th><th>Reacties</th><th>Score</th><th>NPS</th><th>Opnieuw</th><th>Aandacht</th></tr></thead><tbody id="rt"></tbody></table>
+    <table><thead><tr><th>Reistype</th><th>Reacties</th><th>Score</th><th>Aanbeveling</th><th>Opnieuw</th><th>Aandacht</th></tr></thead><tbody id="rt"></tbody></table>
     <p class="note" id="rtNote"></p>
 
     <h2 class="p"><em>5</em><span>Reacties afzonderlijk</span></h2>
@@ -204,6 +204,24 @@ blockquote.pull .s{display:block;font-family:var(--mono);font-size:.62rem;letter
 
     <h2 class="p"><em>10</em><span>Voorgestelde acties</span></h2>
     <div id="todos"></div>
+
+    <h2 class="p"><em>11</em><span>Opvolging &amp; acties</span></h2>
+    <p class="t">Na de bespreking met het team (Elske met productie en customer service) is per aandachtspunt actie uitgezet. Veel individuele klantcases zijn door customer service al naar tevredenheid afgehandeld; hieronder staan de <b>structurele</b> acties die eruit voortkomen.</p>
+
+    <h3 class="q">Accommodaties &mdash; herzieningen voor productie 2027</h3>
+    <p class="t"><b>Vervangen na herhaalde klachten:</b> Redmon en Best Western Savannah gaan eruit (Savannah wordt River Street Inn). <b>Onderzocht als nieuwe standaard:</b> Dutch Lake Resort &amp; RV Park in plaats van Helcam. <b>Toegevoegd of vervangen:</b> de Iceglacier-excursie wordt een gletsjerwandeling in plaats van de bustour, en Mt Hood Resort en Aston Kona zijn toegevoegd. Diverse hotelomschrijvingen zijn gecorrigeerd &mdash; onder meer Brewery Park, Steamboat, het binnenzwembad van BW Gateway en de sauna van Fosshotel Glacier Lagoon.</p>
+
+    <h3 class="q">Camper</h3>
+    <p class="t">Veel reizigers benutten de voorzieningen in de camper niet. Marloes schrijft hier een blog over en licht het extra toe in Mijn Doets, zodat klanten meer uit hun camper halen. Verhuurpartner Road Bear komt vaker als aandachtspunt terug en wordt gevolgd.</p>
+
+    <h3 class="q">Excursies</h3>
+    <p class="t">De vouchers van Pursuit worden voortaan per excursie losgekoppeld in plaats van gebundeld, voor meer overzicht. Bij de walvissafari's wordt de verwachting scherper gesteld: door klimaatopwarming zijn er structureel minder walvissen. Voor de ballonvaart bij Moab &mdash; met per dag wisselende vertrektijden &mdash; komt de tijd in de mededelingen en worden de contactgegevens van de klant standaard aan de boeking meegegeven.</p>
+
+    <h3 class="q">Verhuurstation &amp; service onderweg</h3>
+    <p class="t">Het foutieve verzekeringscomponent bij de autohuur in Alaska (dat de routebeschrijving verstoorde) is hersteld. De regel rond de extra bestuurder bij Enterprise Iceland is verduidelijkt, en de kosten van de nationale-parkenpas worden duidelijker in de mededelingen vermeld, zodat reizigers niet verrast worden.</p>
+
+    <h3 class="q">Proces &amp; informatie</h3>
+    <p class="t">Twee bredere verbeteringen: het herbevestigen van excursies gaat waar mogelijk via WhatsApp in plaats van bellen &mdash; makkelijker voor de reiziger &mdash; en de rijafstanden in IJsland worden duidelijker omschreven in de reisinformatie, omdat het aanbod hotels daar beperkt is en reisdagen langer kunnen zijn.</p>
 
     <div class="sig">
       <div class="l">Opgesteld op basis van de Survio-export en Columbus 4320.<br>
@@ -252,7 +270,7 @@ window.ENQ = {
     {d:"USA overig",          n:26, gem:4.62, nps:56, ja:85,  aandacht:17, camper:27},
     {d:"IJsland",             n:8,  gem:4.50, nps:50, ja:62,  aandacht:8,  camper:12}
   ],
-  perfNote:"<b>Oost-Canada</b> is de uitschieter: iedereen boekt daar opnieuw en de NPS staat op +92. <b>IJsland</b> blijft achter op alle drie de maten.",
+  perfNote:"<b>Oost-Canada</b> is de uitschieter: iedereen boekt daar opnieuw en de aanbevelingsscore staat op +92. <b>IJsland</b> blijft achter op alle drie de maten.",
 
   reistype:[
     {t:"Camper & kamperen",   n:40, gem:4.60, nps:63, ja:85, aandacht:40},
@@ -411,7 +429,7 @@ window.DR = (function(){
         if(!tip) return;
         const r=ev.target.getBoundingClientRect();
         tip.innerHTML=`<b>${d.d}</b><br>${d.r==='—'?'Boekingsnummer niet herleid':d.r}<br>
-          ${d.s}/5 sterren${d.n>=0?' · NPS '+d.n:''} · ${NM[d.o]||''}`;
+          ${d.s}/5 sterren${d.n>=0?' · aanbeveling '+d.n:''} · ${NM[d.o]||''}`;
         tip.style.left=(r.left+r.width/2)+'px'; tip.style.top=r.top+'px'; tip.classList.add('on');
       };
       b.addEventListener('pointerenter',show); b.addEventListener('focus',show);
@@ -485,14 +503,14 @@ window.DR = (function(){
   const E=ENQ,$=id=>document.getElementById(id);
   $('ref').innerHTML=`Nota <b>CSAT-${E.meta.periode.replace(' ','-')}</b><br>Respondenten <b>${E.meta.n}</b><br>Periode <b>${E.meta.tmDatum}</b><br>Intern · teamgebruik`;
   $('h1').textContent=`Reisbeleving ${E.meta.periode.toLowerCase()}`;
-  $('abs').innerHTML=`<b>Samenvatting.</b> ${E.meta.n} reizigers vulden de enquête in. Op zowel de gemiddelde reisscore (${DR.nf(E.kpi.gem)}) als de NPS (+${E.kpi.nps}) is dit de beste periode tot nu toe. De aandachtspunten concentreren zich bij partners onderweg: verhuurstations en camperbedrijven.`;
+  $('abs').innerHTML=`<b>Samenvatting.</b> ${E.meta.n} reizigers vulden de enquête in. Op zowel de gemiddelde reisscore (${DR.nf(E.kpi.gem)}) als de aanbevelingsscore (+${E.kpi.nps}) is dit de beste periode tot nu toe. De aandachtspunten concentreren zich bij partners onderweg: verhuurstations en camperbedrijven.`;
   $('kv').innerHTML=[
     [DR.nf(E.kpi.gem),'<small>/5</small>','Gem. reisscore',`${E.kpi.pctVierVijf}% gaf 4 of 5`],
-    ['+'+E.kpi.nps,'','Net Promoter Score',`${E.kpi.promotors} pro · ${E.kpi.detractors} detr`],
+    ['+'+E.kpi.nps,'','Aanbevelingsscore',`${E.kpi.promotors} pro · ${E.kpi.detractors} detr`],
     [E.kpi.opnieuwJa,`<small>/${E.meta.n}</small>`,'Boekt opnieuw',`${E.kpi.opnieuwMisschien} misschien`],
     [E.meta.herleid,'','Reizen herleid',`${E.doc.handmatig} handmatig`]
   ].map(([v,s,k,d])=>`<div class="i"><div class="v">${v}${s}</div><div class="k">${k}</div><div class="d">${d}</div></div>`).join('');
-  $('kern').innerHTML=`De beste maand die we tot nu toe hebben gemeten — op score én op NPS. De winst zit niet in de reizen zelf, maar bij onze <b>partners onderweg</b>: één op de vijf reizigers vond de service van het verhuurstation ondermaats, bij hulp onderweg zelfs één op de vier. Daarnaast had <b>iedere camperreiziger</b> minstens één aandachtspunt (40 van 40), tegen 70% bij hotel- en autoreizen.`;
+  $('kern').innerHTML=`De beste maand die we tot nu toe hebben gemeten — op score én op de aanbevelingsscore. De winst zit niet in de reizen zelf, maar bij onze <b>partners onderweg</b>: één op de vijf reizigers vond de service van het verhuurstation ondermaats, bij hulp onderweg zelfs één op de vier. Daarnaast had <b>iedere camperreiziger</b> minstens één aandachtspunt (40 van 40), tegen 70% bij hotel- en autoreizen.`;
   DR.lijn('cScore',E.hist.map(h=>h.gem),4,5,'#C9A84C',v=>DR.nf(v),E.hist);
   DR.lijn('cNps',E.hist.map(h=>h.nps),0,100,'#0D1F3C',v=>'+'+Math.round(v),E.hist);
   $('hist').innerHTML=DR.histRijen(E.hist);

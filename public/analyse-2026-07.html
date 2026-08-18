@@ -159,38 +159,19 @@ blockquote.pull .s{display:block;font-family:var(--mono);font-size:.62rem;letter
     <p class="t" id="kern"></p>
 
     <h2 class="p"><em>2</em><span>Verloop over de meetperiodes</span></h2>
-    <div class="charts">
-      <div><h3 class="q">Gemiddelde reisscore · as 4,0–5,0</h3><svg id="cScore" viewBox="0 0 330 116"></svg></div>
-      <div><h3 class="q">Aanbevelingsscore</h3><svg id="cNps" viewBox="0 0 330 116"></svg></div>
-    </div>
+    <div><h3 class="q">Gemiddelde reisscore · as 4,0–5,0</h3><svg id="cScore" viewBox="0 0 330 116"></svg></div>
     <h3 class="q">Cijfers per periode</h3>
-    <table><thead><tr><th>Periode</th><th>Reacties</th><th>Score</th><th>Δ</th><th>Aanbev.score</th></tr></thead><tbody id="hist"></tbody></table>
-    <p class="note"><b>Let op:</b> de aanbevelingsscore is een index van <b>−100 tot +100</b> (aandeel promotors min aandeel detractors), geen aantal — daarom kan 'ie hoger zijn dan het aantal reacties. Eerdere periodes komen uit de Survio-exports van 2025 en het rapport van week 49 t/m 13. Die liepen per aantal weken; <b>vanaf nu meten we per maand</b>.</p>
-
-    <div class="formula">
-      <div class="ft">Zo werkt de aanbevelingsscore</div>
-      <p>Reizigers beantwoorden één vraag &mdash; <i>&ldquo;Hoe waarschijnlijk is het dat je Doets aanbeveelt?&rdquo;</i> &mdash; op een schaal van 0 tot 10. De antwoorden vallen in drie groepen: <b>promotors</b> (9&ndash;10), <b>passief</b> (7&ndash;8) en <b>detractors</b> (0&ndash;6).</p>
-      <div class="eq">Aanbevelingsscore = % promotors &minus; % detractors</div>
-      <p><b>Deze maand:</b> 75 promotors en 3 detractors van de 109 reizigers die de vraag beantwoordden &rarr; 69% &minus; 3% = <b>+66</b>.</p>
-      <p><b>Wat het aantoont:</b> hoeveel méér enthousiaste ambassadeurs je hebt dan ontevreden reizigers. De schaal loopt van &minus;100 (iedereen ontevreden) tot +100 (iedereen ambassadeur); boven +50 geldt als uitstekend. Een score van <b>+66 wijst op een zeer sterke, loyale klantenbasis</b> die Doets actief aanbeveelt.</p>
-    </div>
-
-    <div class="formula">
-      <div class="ft">Zo werkt de reisscore</div>
-      <p>Elke reiziger geeft de reis als geheel een rapportcijfer in <b>sterren</b>, van 1 tot 5. De reisscore is simpelweg het gemiddelde daarvan.</p>
-      <div class="eq">Reisscore = som van alle sterren &divide; aantal reizigers</div>
-      <p><b>Deze maand:</b> gemiddeld <b>4,67 van 5</b>. 97% gaf 4 of 5 sterren (80&times; vijf sterren, 29&times; vier), niemand gaf 1 of 2.</p>
-      <p><b>Wat het aantoont:</b> de algehele tevredenheid over de reis zelf. Dit verschilt van de aanbevelingsscore: je kunt je reis een dikke voldoende geven én tóch een detail benoemen dat beter kon &mdash; daarom kijken we ook naar de opmerkingen, niet alleen naar dit cijfer.</p>
-    </div>
+    <table><thead><tr><th>Periode</th><th>Reacties</th><th>Score</th><th>Δ</th></tr></thead><tbody id="hist"></tbody></table>
+    <p class="note">Eerdere periodes komen uit de Survio-exports van 2025 en het rapport van week 49 t/m 13. Die liepen per aantal weken; <b>vanaf nu meten we per maand</b>.</p>
 
     <h2 class="p"><em>3</em><span>Herkomst van de boeking</span></h2>
     <div id="redenen"></div>
 
     <h2 class="p"><em>4</em><span>Bestemmingen en reistypen</span></h2>
-    <table><thead><tr><th>Bestemming</th><th>Reacties</th><th>Score</th><th>Aanbev.score</th><th>Opnieuw</th><th>Aandacht</th><th>Camper</th></tr></thead><tbody id="perf"></tbody></table>
+    <table><thead><tr><th>Bestemming</th><th>Reacties</th><th>Score</th><th>Opnieuw</th><th>Camper</th></tr></thead><tbody id="perf"></tbody></table>
     <p class="note" id="perfNote"></p>
     <h3 class="q">Naar reistype</h3>
-    <table><thead><tr><th>Reistype</th><th>Reacties</th><th>Score</th><th>Aanbev.score</th><th>Opnieuw</th><th>Aandacht</th></tr></thead><tbody id="rt"></tbody></table>
+    <table><thead><tr><th>Reistype</th><th>Reacties</th><th>Score</th><th>Opnieuw</th></tr></thead><tbody id="rt"></tbody></table>
     <p class="note" id="rtNote"></p>
 
     <h2 class="p"><em>5</em><span>Reacties afzonderlijk</span></h2>
@@ -198,11 +179,6 @@ blockquote.pull .s{display:block;font-family:var(--mono);font-size:.62rem;letter
     <div class="dots" id="dots"></div><div class="dlg" id="dlg"></div>
 
     <h2 class="p"><em>6</em><span>Verwachtingen per onderdeel</span></h2>
-    <div class="formula">
-      <div class="ft">Zo lees je deze matrix</div>
-      <p>Per onderdeel van de reis &mdash; route, verhuurstation, accommodatie en excursies &mdash; geeft de reiziger aan of de verwachting is <b>overtroffen</b>, <b>waargemaakt</b> of <b>niet waargemaakt</b> (of niet van toepassing).</p>
-      <p><b>Wat het aantoont:</b> geen los cijfer, maar de <b>verhouding</b> per onderdeel. Veel groen (overtroffen) laat zien waar Doets uitblinkt; veel terracotta (niet waargemaakt) wijst op een zwak punt. Zo zie je in één oogopslag dat bijvoorbeeld de service van het verhuurstation vaker tegenvalt (1 op de 5 niet waargemaakt), terwijl de diversiteit aan bezienswaardigheden juist het vaakst wordt overtroffen.</p>
-    </div>
     <div class="tabs" role="tablist" id="tabs"></div>
     <div id="exp"></div>
     <div class="exlg"><span><i style="background:var(--green)"></i>Overtroffen</span>
@@ -228,10 +204,7 @@ blockquote.pull .s{display:block;font-family:var(--mono);font-size:.62rem;letter
     <div class="qlist" id="quotes"></div>
     <p class="note">Letterlijk overgenomen. Niet anoniem, dus vraag toestemming voordat je met naam of reisnaam publiceert.</p>
 
-    <h2 class="p"><em>10</em><span>Voorgestelde acties</span></h2>
-    <div id="todos"></div>
-
-    <h2 class="p"><em>11</em><span>Opvolging &amp; acties</span></h2>
+    <h2 class="p"><em>10</em><span>Opvolging &amp; acties</span></h2>
     <p class="t">Na de bespreking met het team (Elske met productie en customer service) is per aandachtspunt actie uitgezet. Veel individuele klantcases zijn door customer service al naar tevredenheid afgehandeld; hieronder staan de <b>structurele</b> acties die eruit voortkomen.</p>
 
     <h3 class="q">Accommodaties &mdash; herzieningen voor productie 2027</h3>
@@ -299,7 +272,7 @@ window.ENQ = {
     {d:"USA overig",          n:26, gem:4.62, nps:56, ja:85,  aandacht:17, camper:27},
     {d:"IJsland",             n:8,  gem:4.50, nps:50, ja:62,  aandacht:8,  camper:12}
   ],
-  perfNote:"<b>Oost-Canada</b> is de uitschieter: iedereen boekt daar opnieuw en de aanbevelingsscore staat op +92. <b>IJsland</b> blijft achter op alle drie de maten.",
+  perfNote:"<b>West-Canada</b> is met 46 reacties veruit de grootste groep en scoort met 4,63 sterk; daar is de camper favoriet. Op elke bestemming ligt de gemiddelde reisscore boven de 4,5.",
 
   reistype:[
     {t:"Camper & kamperen",   n:40, gem:4.60, nps:63, ja:85, aandacht:40},
@@ -422,7 +395,7 @@ window.DR = (function(){
       let d='—';
       if(p){const v=h.gem-p.gem; d=`<span class="${v>0?'up':(v<0?'down':'')}">${v>0?'+':''}${nf(v)}</span>`;}
       return `<tr class="${h.now?'now':''}"><td>${h.p} · ${h.jaar}</td><td>${h.n}</td><td>${nf(h.gem)}</td>
-        <td>${d}</td><td>${h.nps==null?'<span class="nb">n.b.</span>':'+'+h.nps}</td></tr>`;
+        <td>${d}</td></tr>`;
     }).join('');
   }
 
@@ -435,13 +408,10 @@ window.DR = (function(){
 
   function perfRijen(perf){
     const maxN=Math.max(...perf.map(p=>p.n));
-    const nps=perf.map(p=>p.nps), best=Math.max(...nps), worst=Math.min(...nps);
     return perf.map(p=>{
-      const cls=p.nps===best?'hi':(p.nps===worst?'lo':'');
       return `<tr><td>${p.d}</td>
         <td>${p.n}<span class="bar"><i style="width:${p.n/maxN*100}%"></i></span></td>
-        <td>${nf(p.gem)}</td><td class="${cls}">+${p.nps}</td><td>${p.ja}%</td>
-        <td>${p.aandacht} van ${p.n}</td><td>${p.camper}%</td></tr>`;
+        <td>${nf(p.gem)}</td><td>${p.ja}%</td><td>${p.camper}%</td></tr>`;
     }).join('');
   }
 
@@ -532,20 +502,19 @@ window.DR = (function(){
   const E=ENQ,$=id=>document.getElementById(id);
   $('ref').innerHTML=`Nota <b>CSAT-${E.meta.periode.replace(' ','-')}</b><br>Respondenten <b>${E.meta.n}</b><br>Periode <b>${E.meta.tmDatum}</b><br>Intern · teamgebruik`;
   $('h1').textContent=`Reisbeleving ${E.meta.periode.toLowerCase()}`;
-  $('abs').innerHTML=`<b>Samenvatting.</b> ${E.meta.n} reizigers vulden de enquête in. Op zowel de gemiddelde reisscore (${DR.nf(E.kpi.gem)}) als de aanbevelingsscore (+${E.kpi.nps}) is dit de beste periode tot nu toe. De aandachtspunten concentreren zich bij partners onderweg: verhuurstations en camperbedrijven.`;
+  $('abs').innerHTML=`<b>Samenvatting.</b> ${E.meta.n} reizigers vulden de enquête in en het beeld is uitgesproken positief. De gemiddelde reisscore komt uit op <b>${DR.nf(E.kpi.gem)} van 5</b> — ${E.kpi.pctVierVijf}% gaf vier of vijf sterren — en dat is de beste periode tot nu toe. ${E.kpi.opnieuwJa} reizigers boeken zeker opnieuw.`;
   $('kv').innerHTML=[
     [DR.nf(E.kpi.gem),'<small>/5</small>','Gem. reisscore',`${E.kpi.pctVierVijf}% gaf 4 of 5`],
-    ['+'+E.kpi.nps,'','Aanbevelingsscore',`${E.kpi.promotors} pro · ${E.kpi.detractors} detr`],
+    [E.kpi.promotors,`<small>/${E.kpi.promotors+E.kpi.passief+E.kpi.detractors}</small>`,'Gaf een 9 of 10',`${E.kpi.promotors+E.kpi.passief} gaf 7 of hoger`],
     [E.kpi.opnieuwJa,`<small>/${E.meta.n}</small>`,'Boekt opnieuw',`${E.kpi.opnieuwMisschien} misschien`],
     [E.meta.herleid,'','Reizen herleid',`${E.doc.handmatig} handmatig`]
   ].map(([v,s,k,d])=>`<div class="i"><div class="v">${v}${s}</div><div class="k">${k}</div><div class="d">${d}</div></div>`).join('');
-  $('kern').innerHTML=`De beste maand die we tot nu toe hebben gemeten — op score én op de aanbevelingsscore. De winst zit niet in de reizen zelf, maar bij onze <b>partners onderweg</b>: één op de vijf reizigers vond de service van het verhuurstation ondermaats, bij hulp onderweg zelfs één op de vier. Daarnaast had <b>iedere camperreiziger</b> minstens één aandachtspunt (40 van 40), tegen 70% bij hotel- en autoreizen.`;
+  $('kern').innerHTML=`De waardering is hoog: gemiddeld <b>${DR.nf(E.kpi.gem)} van 5</b>, en <b>${E.kpi.promotors} reizigers gaven een 9 of 10</b> op de aanbeveelvraag (${E.kpi.promotors+E.kpi.passief} van de ${E.kpi.promotors+E.kpi.passief+E.kpi.detractors} gaf een 7 of hoger). Reizigers roemen vooral dat <b>alles goed geregeld</b> is, het vriendelijke en persoonlijke contact en de prachtige natuur. De meeste boekingen komen voort uit een eerdere goede ervaring of een aanbeveling van anderen. De aandachtspunten die het vaakst terugkeren — hotelbeschrijvingen die niet altijd kloppen, de kwaliteit van enkele camperpartners en een enkele tegenvallende excursie — zijn beperkt en concreet; het team pakt ze gericht op (zie <b>Opvolging &amp; acties</b>).`;
   DR.lijn('cScore',E.hist.map(h=>h.gem),4,5,'#C9A84C',v=>DR.nf(v),E.hist);
-  DR.lijn('cNps',E.hist.map(h=>h.nps),0,100,'#0D1F3C',v=>'+'+Math.round(v),E.hist);
   $('hist').innerHTML=DR.histRijen(E.hist);
   $('redenen').innerHTML=DR.balkjes(E.redenen);
   $('perf').innerHTML=DR.perfRijen(E.perf); $('perfNote').innerHTML=E.perfNote;
-  $('rt').innerHTML=E.reistype.map(r=>`<tr><td>${r.t}</td><td>${r.n}</td><td>${DR.nf(r.gem)}</td><td>+${r.nps}</td><td>${r.ja}%</td><td>${r.aandacht} van ${r.n}</td></tr>`).join('');
+  $('rt').innerHTML=E.reistype.map(r=>`<tr><td>${r.t}</td><td>${r.n}</td><td>${DR.nf(r.gem)}</td><td>${r.ja}%</td></tr>`).join('');
   $('rtNote').innerHTML=E.reistypeNote;
   DR.stippen('dots','dlg','tip',E.dots,E.kpi);
   DR.verwachting('tabs','exp','ins',E.matrix,E.matrixInzicht);
@@ -553,7 +522,6 @@ window.DR = (function(){
   $('goods').innerHTML=DR.vondsten(E.goods,null); $('bumps').innerHTML=DR.vondsten(E.bumps,'n');
   $('praise').innerHTML=DR.praiseRijen(E.praise);
   $('quotes').innerHTML=E.quotes.map(q=>`<blockquote class="pull">“${q.t}”<span class="s">${q.s}</span></blockquote>`).join('');
-  $('todos').innerHTML=E.todos.map((t,i)=>`<div class="todo"><span class="nr">${String(i+1).padStart(2,'0')}</span><span class="box"></span><div><div class="t">${t.t}</div><div class="o">${t.o}</div></div></div>`).join('');
   $('docS').textContent=`${E.doc.n} opmerkingen, ${E.doc.gemarkeerd} van ${E.meta.n} reacties gemarkeerd.`;
   $('docA').href=E.doc.href;
 

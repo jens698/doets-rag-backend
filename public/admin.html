@@ -400,11 +400,23 @@
 
   <script>
     const API = window.location.origin;
+
+    if (!localStorage.getItem('doets_token')) {
+      window.location.href = '/dashboard.html';
+    }
+
+    function authHeaders(extra) {
+      var h = { 'Authorization': 'Bearer ' + (localStorage.getItem('doets_token') || '') };
+      for (var k in (extra || {})) h[k] = extra[k];
+      return h;
+    }
+
     loadStats();
 
     async function loadStats() {
       try {
-        const res = await fetch(API + '/api/stats');
+        const res = await fetch(API + '/api/stats', { headers: authHeaders() });
+        if (res.status === 401) { window.location.href = '/dashboard.html'; return; }
         const data = await res.json();
         document.getElementById('stat-vectors').textContent = data.totalVectors != null ? data.totalVectors : 0;
         document.getElementById('stat-status').textContent = data.status === 'healthy' ? 'Gezond' : (data.status || '—');
@@ -453,7 +465,7 @@
 
       try {
         animateProgress();
-        var res  = await fetch(API + '/api/upload', { method: 'POST', body: fd });
+        var res  = await fetch(API + '/api/upload', { method: 'POST', headers: authHeaders(), body: fd });
         var data = await res.json();
 
         if (res.status === 409 && data.similarTo) {
@@ -570,7 +582,7 @@
       if (!q) return;
       log('info', 'Zoeken: "' + q + '"');
       try {
-        var res  = await fetch(API + '/api/search', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: q, topK: 5 }) });
+        var res  = await fetch(API + '/api/search', { method: 'POST', headers: authHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify({ query: q, topK: 5 }) });
         var data = await res.json();
         var wrap = document.getElementById('results-wrap');
         wrap.classList.add('visible');
@@ -601,7 +613,7 @@
       try {
         var res  = await fetch(API + '/api/scrape-url', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: authHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify({ url: url })
         });
         var data = await res.json();

@@ -416,7 +416,7 @@
     async function loadStats() {
       try {
         const res = await fetch(API + '/api/stats', { headers: authHeaders() });
-        if (res.status === 401) { window.location.href = '/dashboard.html'; return; }
+        if (res.status === 401) {   localStorage.removeItem('doets_token');   localStorage.removeItem('doets_user');   window.location.href = '/dashboard.html';   return; }
         const data = await res.json();
         document.getElementById('stat-vectors').textContent = data.totalVectors != null ? data.totalVectors : 0;
         document.getElementById('stat-status').textContent = data.status === 'healthy' ? 'Gezond' : (data.status || '—');

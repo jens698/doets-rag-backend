@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Content-fabriek, Doets AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --navy: #0D1F3C;
+      --navy-soft: #1a3556;
+      --red: #8E1B2B;
+      --red-soft: #F6E7E9;
+      --white: #FFFFFF;
+      --paper: #F6F7F9;
+      --ink: #1A1A1A;
+      --ink-soft: #4A4F57;
+      --muted: #7D838C;
+      --line: #E1E4E9;
+      --ok: #1E6B45;
+    }
+    body {
+      font-family: 'Manrope', -apple-system, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    .topbar { background: var(--navy); color: var(--white); }
+    .topbar .in {
+      max-width: 1180px; margin: 0 auto; padding: 1.1rem 16px;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    }
+    .topbar h1 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 1.35rem; letter-spacing: .01em; }
+    .topbar h1 small { display: block; font-family: 'Manrope', sans-serif; font-size: .68rem; letter-spacing: .18em; text-transform: uppercase; opacity: .65; font-weight: 600; }
+    .back-link { color: var(--white); text-decoration: none; font-size: .82rem; font-weight: 600; opacity: .8; white-space: nowrap; }
+    .back-link:hover { opacity: 1; }
+
+    main { max-width: 1180px; margin: 0 auto; padding: 1.75rem 16px 4rem; display: grid; grid-template-columns: 380px 1fr; gap: 1.75rem; align-items: start; }
+    @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+
+    .card { background: var(--white); border: 1px solid var(--line); border-radius: 10px; padding: 1.4rem; }
+    .card h2 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 1.15rem; color: var(--navy); margin-bottom: .9rem; }
+
+    .tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: .35rem; background: var(--paper); padding: .3rem; border-radius: 8px; margin-bottom: 1.1rem; }
+    .tabs button { border: 0; background: transparent; padding: .55rem .3rem; border-radius: 6px; font: inherit; font-size: .82rem; font-weight: 600; color: var(--ink-soft); cursor: pointer; }
+    .tabs button.on { background: var(--navy); color: var(--white); }
+
+    label { display: block; font-size: .74rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--navy); margin: 1rem 0 .35rem; }
+    #opt-social label, #opt-nieuwsbrief label, #opt-website label { margin-top: 0; }
+    input[type=text], select, textarea {
+      width: 100%; font: inherit; font-size: .92rem; padding: .6rem .7rem;
+      border: 1px solid var(--line); border-radius: 6px; background: var(--white); color: var(--ink);
+    }
+    input[type=text]:focus, select:focus, textarea:focus { outline: 2px solid var(--navy); outline-offset: -1px; }
+    textarea { min-height: 84px; resize: vertical; }
+    .hint { font-size: .78rem; color: var(--muted); margin-top: .3rem; }
+
+    .seg { display: flex; gap: .4rem; flex-wrap: wrap; }
+    .seg button { flex: 1; min-width: 120px; border: 1px solid var(--line); background: var(--white); padding: .5rem .6rem; border-radius: 6px; font: inherit; font-size: .84rem; cursor: pointer; color: var(--ink-soft); }
+    .seg button.on { border-color: var(--navy); color: var(--navy); font-weight: 700; box-shadow: inset 0 0 0 1px var(--navy); }
+
+    .go {
+      width: 100%; margin-top: 1.3rem; padding: .8rem; border: 0; border-radius: 6px;
+      background: var(--navy); color: var(--white); font: inherit; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; font-size: .84rem; cursor: pointer;
+    }
+    .go:hover { background: var(--navy-soft); }
+    .go:disabled { opacity: .6; cursor: wait; }
+    .err { margin-top: .9rem; padding: .7rem .8rem; border-radius: 6px; background: var(--red-soft); color: var(--red); font-size: .86rem; display: none; }
+    .err.show { display: block; }
+
+    .empty { text-align: center; color: var(--muted); padding: 3rem 1rem; }
+    .empty b { display: block; font-family: 'Fraunces', serif; font-weight: 500; color: var(--navy); font-size: 1.2rem; margin-bottom: .4rem; }
+
+    .loading { display: none; text-align: center; padding: 3rem 1rem; color: var(--ink-soft); }
+    .loading.show { display: block; }
+    .spinner { width: 34px; height: 34px; border: 3px solid var(--line); border-top-color: var(--navy); border-radius: 50%; margin: 0 auto 1rem; animation: spin 0.9s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .result { display: none; }
+    .result.show { display: block; }
+    .result-head { display: flex; justify-content: space-between; align-items: center; gap: .8rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .result-head h2 { margin: 0; }
+    .btn { border: 1px solid var(--navy); background: var(--white); color: var(--navy); padding: .42rem .8rem; border-radius: 6px; font: inherit; font-size: .78rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
+    .btn:hover { background: var(--navy); color: var(--white); }
+    .btn.small { padding: .25rem .55rem; font-size: .72rem; }
+
+    .notes { border-left: 3px solid var(--red); background: var(--red-soft); padding: .7rem .9rem; border-radius: 0 6px 6px 0; margin-bottom: 1rem; font-size: .86rem; }
+    .notes.info { border-left-color: var(--navy); background: #EEF1F6; }
+    .notes strong { display: block; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; margin-bottom: .25rem; color: var(--red); }
+    .notes.info strong { color: var(--navy); }
+    .notes ul { padding-left: 1.1rem; }
+
+    .block { border: 1px solid var(--line); border-radius: 8px; padding: 1rem; margin-bottom: .8rem; position: relative; }
+    .block .lbl { font-size: .68rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: .35rem; display: flex; justify-content: space-between; align-items: center; gap: .5rem; }
+    .block .txt { white-space: pre-wrap; font-size: .95rem; }
+    .block h3 { font-family: 'Fraunces', serif; font-weight: 500; color: var(--navy); font-size: 1.1rem; margin-bottom: .3rem; }
+    .cta-prev { display: inline-block; margin-top: .7rem; background: var(--red); color: var(--white); font-family: 'Raleway', 'Manrope', sans-serif; font-weight: 700; font-size: .78rem; letter-spacing: .06em; padding: .5rem 1rem; border-radius: 4px; }
+    .tags { color: var(--navy); font-weight: 600; font-size: .9rem; margin-top: .6rem; word-break: break-word; }
+    .counter { font-size: .78rem; font-weight: 700; color: var(--ok); }
+    .counter.over { color: var(--red); }
+    .hl { padding-left: 1.2rem; }
+
+    .sources { font-size: .82rem; color: var(--ink-soft); margin-top: 1rem; }
+    .sources b { color: var(--navy); }
+
+    .photos h3 { font-family: 'Fraunces', serif; font-weight: 500; color: var(--navy); font-size: 1.05rem; margin: 1.4rem 0 .7rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: .8rem; }
+    .ph { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--white); }
+    .ph img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: var(--paper); }
+    .ph .meta { padding: .5rem; font-size: .72rem; color: var(--ink-soft); word-break: break-word; }
+    .ph .acts { display: flex; gap: .3rem; padding: 0 .5rem .5rem; }
+    .ph .acts a, .ph .acts button { flex: 1; text-align: center; text-decoration: none; }
+    .nophotos { font-size: .85rem; color: var(--muted); }
+
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--navy); color: var(--white); padding: .55rem 1rem; border-radius: 6px; font-size: .84rem; opacity: 0; transition: all .25s; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="in">
+      <h1><small>Beheer &amp; creatie</small>Content-fabriek</h1>
+      <a href="/dashboard.html" class="back-link">&larr; Portaal</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="card" aria-label="Instellingen">
+      <h2>Wat wil je maken?</h2>
+      <div class="tabs" role="tablist">
+        <button type="button" data-type="social" class="on">Social</button>
+        <button type="button" data-type="nieuwsbrief">Nieuwsbrief</button>
+        <button type="button" data-type="website">Website</button>
+      </div>
+
+      <form id="form" novalidate>
+        <div id="opt-social">
+          <label>Platform</label>
+          <div class="seg" data-name="platform">
+            <button type="button" data-val="instagram" class="on">Instagram</button>
+            <button type="button" data-val="facebook">Facebook</button>
+          </div>
+        </div>
+        <div id="opt-nieuwsbrief" hidden>
+          <label>Soort nieuwsbrief</label>
+          <div class="seg" data-name="variant-nb">
+            <button type="button" data-val="storytelling" class="on">Zondag: storytelling</button>
+            <button type="button" data-val="listicle">Woensdag: listicle</button>
+          </div>
+        </div>
+        <div id="opt-website" hidden>
+          <label>Soort tekst</label>
+          <div class="seg" data-name="variant-web">
+            <button type="button" data-val="hotel" class="on">Hotel</button>
+            <button type="button" data-val="excursie">Excursie</button>
+          </div>
+        </div>
+
+        <label for="onderwerp">Onderwerp</label>
+        <input type="text" id="onderwerp" maxlength="300" placeholder="Bijv. Rondreis Zuid-IJsland in de winter">
+        <p class="hint">Een reis, hotel, excursie of thema. Hoe specifieker, hoe beter de kennisbank iets vindt.</p>
+
+        <label for="bestemming">Bestemming (optioneel)</label>
+        <select id="bestemming">
+          <option value="">Geen voorkeur</option>
+          <option>Verenigde Staten</option>
+          <option>Canada</option>
+          <option>IJsland</option>
+          <option>Noorwegen</option>
+          <option>Zweden</option>
+          <option>Denemarken</option>
+          <option>Finland</option>
+          <option>Lapland</option>
+          <option>Japan</option>
+          <option>China</option>
+        </select>
+
+        <label for="extra">Extra wensen (optioneel)</label>
+        <textarea id="extra" maxlength="1500" placeholder="Bijv. focus op het noorderlicht, noem de Crazy Fall Deals, doelgroep gezinnen"></textarea>
+
+        <button class="go" id="go" type="submit">Maak content</button>
+        <div class="err" id="err" role="alert"></div>
+      </form>
+    </section>
+
+    <section class="card" aria-live="polite">
+      <div class="empty" id="empty">
+        <b>Nog niets gemaakt</b>
+        Kies links wat je wilt maken en vul een onderwerp in. De content-fabriek zoekt in de kennisbank, schrijft de tekst volgens de Doets-regels en zoekt passende foto's.
+      </div>
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <span id="loadingText">Kennisbank doorzoeken en schrijven…</span>
+      </div>
+      <div class="result" id="result"></div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    var token = localStorage.getItem('doets_token');
+    if (!token) window.location.href = '/dashboard.html';
+
+    var state = { type: 'social', platform: 'instagram', 'variant-nb': 'storytelling', 'variant-web': 'hotel' };
+    var lastResult = null;
+
+    function el(tag, cls, text) {
+      var e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (text != null) e.textContent = text;
+      return e;
+    }
+
+    function toast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(toast._t);
+      toast._t = setTimeout(function () { t.classList.remove('show'); }, 1800);
+    }
+
+    function copy(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { toast('Gekopieerd'); }, function () { fallbackCopy(text); });
+      } else { fallbackCopy(text); }
+    }
+    function fallbackCopy(text) {
+      var ta = el('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); toast('Gekopieerd'); } catch (e) { toast('Kopiëren lukte niet'); }
+      ta.remove();
+    }
+    function copyBtn(getText, label) {
+      var b = el('button', 'btn small', label || 'Kopieer');
+      b.type = 'button';
+      b.addEventListener('click', function () { copy(typeof getText === 'function' ? getText() : getText); });
+      return b;
+    }
+
+    // Tabs
+    document.querySelectorAll('.tabs button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        state.type = b.dataset.type;
+        document.querySelectorAll('.tabs button').forEach(function (x) { x.classList.toggle('on', x === b); });
+        ['social', 'nieuwsbrief', 'website'].forEach(function (t) {
+          document.getElementById('opt-' + t).hidden = t !== state.type;
+        });
+      });
+    });
+    // Keuzeknoppen
+    document.querySelectorAll('.seg').forEach(function (seg) {
+      seg.querySelectorAll('button').forEach(function (b) {
+        b.addEventListener('click', function () {
+          state[seg.dataset.name] = b.dataset.val;
+          seg.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); });
+        });
+      });
+    });
+
+    function showError(msg) {
+      var e = document.getElementById('err');
+      e.textContent = msg; e.classList.add('show');
+    }
+
+    document.getElementById('form').addEventListener('submit', async function (ev) {
+      ev.preventDefault();
+      document.getElementById('err').classList.remove('show');
+      var onderwerp = document.getElementById('onderwerp').value.trim();
+      if (onderwerp.length < 3) { showError('Vul een onderwerp in.'); return; }
+
+      var body = {
+        type: state.type,
+        onderwerp: onderwerp,
+        bestemming: document.getElementById('bestemming').value,
+        extra: document.getElementById('extra').value.trim(),
+        platform: state.platform,
+        variant: state.type === 'nieuwsbrief' ? state['variant-nb'] : state['variant-web']
+      };
+
+      var go = document.getElementById('go');
+      go.disabled = true; go.textContent = 'Bezig…';
+      document.getElementById('empty').style.display = 'none';
+      document.getElementById('result').classList.remove('show');
+      document.getElementById('loading').classList.add('show');
+      var slow = setTimeout(function () {
+        document.getElementById('loadingText').textContent = 'Nog even geduld, goede tekst kost even…';
+      }, 15000);
+
+      try {
+        var res = await fetch('/api/content', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify(body)
+        });
+        if (res.status === 401) {
+          localStorage.removeItem('doets_token');
+          localStorage.removeItem('doets_user');
+          window.location.href = '/dashboard.html';
+          return;
+        }
+        var data = await res.json().catch(function () { return {}; });
+        if (!res.ok) throw new Error(data.error || 'Er ging iets mis (' + res.status + ').');
+        lastResult = data.content;
+        render(data.content);
+      } catch (e) {
+        showError(e.message || 'Geen verbinding met de server.');
+        if (!lastResult) document.getElementById('empty').style.display = '';
+        else document.getElementById('result').classList.add('show');
+      } finally {
+        clearTimeout(slow);
+        document.getElementById('loadingText').textContent = 'Kennisbank doorzoeken en schrijven…';
+        document.getElementById('loading').classList.remove('show');
+        go.disabled = false; go.textContent = 'Maak content';
+      }
+    });
+
+    function plainText(c) {
+      if (c.type === 'social') return c.volledig;
+      if (c.type === 'nieuwsbrief') {
+        var out = ['Onderwerpregel: ' + c.onderwerpregel, 'Preheader: ' + c.preheader, ''];
+        c.blokken.forEach(function (b) {
+          out.push(b.kop); out.push(b.tekst);
+          if (b.cta) out.push('[' + b.cta + ']');
+          out.push('');
+        });
+        return out.join('\n').trim();
+      }
+      var w = [c.titel, '', c.intro, ''].concat(c.alineas.map(function (a) { return a + '\n'; }));
+      if (c.highlights.length) { w.push('Highlights:'); c.highlights.forEach(function (h) { w.push('- ' + h); }); }
+      return w.join('\n').trim();
+    }
+
+    function notes(cls, title, items) {
+      if (!items || !items.length) return null;
+      var box = el('div', 'notes' + (cls ? ' ' + cls : ''));
+      box.appendChild(el('strong', null, title));
+      var ul = el('ul');
+      items.forEach(function (i) { ul.appendChild(el('li', null, i)); });
+      box.appendChild(ul);
+      return box;
+    }
+
+    function block(label, content, copyText, extraNode) {
+      var b = el('div', 'block');
+      var l = el('div', 'lbl');
+      l.appendChild(el('span', null, label));
+      var right = el('span');
+      if (extraNode) right.appendChild(extraNode);
+      if (copyText != null) right.appendChild(copyBtn(copyText));
+      l.appendChild(right);
+      b.appendChild(l);
+      if (typeof content === 'string') b.appendChild(el('div', 'txt', content));
+      else if (content) b.appendChild(content);
+      return b;
+    }
+
+    function render(c) {
+      var r = document.getElementById('result');
+      r.innerHTML = '';
+      var head = el('div', 'result-head');
+      var titles = { social: c.platform === 'facebook' ? 'Facebook-post' : 'Instagram-post', nieuwsbrief: 'Nieuwsbrief (' + c.variant + ')', website: (c.variant === 'excursie' ? 'Excursietekst' : 'Hoteltekst') };
+      head.appendChild(el('h2', null, titles[c.type]));
+      head.appendChild(copyBtn(function () { return plainText(c); }, 'Kopieer alles'));
+      r.appendChild(head);
+
+      var w = notes('', 'Controleer', c.waarschuwingen); if (w) r.appendChild(w);
+      var lo = notes('info', 'Let op', c.let_op); if (lo) r.appendChild(lo);
+
+      if (c.type === 'social') {
+        var limit = c.platform === 'instagram' ? 2200 : null;
+        var counter = el('span', 'counter' + (limit && c.tekens > limit ? ' over' : ''), c.tekens + (limit ? ' / ' + limit : '') + ' tekens  ');
+        var wrap = el('div');
+        wrap.appendChild(el('div', 'txt', c.tekst));
+        wrap.appendChild(el('div', 'tags', c.hashtags.join(' ')));
+        r.appendChild(block('Post', wrap, c.volledig, counter));
+      }
+
+      if (c.type === 'nieuwsbrief') {
+        r.appendChild(block('Onderwerpregel (' + c.onderwerpregel.length + ' tekens)', c.onderwerpregel, c.onderwerpregel));
+        r.appendChild(block('Preheader', c.preheader, c.preheader));
+        c.blokken.forEach(function (b, i) {
+          var wrap = el('div');
+          wrap.appendChild(el('h3', null, b.kop));
+          wrap.appendChild(el('div', 'txt', b.tekst));
+          if (b.cta) wrap.appendChild(el('span', 'cta-prev', b.cta));
+          r.appendChild(block('Blok ' + (i + 1), wrap, b.kop + '\n' + b.tekst + (b.cta ? '\n[' + b.cta + ']' : '')));
+        });
+      }
+
+      if (c.type === 'website') {
+        r.appendChild(block('Titel', c.titel, c.titel));
+        r.appendChild(block('Intro', c.intro, c.intro));
+        r.appendChild(block('Tekst', c.alineas.join('\n\n'), c.alineas.join('\n\n')));
+        if (c.highlights.length) {
+          var ul = el('ul', 'hl');
+          c.highlights.forEach(function (h) { ul.appendChild(el('li', null, h)); });
+          r.appendChild(block('Highlights', ul, c.highlights.map(function (h) { return '- ' + h; }).join('\n')));
+        }
+      }
+
+      if (c.bronnen && c.bronnen.length) {
+        var s = el('p', 'sources');
+        s.appendChild(el('b', null, 'Bronnen uit de kennisbank: '));
+        s.appendChild(document.createTextNode(c.bronnen.join(', ')));
+        r.appendChild(s);
+      }
+
+      var ph = el('div', 'photos');
+      ph.appendChild(el('h3', null, 'Passende foto\'s uit de bibliotheek'));
+      if (!c.fotos || !c.fotos.length) {
+        ph.appendChild(el('p', 'nophotos', 'Geen passende foto\'s gevonden' + (c.foto_zoekwoorden && c.foto_zoekwoorden.length ? ' (gezocht op: ' + c.foto_zoekwoorden.join(', ') + ').' : '.') + ' Kijk zelf even in de fotobibliotheek.'));
+      } else {
+        var grid = el('div', 'grid');
+        c.fotos.forEach(function (f) {
+          var card = el('div', 'ph');
+          var img = el('img'); img.src = f.thumb_url; img.alt = f.caption || f.filename; img.loading = 'lazy';
+          card.appendChild(img);
+          card.appendChild(el('div', 'meta', f.filename));
+          var acts = el('div', 'acts');
+          var open = el('a', 'btn small', 'Open'); open.href = f.secure_url; open.target = '_blank'; open.rel = 'noopener';
+          acts.appendChild(open);
+          acts.appendChild(copyBtn(f.secure_url, 'Link'));
+          card.appendChild(acts);
+          grid.appendChild(card);
+        });
+        ph.appendChild(grid);
+      }
+      r.appendChild(ph);
+
+      r.classList.add('show');
+      if (window.innerWidth < 900) r.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  </script>
+</body>
+</html>
